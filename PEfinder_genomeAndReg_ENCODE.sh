@@ -15,6 +15,7 @@ PEFiles=${2}PE_ID_files.txt
 
 #module load python/2.7.9
 ml load python/2.7.5
+echo "test"
 
 echo ${SLURM_ARRAY_TASK_ID}
 
