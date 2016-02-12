@@ -225,7 +225,8 @@ class ReadInfoJunc:
 #start here
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-o", "--outputDir", required = True, help = "path to aligned junction reads")
+parser.add_argument("-s", "--stem", required=True, help = "stem name of file to generate report")
+parser.add_argument("-f", "--FJDir", required = True, help = "path to aligned junction reads")
 parser.add_argument("-i", "--origDir", required=True, help = "path to orig dir containing genome reads")
 parser.add_argument("-w", "--window", required=True, help = "# of bases needed on each side of the junction")
 args = parser.parse_args()
@@ -234,359 +235,340 @@ window= int(args.window)
 # f1 = open("/Users/Gillian/Desktop/sherlock/unaligned_ENCFF000HOC1_1.sam", mode ="rU")
 # f2 = open("/Users/Gillian/Desktop/sherlock/20000_ENCFF000HOC2_1_genome_output.sam", mode ="rU")
 
-FileList={}
-FileStem={}
-FileStem2={}
+if args.FJDir[-1]!= "/":
+    args.FJDir+="/"
+if args.origDir[-1]!="/":
+    args.origDir+="/"
+
+stem = args.stem
 
 
+FarJunctionfiles=[]
+genomefiles=[]
+regfiles=[]
+junctionfiles=[]
+unalignedfiles=[]
 
-#create file list of paired files
-for name in glob.glob(os.path.join(args.origDir,"genome/*.sam")):
-    (filedir,filename)=os.path.split(name)
-    if not filename in FileList and "sorted" not in filename:
-        FileList[filename] =0
-    if "sorted" not in filename:
-        FileList[filename]+=1
-print FileList
+for name in glob.glob(args.FJDir + "FarJunctionAlignments/"+ stem + "/*.sam"):
+    print name
+    FarJunctionfiles.append(name)
 
-# ran into problems with that every filename had a different unique stem, sometimes occurring
-# SAMESAME_SAME_SAME_DIFFERENT_SAME_SAME.sam and if you split this string by _ then
-# the "different" part occurs at a variable index each time.
-if len(FileList)>2:
-    for i in range(0,len(FileList.keys()[0].split("_"))):
-        if FileList.keys()[0].split("_")[i] in ["1","2"]:
-            continue
-        if FileList.keys()[0].split("_")[i] != FileList.keys()[1].split("_")[i] or FileList.keys()[0].split("_")[i] != FileList.keys()[2].split("_")[i]:
-            break          
-else: i=0
-        
-for name in FileList:
-    stem = name.split("_")[i]
-    if not stem in FileStem:
-        FileStem[stem] = 0
-        FileStem2[stem]=0
-    FileStem[stem] +=1
+for name in glob.glob(os.path.join(args.origDir,"genome/*" + stem + "*.sam")):        
+    print name
+    if "sorted" not in name:       
+        genomefiles.append(name)
 
-
-for stem in FileStem:
-    print "Stem is: " + stem
-    StemOccurs = 0
-    for name in glob.glob(os.path.join(args.outputDir,"FarJunctionAlignments/unaligned*.sam")):
-        print name
-        if stem in name:
-            StemOccurs+=1
-    if StemOccurs == 0:
-        del FileStem2[stem]
-
-print FileStem2
-
-
-for stem in FileStem2:
-    FarJunctionfiles=[]
-    genomefiles=[]
-    regfiles=[]
-    junctionfiles=[]
-    unalignedfiles=[]
+for name in glob.glob(os.path.join(args.origDir,"reg/*" + stem + "*.sam")):
+    print name
+    if "sorted" not in name:       
+        regfiles.append(name) 
+for name in glob.glob(os.path.join(args.origDir,"junction/*" + stem + "*.sam")):
+    print name
+    if "sorted" not in name:       
+        junctionfiles.append(name) 
+for name in glob.glob(os.path.join(args.origDir,"unaligned/*" + stem + "*.fq")):
+    print name
+    if "sorted" not in name:       
+        unalignedfiles.append(name)         
     
-    for name in glob.glob(os.path.join(args.outputDir,"FarJunctionAlignments/unaligned*" + stem + "*.sam")):
-        print name
-        FarJunctionfiles.append(name)
-    
-    for name in glob.glob(os.path.join(args.origDir,"genome/*" + stem + "*.sam")):        
-        print name
-        if "sorted" not in name:       
-            genomefiles.append(name)
-
-    for name in glob.glob(os.path.join(args.origDir,"reg/*" + stem + "*.sam")):
-        print name
-        if "sorted" not in name:       
-            regfiles.append(name) 
-    for name in glob.glob(os.path.join(args.origDir,"junction/*" + stem + "*.sam")):
-        print name
-        if "sorted" not in name:       
-            junctionfiles.append(name) 
-    for name in glob.glob(os.path.join(args.origDir,"unaligned/*" + stem + "*.fq")):
-        print name
-        if "sorted" not in name:       
-            unalignedfiles.append(name)         
-        
 
 # opening all files for a particular stem
-    for file1 in FarJunctionfiles:
-#        print file1
-        if "_1." in file1 or "_1_" in file1 or "001_" in file1:
-            f1_FarJunc = open(file1, mode="rB")
-            print "FarJunc_1: " + file1
-        else:
-            f2_FarJunc = open(file1, mode="rB")
-            print "FarJunc_2: " + file1
-    
-    for file1 in genomefiles:
-        if "_1." in file1 or "_1_" in file1 or "001_" in file1:
-            f1_genome = open(file1, mode="rB")
-            print "genome_1: " + file1
-        else:
-            f2_genome = open(file1, mode="rB")
-            print "genome_2: " + file1
+print sorted(FarJunctionfiles)
+print sorted(genomefiles)
+print sorted(regfiles)
+print sorted(junctionfiles)
+print sorted(unalignedfiles)
 
-    for file1 in regfiles:
-        if "_1." in file1 or "_1_" in file1 or "001_" in file1:
-            f1_reg = open(file1, mode="rB")
-            print "reg_1: " + file1
-        else:
-            f2_reg = open(file1, mode="rB")
-            print "reg_2: " + file1
+f1_FarJunc= open(sorted(FarJunctionfiles)[0], mode ="rB")
+f2_FarJunc= open(sorted(FarJunctionfiles)[1], mode="rB")
 
-    for file1 in junctionfiles:
-        if "_1." in file1 or "_1_" in file1 or "001_" in file1:
-            f1_junc = open(file1, mode="rB")
-            print "scramble_1: " + file1
+f1_genome = open(sorted(genomefiles)[0], mode="rB")
+f2_genome = open(sorted(genomefiles)[1], mode="rB")
+f1_reg = open(sorted(regfiles)[0], mode="rB")
+f2_reg = open(sorted(regfiles)[1], mode="rB")
+f1_junc= open(sorted(junctionfiles)[0], mode="rB")
+f2_junc= open(sorted(junctionfiles)[1], mode="rB")
+f1_unaligned=open(sorted(unalignedfiles)[0], mode="rB")
+f2_unaligned=open(sorted(unalignedfiles)[1], mode="rB")
 
-        else:
-            f2_junc = open(file1, mode="rB")
-            print "scramble_2: " + file1
+#
+#
+#for file1 in FarJunctionfiles:
+##        print file1
+#    sorted(FarJunctionfiles[0])    
+#    if "_1." in file1 or "_1_" in file1 or "001_" in file1:
+#        f1_FarJunc = open(file1, mode="rB")
+#        print "FarJunc_1: " + file1
+#    else:
+#        f2_FarJunc = open(file1, mode="rB")
+#        print "FarJunc_2: " + file1
+#
+#for file1 in genomefiles:
+#    if "_1." in file1 or "_1_" in file1 or "001_" in file1:
+#        f1_genome = open(file1, mode="rB")
+#        print "genome_1: " + file1
+#    else:
+#        f2_genome = open(file1, mode="rB")
+#        print "genome_2: " + file1
+#
+#for file1 in regfiles:
+#    if "_1." in file1 or "_1_" in file1 or "001_" in file1:
+#        f1_reg = open(file1, mode="rB")
+#        print "reg_1: " + file1
+#    else:
+#        f2_reg = open(file1, mode="rB")
+#        print "reg_2: " + file1
+#
+#for file1 in junctionfiles:
+#    if "_1." in file1 or "_1_" in file1 or "001_" in file1:
+#        f1_junc = open(file1, mode="rB")
+#        print "scramble_1: " + file1
+#
+#    else:
+#        f2_junc = open(file1, mode="rB")
+#        print "scramble_2: " + file1
+#
+#for file1 in unalignedfiles:
+#    if "_1." in file1 or "_1_" in file1 or "001_" in file1:
+#        f1_unaligned = open(file1, mode="rB")
+#        print "unalign_1: " + file1
+#    else:
+#        f2_unaligned = open(file1, mode="rB")
+#        print "unalign_2: " + file1
 
-    for file1 in unalignedfiles:
-        if "_1." in file1 or "_1_" in file1 or "001_" in file1:
-            f1_unaligned = open(file1, mode="rB")
-            print "unalign_1: " + file1
-        else:
-            f2_unaligned = open(file1, mode="rB")
-            print "unalign_2: " + file1
-
-    # ID file ReadID and different buckets.
-        # [0] = readID
-        # [1] = R2 in genome        
-        # [2] = R2 in genome anomaly  
-        # [3] = reg
-        # [4] = reg anom
-        # [5] = junc
-        # [6] = junc anom
-        # [7] = FarJunc
-        # [8] = FarJunc anom
-        # [9] = unaligned
-        # [10] = unmapped
+# ID file ReadID and different buckets.
+    # [0] = readID
+    # [1] = R2 in genome        
+    # [2] = R2 in genome anomaly  
+    # [3] = reg
+    # [4] = reg anom
+    # [5] = junc
+    # [6] = junc anom
+    # [7] = FarJunc
+    # [8] = FarJunc anom
+    # [9] = unaligned
+    # [10] = unmapped
 
 
-    IDfile = open(args.outputDir+"reports/IDs_"+stem+".txt", mode= "w")
-    IDfile.write("ID\tFarJunction\tFarJuncStrand\tPartnerBin\tPartnerStrand\tPartnerlocation\tPartnerAS\tPartnerMAPQ\tPartnerOffset\tPartnerReadLength\n\n")
+IDfile = open(args.FJDir+"reports/IDs_"+stem+".txt", mode= "w")
+IDfile.write("ID\tFarJunction\tFarJuncStrand\tPartnerBin\tPartnerStrand\tPartnerlocation\tPartnerAS\tPartnerMAPQ\tPartnerOffset\tPartnerReadLength\n\n")
  
-    
-    #populate all reads and junctions into separate dictionaries
-    AllFJRead1= {}
-    AllFJRead2= {}
-    AllJunctions = {}
-    genomeDict = {}  # for all these dictionaries, [0] = reg, [1] = anom
-    regDict = {}        # [2] = sum of AS, [3] = read length
-    juncDict = {}
-    FJDict = {}
-    unalignedDict = {}
-    unmappedDict= {} # start with all readIDs.  if a partner is seen, then remove from list.
 
-    
-    
+#populate all reads and junctions into separate dictionaries
+AllFJRead1= {}
+AllFJRead2= {}
+AllJunctions = {}
+genomeDict = {}  # for all these dictionaries, [0] = reg, [1] = anom
+regDict = {}        # [2] = sum of AS, [3] = read length
+juncDict = {}
+FJDict = {}
+unalignedDict = {}
+unmappedDict= {} # start with all readIDs.  if a partner is seen, then remove from list.
+
+
+
 # populate AllFJRead1 dictionary - all read 1's from FarJunction alignments
 # in order for R1 to feed into dictionary, must overlap entire offset (userspecified)
-    print "opening FarJunc _1 file"
+print "opening FarJunc _1 file"
 
-    for line_raw in f1_FarJunc:
-        if line_raw[0] =="@":
-            continue
-        
-        FJ1read = ReadInfoFJ(line_raw)
-        if FJ1read.offset < (150-window) and (FJ1read.offset+FJ1read.NumOfBases)> 150+window:    
-            AllFJRead1[FJ1read.ID] = line_raw
-            if FJ1read.junction not in AllJunctions:
-                AllJunctions[FJ1read.junction]=0
-            AllJunctions[FJ1read.junction] +=1
-            unmappedDict[FJ1read.ID] = FJ1read.junction
-        if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
-            print "ERROR AT LINE 395"
-    f1_FarJunc.close()
-    IDfile.flush()
+for line_raw in f1_FarJunc:
+    if line_raw[0] =="@":
+        continue
     
+    FJ1read = ReadInfoFJ(line_raw)
+    if FJ1read.offset < (150-window) and (FJ1read.offset+FJ1read.NumOfBases)> 150+window:    
+        AllFJRead1[FJ1read.ID] = line_raw
+        if FJ1read.junction not in AllJunctions:
+            AllJunctions[FJ1read.junction]=0
+        AllJunctions[FJ1read.junction] +=1
+        unmappedDict[FJ1read.ID] = FJ1read.junction
+    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
+        print "ERROR AT LINE 395"
+f1_FarJunc.close()
+IDfile.flush()
+
 # populate AllFJRead2 dictionary - all read 2's from FarJunc alignments
 # in order for R1 to feed into dictionary, must overlap entire offset (userspecified)
-    print "opening farJunc _2 file"
-    for line_raw in f2_FarJunc:
-        if line_raw[0] =="@":
-            continue
+print "opening farJunc _2 file"
+for line_raw in f2_FarJunc:
+    if line_raw[0] =="@":
+        continue
+    
+    FJ2read = ReadInfoFJ(line_raw)
+
+
+    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
+        print "ERROR AT LINE 409"
+
+    # if R1 and R2 both in Far Junc, then add to FJ-FJ list
+    if FJ2read.ID in AllFJRead1:
+        if FJ2read.offset < (150-window) and (FJ2read.offset+FJ2read.NumOfBases)> 150+window:    
+            FJDict = AddToDict("FJ",FJDict,line_raw,AllFJRead1[FJ2read.ID])
+            if FJ2read.ID in unmappedDict:
+                del unmappedDict[FJ2read.ID]
+        # otherwise add to F2 read
+    else:
+        AllFJRead2[FJ2read.ID]= line_raw
+        unmappedDict[FJ2read.ID] = FJ2read.junction
         
-        FJ2read = ReadInfoFJ(line_raw)
-
-
-        if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
-            print "ERROR AT LINE 409"
-
-        # if R1 and R2 both in Far Junc, then add to FJ-FJ list
-        if FJ2read.ID in AllFJRead1:
-            if FJ2read.offset < (150-window) and (FJ2read.offset+FJ2read.NumOfBases)> 150+window:    
-                FJDict = AddToDict("FJ",FJDict,line_raw,AllFJRead1[FJ2read.ID])
-                if FJ2read.ID in unmappedDict:
-                    del unmappedDict[FJ2read.ID]
-            # otherwise add to F2 read
-        else:
-            AllFJRead2[FJ2read.ID]= line_raw
-            unmappedDict[FJ2read.ID] = FJ2read.junction
-            
-        if FJ2read.junction not in AllJunctions:
-            AllJunctions[FJ2read.junction]=0
-            
-        AllJunctions[FJ2read.junction]+=1
-    f2_FarJunc.close()
-    IDfile.flush()
+    if FJ2read.junction not in AllJunctions:
+        AllJunctions[FJ2read.junction]=0
+        
+    AllJunctions[FJ2read.junction]+=1
+f2_FarJunc.close()
+IDfile.flush()
 
 # compare FJ read 1 to genome read 2
-    for line_raw in f2_genome:
-        if line_raw[0] =="@":
-            continue
-        g2read = ReadInfoGenome(line_raw)
-        
-        if g2read.ID in AllFJRead1:
-            if g2read.ID in unmappedDict:
-                del unmappedDict[g2read.ID]
-            genomeDict = AddToDict("genome", genomeDict, line_raw, AllFJRead1[g2read.ID])
-    f2_genome.close()    
-    IDfile.flush()
-
-        
-# compare FJ read 1 to reg read 2
-    for line_raw in f2_reg:
-        if line_raw[0] =="@":
-            continue
-        reg2read = ReadInfoJunc(line_raw)
-        
-        if reg2read.ID in AllFJRead1:
-            if reg2read.ID in unmappedDict:
-                del unmappedDict[reg2read.ID]
-            regDict = AddToDict("reg", regDict, line_raw, AllFJRead1[reg2read.ID])
-    f2_reg.close()
-    IDfile.flush()
-
-            
-# compare FJ read 1 to junc read 2
-    for line_raw in f2_junc:
-        if line_raw[0] =="@":
-            continue
-        junc2read = ReadInfoJunc(line_raw)
-        
-        if junc2read.offset < (150-window) and (junc2read.offset+junc2read.NumOfBases)>( 150+window):
-            if junc2read.ID in AllFJRead1:
-                if junc2read.ID in unmappedDict:
-                    del unmappedDict[junc2read.ID]
-                juncDict = AddToDict("junc", juncDict, line_raw, AllFJRead1[junc2read.ID])
-    f2_junc.close()
-    IDfile.flush()
-
-      
-# compare FJ read 1 to unaligned read 2
-
-    for line_raw in f2_unaligned:
-        if line_raw[0]=="@":
-            if line_raw[1:][:-3] in AllFJRead1:
-                if line_raw[1:][:-3] in unmappedDict:
-                    del unmappedDict[line_raw[1:][:-3]]
-                unalignedDict = AddToDict("unaligned", unalignedDict, line_raw, AllFJRead1[line_raw[1:][:-3]])
-    f2_unaligned.close()
-    IDfile.flush()
+for line_raw in f2_genome:
+    if line_raw[0] =="@":
+        continue
+    g2read = ReadInfoGenome(line_raw)
+    
+    if g2read.ID in AllFJRead1:
+        if g2read.ID in unmappedDict:
+            del unmappedDict[g2read.ID]
+        genomeDict = AddToDict("genome", genomeDict, line_raw, AllFJRead1[g2read.ID])
+f2_genome.close()    
+IDfile.flush()
 
     
+# compare FJ read 1 to reg read 2
+for line_raw in f2_reg:
+    if line_raw[0] =="@":
+        continue
+    reg2read = ReadInfoJunc(line_raw)
+    
+    if reg2read.ID in AllFJRead1:
+        if reg2read.ID in unmappedDict:
+            del unmappedDict[reg2read.ID]
+        regDict = AddToDict("reg", regDict, line_raw, AllFJRead1[reg2read.ID])
+f2_reg.close()
+IDfile.flush()
+
+        
+# compare FJ read 1 to junc read 2
+for line_raw in f2_junc:
+    if line_raw[0] =="@":
+        continue
+    junc2read = ReadInfoJunc(line_raw)
+    
+    if junc2read.offset < (150-window) and (junc2read.offset+junc2read.NumOfBases)>( 150+window):
+        if junc2read.ID in AllFJRead1:
+            if junc2read.ID in unmappedDict:
+                del unmappedDict[junc2read.ID]
+            juncDict = AddToDict("junc", juncDict, line_raw, AllFJRead1[junc2read.ID])
+f2_junc.close()
+IDfile.flush()
+
+  
+# compare FJ read 1 to unaligned read 2
+
+for line_raw in f2_unaligned:
+    if line_raw[0]=="@":
+        if line_raw[1:][:-3] in AllFJRead1:
+            if line_raw[1:][:-3] in unmappedDict:
+                del unmappedDict[line_raw[1:][:-3]]
+            unalignedDict = AddToDict("unaligned", unalignedDict, line_raw, AllFJRead1[line_raw[1:][:-3]])
+f2_unaligned.close()
+IDfile.flush()
+
+
 # compare FJ read 2 to genome read 1
 
-    for line_raw in f1_genome:
-        if line_raw[0] =="@":
-            continue
-        g1read = ReadInfoGenome(line_raw)
-        
-        if g1read.ID in AllFJRead2:
-            if g1read.ID in unmappedDict:
-                del unmappedDict[g1read.ID]
-            genomeDict = AddToDict("genome", genomeDict, line_raw, AllFJRead2[g1read.ID])
-    f1_genome.close()    
-    IDfile.flush()
+for line_raw in f1_genome:
+    if line_raw[0] =="@":
+        continue
+    g1read = ReadInfoGenome(line_raw)
+    
+    if g1read.ID in AllFJRead2:
+        if g1read.ID in unmappedDict:
+            del unmappedDict[g1read.ID]
+        genomeDict = AddToDict("genome", genomeDict, line_raw, AllFJRead2[g1read.ID])
+f1_genome.close()    
+IDfile.flush()
 
 # compare FJ read 2 to reg read 1
 
-    for line_raw in f1_reg:
-        if line_raw[0] =="@":
-            continue
-        reg1read = ReadInfoJunc(line_raw)
-        
-        if reg1read.ID in AllFJRead2:
-            if reg1read.ID in unmappedDict:
-                del unmappedDict[reg1read.ID]
-            regDict = AddToDict("reg", regDict, line_raw, AllFJRead2[reg1read.ID])
-    f1_reg.close()
-    IDfile.flush()
+for line_raw in f1_reg:
+    if line_raw[0] =="@":
+        continue
+    reg1read = ReadInfoJunc(line_raw)
+    
+    if reg1read.ID in AllFJRead2:
+        if reg1read.ID in unmappedDict:
+            del unmappedDict[reg1read.ID]
+        regDict = AddToDict("reg", regDict, line_raw, AllFJRead2[reg1read.ID])
+f1_reg.close()
+IDfile.flush()
 
 # compare FJ read 2 to junc read 1
-    for line_raw in f1_junc:
-        if line_raw[0] =="@":
-            continue
-        junc1read = ReadInfoJunc(line_raw)
+for line_raw in f1_junc:
+    if line_raw[0] =="@":
+        continue
+    junc1read = ReadInfoJunc(line_raw)
 
-        if junc1read.offset < (150-window) and (junc1read.offset+junc1read.NumOfBases)> (150+window):
-            if junc1read.ID in AllFJRead2:
-                if junc1read.ID in unmappedDict:
-                    del unmappedDict[junc1read.ID]            
-                juncDict = AddToDict("junc", juncDict, line_raw, AllFJRead2[junc1read.ID])
-    f1_junc.close()
-    IDfile.flush()
+    if junc1read.offset < (150-window) and (junc1read.offset+junc1read.NumOfBases)> (150+window):
+        if junc1read.ID in AllFJRead2:
+            if junc1read.ID in unmappedDict:
+                del unmappedDict[junc1read.ID]            
+            juncDict = AddToDict("junc", juncDict, line_raw, AllFJRead2[junc1read.ID])
+f1_junc.close()
+IDfile.flush()
 
 # compare FJ read 2 to unaligned read 1
-           
-    for line_raw in f1_unaligned:
-        if line_raw[0]=="@":
-            if line_raw[1:][:-3] in AllFJRead2:
-                if line_raw[1:][:-3] in unmappedDict:
-                    del unmappedDict[line_raw[1:][:-3]]                
-                unalignedDict = AddToDict("unaligned", unalignedDict, line_raw, AllFJRead2[line_raw[1:][:-3]])
-    f1_unaligned.close()
-    IDfile.flush()
+       
+for line_raw in f1_unaligned:
+    if line_raw[0]=="@":
+        if line_raw[1:][:-3] in AllFJRead2:
+            if line_raw[1:][:-3] in unmappedDict:
+                del unmappedDict[line_raw[1:][:-3]]                
+            unalignedDict = AddToDict("unaligned", unalignedDict, line_raw, AllFJRead2[line_raw[1:][:-3]])
+f1_unaligned.close()
+IDfile.flush()
 
 # output header
-    outputfile = "reports/" + stem + "_naive_report.txt"  
-    fout = open(args.outputDir+outputfile, mode = "w")
-    print "fout: " + args.outputDir+outputfile
+outputfile = "reports/" + stem + "_naive_report.txt"  
+fout = open(args.FJDir+outputfile, mode = "w")
+print "fout: " + args.FJDir+outputfile
+
+fout.write("@Junction\tgenome\tgenome-anomaly\tgenome-pval\treg\treg-anomaly\treg-pval\tjunc\tjunc-anom\tjunc-pval\tFarJunc\tFarJunc-anom\tFarJunc-pval\tunaligned\tNoPartner\tNetPValue\n")
+
+for key in unmappedDict:
+    IDfile.write(key+"\tUnmapped\n")
+IDfile.close()
+
+for key in AllJunctions:
+
+    for dict in [genomeDict, regDict, juncDict, FJDict, unalignedDict]:
+        if key not in dict:
+            dict[key] = [0,0,0.0,0.0]
+
     
-    fout.write("@Junction\tgenome\tgenome-anomaly\tgenome-pval\treg\treg-anomaly\treg-pval\tjunc\tjunc-anom\tjunc-pval\tFarJunc\tFarJunc-anom\tFarJunc-pval\tunaligned\tNoPartner\tNetPValue\n")
-
-    for key in unmappedDict:
-        IDfile.write(key+"\tUnmapped\n")
-    IDfile.close()
-
-    for key in AllJunctions:
-
-        for dict in [genomeDict, regDict, juncDict, FJDict, unalignedDict]:
-            if key not in dict:
-                dict[key] = [0,0,0.0,0.0]
-
-        
-        NumUnmapped = Counter(unmappedDict.values())[key]
+    NumUnmapped = Counter(unmappedDict.values())[key]
 # calculates P value for all genome/reg/junc/FJ dicts combined, excluding all anomalous reads
-        NetAS = genomeDict[key][2]+regDict[key][2]+juncDict[key][2]+FJDict[key][2]
-        NetNumBases = genomeDict[key][3]+regDict[key][3]+juncDict[key][3]+FJDict[key][3]
-        NetP = Pvalue(NetAS,NetNumBases)
+    NetAS = genomeDict[key][2]+regDict[key][2]+juncDict[key][2]+FJDict[key][2]
+    NetNumBases = genomeDict[key][3]+regDict[key][3]+juncDict[key][3]+FJDict[key][3]
+    NetP = Pvalue(NetAS,NetNumBases)
 
 # writing to output file
-        fout.write(key+"\t") # write junction [0]
-        fout.write(str(genomeDict[key][0])+"\t") # [1]  number of make-sense maps in genome
-        fout.write(str(genomeDict[key][1])+"\t") # [2]  nonsense maps in genome
-        fout.write(str(Pvalue(genomeDict[key][2], genomeDict[key][3]))+"\t") #[3] p value for genome reads
-        fout.write(str(regDict[key][0])+"\t") # [4]  number of make-sense maps in reg
-        fout.write(str(regDict[key][1])+"\t") # [5]  nonsense maps in reg
-        fout.write(str(Pvalue(regDict[key][2], regDict[key][3]))+"\t") #[6] p value for reg reads
-        fout.write(str(juncDict[key][0])+"\t") # [7]  number of make-sense maps in junc
-        fout.write(str(juncDict[key][1])+"\t") # [8]  nonsense maps in junc
-        fout.write(str(Pvalue(juncDict[key][2], juncDict[key][3]))+"\t") #[9] p value for junc reads
-        fout.write(str(FJDict[key][0])+"\t") # [10]  number of make-sense maps in FJ
-        fout.write(str(FJDict[key][1])+"\t") # [11]  nonsense maps in FJ
-        fout.write(str(Pvalue(FJDict[key][2], FJDict[key][3]))+"\t") #[12] p value for FJ reads
-        fout.write(str(unalignedDict[key][0])+"\t") # [13]  number junctions whose partner was unaligned
-        fout.write(str(NumUnmapped)+"\t") # [14] - no read partner in any of the files.
-        fout.write(str(NetP)+"\n") #[15] net P value of all non-anomalous reads
-    fout.close()
-    
+    fout.write(key+"\t") # write junction [0]
+    fout.write(str(genomeDict[key][0])+"\t") # [1]  number of make-sense maps in genome
+    fout.write(str(genomeDict[key][1])+"\t") # [2]  nonsense maps in genome
+    fout.write(str(Pvalue(genomeDict[key][2], genomeDict[key][3]))+"\t") #[3] p value for genome reads
+    fout.write(str(regDict[key][0])+"\t") # [4]  number of make-sense maps in reg
+    fout.write(str(regDict[key][1])+"\t") # [5]  nonsense maps in reg
+    fout.write(str(Pvalue(regDict[key][2], regDict[key][3]))+"\t") #[6] p value for reg reads
+    fout.write(str(juncDict[key][0])+"\t") # [7]  number of make-sense maps in junc
+    fout.write(str(juncDict[key][1])+"\t") # [8]  nonsense maps in junc
+    fout.write(str(Pvalue(juncDict[key][2], juncDict[key][3]))+"\t") #[9] p value for junc reads
+    fout.write(str(FJDict[key][0])+"\t") # [10]  number of make-sense maps in FJ
+    fout.write(str(FJDict[key][1])+"\t") # [11]  nonsense maps in FJ
+    fout.write(str(Pvalue(FJDict[key][2], FJDict[key][3]))+"\t") #[12] p value for FJ reads
+    fout.write(str(unalignedDict[key][0])+"\t") # [13]  number junctions whose partner was unaligned
+    fout.write(str(NumUnmapped)+"\t") # [14] - no read partner in any of the files.
+    fout.write(str(NetP)+"\n") #[15] net P value of all non-anomalous reads
+fout.close()
+
 
 
 
@@ -594,19 +576,19 @@ for stem in FileStem2:
 # takes alignments from Far Junctions and finds read partner. 
 # tells if read partner makes sense or not
 # final Output categories -- [0] R1 junc name
-            #   [1] genome - R2 location < 100K bp away
-            #   [2] genome anomaly - R2 location > 100K bp away
-            #   [3] genome p value
-            #   [4] reg - R2 closest location <100Kbp away
-            #   [5] reg anomaly - R2 closest location > 100Kbp away
-            #   [6] reg p value
-            #   [7] junc / scrambled - R2 closest location <100Kbp away
-            #   [8] junc anomaly - R2 closest location > 100Kbp away
-            #   [9] junc p value
-            #   [10] FarJunc - R2 aligned to same FarJunc
-            #   [11] FarJunc anomaly - R2 aligned to diff FarJunc
-            #   [12] FarJunc p value
-            #   [13] unaligned - R2 didn't align
-            #   [14] unmapped - R2 missing 
-            #  [15] P value for all non-anomaly classes
+        #   [1] genome - R2 location < 100K bp away
+        #   [2] genome anomaly - R2 location > 100K bp away
+        #   [3] genome p value
+        #   [4] reg - R2 closest location <100Kbp away
+        #   [5] reg anomaly - R2 closest location > 100Kbp away
+        #   [6] reg p value
+        #   [7] junc / scrambled - R2 closest location <100Kbp away
+        #   [8] junc anomaly - R2 closest location > 100Kbp away
+        #   [9] junc p value
+        #   [10] FarJunc - R2 aligned to same FarJunc
+        #   [11] FarJunc anomaly - R2 aligned to diff FarJunc
+        #   [12] FarJunc p value
+        #   [13] unaligned - R2 didn't align
+        #   [14] unmapped - R2 missing 
+        #  [15] P value for all non-anomaly classes
 

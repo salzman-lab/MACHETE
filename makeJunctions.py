@@ -300,10 +300,10 @@ def MakePairs(outputfile, AllJunctions, UI, chrA, chrB, ExonsApos, ExonsAneg, Ex
 
 parser=argparse.ArgumentParser()
 parser.add_argument("-p", "--pickle", required = True, help = "path to pickle directory")
-parser.add_argument("-o", "--outDir", required=True, help = "directory to output files")
+parser.add_argument("-f", "--infile", required= True, help = "file to unpickle")
+parser.add_argument("-o", "--outDir", required=True, help = " directory to output files")
+parser.add_argument("-s", "--stem", required=True, help = "unique identifying stem of file name")
 args=parser.parse_args()
-
-
 
 
 
@@ -311,19 +311,23 @@ if args.pickle[-1] != "/":
     path = args.pickle+"/"
 else:
     path = args.pickle
-
     
         
 if args.outDir[-1] != "/":
-    fastaDir = args.outDir + "/"
+    outDir = args.outDir + "/"
 else:
-    fastaDir = args.outDir
+    outDir = args.outDir
     
 
 ##TEST ENVIRONMENT
 #path = "/Users/Gillian/Desktop/pickles/"
 #fastaDir = "/Users/Gillian/Desktop/ERP000710output/"    
     
+
+infilepath, infilename = os.path.split(args.infile)
+chromosome=infilename.split("_")[1]
+
+
 
 os.chdir(path)
 exonDir = path + "exons"
@@ -333,12 +337,11 @@ patt_exonfilename = re.compile(".+?exonsByStrand_(.+?)\.pkl")
 patt_exonfile = re.compile("exonsByStrand_.+\.pkl")
 
 
-filename = glob.glob(fastaDir+"*_PE_frequency_sorted.txt")
-fout = open(fastaDir+"FarJunctions_duplicates.fa", mode = "wb")
+fout = open(outDir+args.stem+"_"+chromosome+"_FarJunctions_duplicates.fa", mode = "wb")
 
 #****SLICE FILE
 
-with open(filename[0], mode ="rU") as f1:
+with open(args.infile, mode ="rU") as f1:
     while True:
         next_n_lines = list(islice(f1,50000))
         print "next " + str(len(next_n_lines)) + "lines"
@@ -441,8 +444,8 @@ f1.close()
 
 ## ===========REMOVE DUPLICATES====================
 
-f1 = open(fastaDir+"FarJunctions_duplicates.fa", mode = "rb")
-fout = open(fastaDir+"FarJunctions.fa", mode = "wb")
+f1 = open(outDir+args.stem+"_"+chromosome+"_FarJunctions_duplicates.fa", mode = "rb")
+fout = open(outDir+args.stem+"_"+chromosome+"FarJunctions.fa", mode = "wb")
 
 
 junctiondict={}

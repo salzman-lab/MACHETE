@@ -6,13 +6,21 @@
 #  Created by Gillian Hsieh on 1/8/16.
 #
 
-var1=${1}
-var2=${2}
-var3=${3}
+FJDir=${1}
+OrigDir=${2}
+Window=${3}
+
+STEMFILE=${2}StemList.txt
+STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
 # module load python/2.7.9
 ml load python/2.7.5
 
 # python /srv/gsfs0/projects/salzman/gillian/createFarJunctionsIndex/FarJuncNaiveReport.py -o ${1} -i ${2} -w ${3}
 
-python /scratch/PI/horence/gillian/createFarJunctionsIndex/FarJuncNaiveReport.py -o ${1} -i ${2} -w ${3}
+python /scratch/PI/horence/gillian/MACHETE/FarJuncNaiveReport.py -s ${STEM} -f ${1} -i ${2} -w ${3}
+#
+#Variables
+#-f output dir (FJ Dir)
+#-i orig Dir
+#-w window - num bases on each side of junction

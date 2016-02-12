@@ -16,13 +16,13 @@ class ReadInfo:
         self.id = ID
         self.chromosome = C        
         if side == 0:
-            self.StartPosition = int(X)-int(args.window)
+            self.StartPosition = max(1,int(X)-int(args.window))
             self.StopPosition = int(X)+int(args.window)
         if side == "R":
             self.StartPosition = int(X)
             self.StopPosition = int(X)+int(args.window)
         if side =="L":
-            self.StartPosition = int(X)-int(args.window)
+            self.StartPosition = max(1,int(X)-int(args.window))
             self.StopPosition = int(X)
                     
         if Q in ["0","16"] and int(MAPQ) >= 10 and len(C)<3 and C!="M":
@@ -128,10 +128,7 @@ def comparereads(read1, read2):
    
 parser=argparse.ArgumentParser()
 parser.add_argument("-o", "--origDir", required=True, help = "orig directory")
-parser.add_argument("-g1","--genome1", required = True, help = "genome 1 file")
-parser.add_argument("-g2", "--genome2", required = True, help = "genome 2 file")
-parser.add_argument("-r1","--reg1", required = True, help = "reg1 file")
-parser.add_argument("-r2", "--reg2", required = True, help = "reg2 file")
+parser.add_argument("-s","--stem", required = True, help = "stem name for file comparison")
 parser.add_argument("-f", "--outputDir", required = True, help = "Far Junctions directory (output dir)")
 parser.add_argument("-w", "--window", required=True, help = "size = w of window where if read occurs at X, then window starts at X-w and ends at X+w")
 parser.add_argument("-n","--UserBPdistance", required = True, help = "looking for PE > X base pairs apart. Linda's default window is 100K.")
@@ -144,9 +141,9 @@ else:
     inpath = args.origDir
 
 if args.outputDir[-1] != "/":
-    outpath = args.outputDir + "/"
+    outpath = args.outputDir + "/DistantPEFiles/"
 else:
-    outpath = args.outputDir
+    outpath = args.outputDir + "DistantPEFiles/"
     
 utils_os.createDirectory(outpath)
 
@@ -156,57 +153,26 @@ UserBPdistance = int(args.UserBPdistance)
 
 # change the input path to the path where your file exists
 os.chdir(inpath)
-FileList={}
-FileStem={}
-
-#create file list of paired files
-for name in glob.glob(os.path.join(inpath,"genome/sorted*.sam")):
-    (inDir,filename)=os.path.split(name)
-    if not filename in FileList:
-        FileList[filename] =0
-    FileList[filename]+=1
-print FileList
-
-# ran into problems with that every filename had a different unique stem, sometimes occurring
-# SAMESAME_SAME_SAME_DIFFERENT_SAME_SAME.sam and if you split this string by _ then
-# the "different" part occurs at a variable index each time.
-i=1
-if len(FileList)>2:
-    for i in range(0,len(FileList.keys()[0].split("_"))):
-        if FileList.keys()[0].split("_")[i] in ["1","2"]:
-            continue
-        if FileList.keys()[0].split("_")[i] != FileList.keys()[1].split("_")[i] or FileList.keys()[0].split("_")[i] != FileList.keys()[2].split("_")[i]:
-            break
-
-for name in FileList:
-    stem = name.split("_")[i]
-    if not stem in FileStem:
-        FileStem[stem] = 0
-    FileStem[stem] +=1
-print FileStem
 
 
+genomefiles = sorted(glob.glob(inpath + "genome/*" + args.stem + "*.sam"))
+regfiles = sorted(glob.glob(inpath + "reg/*" + args.stem + "*.sam"))
+
+print genomefiles
+print regfiles
 
 
 
 # print SamFiles
 #opening paired files
-g1 = open(args.genome1, mode ="rU")
-g2 = open(args.genome2, mode="rU")
-r1 = open(args.reg1, mode ="rU")
-r2 = open(args.reg2, mode = "rU")
-
-for entry in FileStem:
-    if entry in args.genome1:
-        stem=entry
-        break
-
-print "comparing " + args.genome1 + " and " + args.genome2
-print "stem is " + stem
+g1 = open(genomefiles[0], mode ="rU")
+g2 = open(genomefiles[1], mode="rU")
+r1 = open(regfiles[0], mode ="rU")
+r2 = open(regfiles[1], mode = "rU")
             
 #creating output files
-fout = open(outpath + stem+"_distant_pairs.txt", mode="w")  
-print"writing to output file: " + str(stem)+"_distant_pairs.txt"
+fout = open(outpath + args.stem +"_distant_pairs.txt", mode="w")
+print"writing to output file: " + args.stem +"_distant_pairs.txt"
 fout.write("Distant pairs more than "+str(UserBPdistance)+"BP apart in the genome: \n\nID\tposition1\tposition2\n")
 sys.stdout.flush() #force print command above to output to screen (gives user an idea of progress)
 
@@ -277,8 +243,8 @@ g2.close()
 
 #===========LOOPING THROUGH REG 1 =============
 
-g2 = open(args.genome2, mode="rU")
-r2 = open(args.reg2, mode = "rU")
+g2 = open(genomefiles[1], mode="rU")
+r2 = open(regfiles[1], mode = "rU")
 
 lineG2 = g2.next().strip().split("\t")
 lineR2 = r2.next().strip().split("\t")
@@ -305,7 +271,7 @@ for line_raw3 in r1:
     if ID(lineR1[0])==ID(lineG2[0]):
 #            print "reg1 and genome2 match"
         R1loc = lineR1[2].replace("|", " ").replace(":"," ").split(" ")
-        print R1loc
+        #print R1loc
         
         if int(R1loc[2])>=int(R1loc[4]):
             read1R1 = ReadInfo(ID(lineR1[0]), lineR1[1], lineR1[4], R1loc[0][3:], R1loc[2], "R")

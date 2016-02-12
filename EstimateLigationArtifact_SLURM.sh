@@ -25,8 +25,8 @@ mkdir -p ${1}reports/withIndels/
 
 
 echo "Making FarJunctions.fa into Indel.fa files"
-
-python /scratch/PI/horence/gillian/createFarJunctionsIndex/AddIndelsToFasta.py -o ${1} -n ${2}
+ml python/2.7.5
+python /scratch/PI/horence/gillian/MACHETE/AddIndelsToFasta.py -o ${1} -n ${2}
 
 echo "Making Indel.fa files into indices"
 
@@ -40,7 +40,7 @@ do
     depend_str1=${depend_str1}:
     FILENAME=$(basename "$file" .fa)
     INDEXNAME=${1}BowtieIndels/${FILENAME}
-    j_id=`sbatch -J Indexing --mem=55000 --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieIndexer.batch.sh ${file} ${1}BowtieIndels/${FILENAME} | awk '{print $4}'`
+    j_id=`sbatch -J Indexing --mem=55000 --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/MACHETE/BowtieIndexer.batch.sh ${file} ${1}BowtieIndels/${FILENAME} | awk '{print $4}'`
     depend_str1=${depend_str1}${j_id}
 
 done
@@ -57,13 +57,14 @@ echo "Aligning reads to indels indices"
 START=1
 for (( c=$START; c<=${2}; c++ ))
 do
+    BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50"
     BOWTIEINDEX=${1}BowtieIndels/Indels${c}
     BOWTIEOUTPUT=${1}FarJuncSecondary/AlignedIndels/
     for file in ${1}FarJuncSecondary/*.fq
     do
         FILENAME=$(basename "$file" .fq)
         OUTPUTFILE=${FILENAME}_indels${c}.sam
-        j_id=`sbatch -J AlignIndels --mem=55000 --time=24:0:0 -o out.txt -e err.txt ${depend_str1} /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieAligner.batch.sh ${BOWTIEINDEX} ${file} ${BOWTIEOUTPUT}${OUTPUTFILE} | awk '{print $4}'`
+        j_id=`sbatch -J AlignIndels --mem=55000 --time=24:0:0 -o out.txt -e err.txt ${depend_str1} /scratch/PI/horence/gillian/MACHETE/BowtieAligner.batch.sh "${BOWTIEPARAMETERS}" ${BOWTIEINDEX} ${file} ${BOWTIEOUTPUT}${OUTPUTFILE} | awk '{print $4}'`
         depend_str2=${depend_str2}:${j_id}
 
     done
@@ -81,7 +82,7 @@ echo ${depend_str2}
 echo "Creating indel distributions in IndelsHistogram folder"
 
 
-j_id=`sbatch -J CountIndels --mem=55000 --time=24:0:0 -o out.txt -e err.txt ${depend_str2} /scratch/PI/horence/gillian/createFarJunctionsIndex/FindAlignmentArtifact.sh ${1} ${3} ${2}| awk '{print $4}'`
+j_id=`sbatch -J CountIndels --mem=55000 --time=24:0:0 -o out.txt -e err.txt ${depend_str2} /scratch/PI/horence/gillian/MACHETE/FindAlignmentArtifact.sh ${1} ${3} ${2}| awk '{print $4}'`
 
 depend_str3=--depend=afterok:${j_id}
 
@@ -89,7 +90,7 @@ depend_str3=--depend=afterok:${j_id}
 
 echo "Adding Indel distributions to Naive reports"
 
-j_id=`sbatch -J AddIndelToRept --mem=55000 --time=24:0:0 -o out.txt -e err.txt ${depend_str3} /scratch/PI/horence/gillian/createFarJunctionsIndex/AddIndelsToNaiveRept.sh ${1}| awk '{print $4}'`
+j_id=`sbatch -J AddIndelToRept --mem=55000 --time=24:0:0 -o out.txt -e err.txt ${depend_str3} /scratch/PI/horence/gillian/MACHETE/AddIndelsToNaiveRept.sh ${1}| awk '{print $4}'`
 
 depend_str4=--depend=afterok:${j_id}
 

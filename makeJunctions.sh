@@ -1,17 +1,27 @@
 #!/bin/sh
-
 #  makeJunctions.sh
 #  
 #
 #  Created by Gillian Hsieh on 1/8/16.
 #
 
-var1=${1}
-var2=${2}
 
-#module load python/2.7
+PICKLEDIR=${1}
+FJFile=${2}
+Chromosome=${3}
+
+STEMFILE=${2}StemList.txt
+FASTADIR=${2}fasta/
+
+STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
+
+OUTPUTDIR=${FASTADIR}${STEM}/
+mkdir -p ${OUTPUTDIR}
+INPUTDIR=${2}DistantPEFiles/${STEM}/
+
 ml load python/2.7.5
+for file in ${INPUTDIR}/sorted_chr${3}_*; do
+python /scratch/PI/horence/gillian/MACHETE/makeJunctions.py -p ${1} -f ${file} -o ${OUTPUTDIR} -s ${STEM}
+done;
 
-#python /srv/gsfs0/projects/salzman/gillian/createFarJunctionsIndex/makeJunctions.py -p ${1} -o ${2}
-
-python /scratch/PI/horence/gillian/createFarJunctionsIndex/makeJunctions.py -p ${1} -o ${2}
+rm ${OUTPUTDIR}${STEM}_chr${3}_*_duplicates.fa

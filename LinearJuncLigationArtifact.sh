@@ -37,7 +37,7 @@ do
     do
         FILENAME=$(basename "$file" .fq)
         OUTPUTFILE=${FILENAME}_indels${c}.sam
-        j_id=`sbatch -J AlignIndels --mem=55000 --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieAligner.batch.sh "${BOWTIEPARAMETERS}" ${BOWTIEINDEX} ${file} ${BOWTIEOUTPUTDIR}${OUTPUTFILE} | awk '{print $4}'`
+        j_id=`sbatch -J AlignIndels --mem=55000 --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/MACHETE/BowtieAligner.batch.sh "${BOWTIEPARAMETERS}" ${BOWTIEINDEX} ${file} ${BOWTIEOUTPUTDIR}${OUTPUTFILE} | awk '{print $4}'`
         depend_str=${depend_str}:${j_id}
     done
 

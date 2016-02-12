@@ -1,0 +1,60 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
+
+   Please check the spelling or version number. Also try "module spider ..."
+

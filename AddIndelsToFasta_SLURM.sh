@@ -8,4 +8,4 @@
 
 ml load python/2.7.5
 
-python /scratch/PI/horence/gillian/createFarJunctionsIndex/AddIndelsToFasta.py -o ${1} -n ${2}
+python /scratch/PI/horence/gillian/MACHETE/AddIndelsToFasta.py -o ${1} -n ${2}

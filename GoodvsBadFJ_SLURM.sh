@@ -10,34 +10,52 @@
 # after this shell, should run python script AddIndelsandBadFJtoNaiveReports
 
 FarJuncDir=${1}
+REFGENOME=${2}
 
-
-FarJuncFasta=${1}FarJunctions.fa
 
 #bad juncs will align to genome/transcriptome/junc/reg but good juncs will not align
-OutputDir=${1}BadFJ/
-mkdir -p ${OutputDir}
+STEMFILE=${1}StemList.txt
+STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
+
+BadFJDir=${1}BadFJ/${STEM}/
+mkdir -p ${BadFJDir}
+
+FarJuncFasta=${1}fasta/${STEM}_FarJunctions.fa
+
 
 
 #indices for alignment
-genomeIndex=/share/PI/horence/circularRNApipeline_SLURM/index/hg19_genome
-transcriptomeIndex=/share/PI/horence/circularRNApipeline_SLURM/index/hg19_transcriptome
-regIndex=/share/PI/horence/circularRNApipeline_SLURM/index/hg19_junctions_reg
-juncIndex=/share/PI/horence/circularRNApipeline_SLURM/index/hg19_junctions_scrambled
+if [[ "$REFGENOME" = *HG38* ]]
+then
+### INDICES NOT READY YET
+genomeIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_genome"
+transcriptomeIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_transcriptome"
+regIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_junctions_reg"
+juncIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_junctions_scrambled"
+## THESE ARE THE HG 19 INDICES
+fi
+
+if [[ "$REFGENOME" = *HG19* ]]
+then
+genomeIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_genome"
+transcriptomeIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_transcriptome"
+regIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_junctions_reg"
+juncIndex="/share/PI/horence/circularRNApipeline_SLURM/index/hg19_junctions_scrambled"
+fi
+
 
 # Align FarJunc fasta file to the above indices:
 
 
 BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --np 0 --rdg 50,50 --rfg 50,50"
 
-j1_id=`sbatch -J FJ.fa_to_genome --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FarJuncFasta} ${OutputDir}BadFJtoGenome.sam | awk '{print $4}'`
+BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/MACHETE/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 
-j2_id=`sbatch -J FJ.fa_to_transcriptome --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FarJuncFasta} ${OutputDir}BadFJtotranscriptome.sam | awk '{print $4}'`
+BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/MACHETE/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
 
-j3_id=`sbatch -J FJ.fa_to_reg --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FarJuncFasta} ${OutputDir}BadFJtoReg.sam | awk '{print $4}'`
+BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/MACHETE/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
 
-j4_id=`sbatch -J FJ.fa_to_genome --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/createFarJunctionsIndex/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FarJuncFasta} ${OutputDir}BadFJtoJunc.sam | awk '{print $4}'`
+BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 -p owners --time=24:0:0 -o out.txt -e err.txt /scratch/PI/horence/gillian/MACHETE/BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
 
-depend_str=--depend=afterok:${j1_id}:${j2_id}:${j3_id}:${j4_id}
 
 
