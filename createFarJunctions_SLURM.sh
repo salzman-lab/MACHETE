@@ -86,7 +86,7 @@ python /scratch/PI/horence/gillian/MACHETE/writeStemIDFiles.py -o ${ORIG_DIR} -f
 # counting # of times to go through the "PE matching" step - is the number of paired genome files ending in .sam /2
 NUM_FILES=$((`more ${StemFile} | wc -l`))
 echo ${NUM_FILES}
-
+#
 # sorting reg files
 
 j1_id=`sbatch -J sortingReg ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_1sortReg.txt -e ${2}err_and_out/err_1sortReg.txt /scratch/PI/horence/gillian/MACHETE/AlphabetizeENCODEreads.sh ${ORIG_DIR}reg/ ${StemFile} | awk '{print $4}'`
@@ -157,7 +157,7 @@ echo "align unaligned reads to FJ index: ${j8_id}"
 
 
 
-
+#
 # make FJ naive report
 
 j9_id=`sbatch -J FJNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_8NaiveRpt.txt -e ${2}err_and_out/err_8NaiveRpt.txt --depend=afterok:${j8_id} /scratch/PI/horence/gillian/MACHETE/FarJuncNaiveReport.sh ${2} ${ORIG_DIR} ${5}| awk '{print $4}'`
@@ -168,6 +168,7 @@ echo "make naive rpt - ${j9_id}"
 
 # ESTIMATE LIGATION ARTIFACT
 
+#
 #make FarJunctions.fa => Indel.fa files
 
 j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_FJIndels.txt --depend=afterok:${j9_id} /scratch/PI/horence/gillian/MACHETE/MakeIndelFiles.sh ${2} ${6} | awk '{print $4}'`
@@ -193,6 +194,7 @@ echo "index indels ${depend_str11}"
 
 
 ### Align FarJuncSecondary (unaligned to FJ index) to FJ indels
+#
 
 depend_str13="--depend=afterok"
 
@@ -219,7 +221,8 @@ echo "make indels histo: ${j14_id}"
 
 
 # Add Indels, quality of junctions (good/bad), and frequency of junction participation in linear junctions to the Naive report
-
+#
+#
 
 j15_id=`sbatch -J AppendNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_14AppendRpt.txt -e ${2}err_and_out/err_14AppendRpt.txt --depend=afterok:${j14_id}:${j7_id} /scratch/PI/horence/gillian/MACHETE/AppendNaiveRept.sh ${2} ${GLM_DIR} | awk '{print $4}'`
 

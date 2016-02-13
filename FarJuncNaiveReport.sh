@@ -10,7 +10,7 @@ FJDir=${1}
 OrigDir=${2}
 Window=${3}
 
-STEMFILE=${2}StemList.txt
+STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
 # module load python/2.7.9
@@ -21,6 +21,7 @@ ml load python/2.7.5
 python /scratch/PI/horence/gillian/MACHETE/FarJuncNaiveReport.py -s ${STEM} -f ${1} -i ${2} -w ${3}
 #
 #Variables
+#-s STEM
 #-f output dir (FJ Dir)
 #-i orig Dir
 #-w window - num bases on each side of junction

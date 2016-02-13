@@ -2,21 +2,16 @@ Lmod has detected the following error: The following module(s) are unknown:
 "bowtie/2.2.4"
 
    Please check the spelling or version number. Also try "module spider ..."
-Lmod has detected the following error: The following module(s) are unknown:
-"bowtie/2.2.4"
-
-   Please check the spelling or version number. Also try "module spider ..."
-
 
 Lmod has detected the following error: The following module(s) are unknown:
 "bowtie/2.2.4"
 
    Please check the spelling or version number. Also try "module spider ..."
+
 Lmod has detected the following error: The following module(s) are unknown:
 "bowtie/2.2.4"
 
    Please check the spelling or version number. Also try "module spider ..."
-
 
 Lmod has detected the following error: The following module(s) are unknown:
 "bowtie/2.2.4"
@@ -30,31 +25,88 @@ Lmod has detected the following error: The following module(s) are unknown:
 "bowtie/2.2.4"
 
    Please check the spelling or version number. Also try "module spider ..."
+Lmod has detected the following error: The following module(s) are unknown:
+"bowtie/2.2.4"
 
+   Please check the spelling or version number. Also try "module spider ..."
 Lmod has detected the following error: The following module(s) are unknown:
 "bowtie/2.2.4"
 
    Please check the spelling or version number. Also try "module spider ..."
 
 
-Lmod has detected the following error: The following module(s) are unknown:
-"bowtie/2.2.4"
-
-   Please check the spelling or version number. Also try "module spider ..."
-
-Lmod has detected the following error: The following module(s) are unknown:
-"bowtie/2.2.4"
-
-   Please check the spelling or version number. Also try "module spider ..."
 
 
-Lmod has detected the following error: The following module(s) are unknown:
-"bowtie/2.2.4"
 
-   Please check the spelling or version number. Also try "module spider ..."
-
-Lmod has detected the following error: The following module(s) are unknown:
-"bowtie/2.2.4"
-
-   Please check the spelling or version number. Also try "module spider ..."
-
+5854232 reads; of these:
+  5854232 (100.00%) were unpaired; of these:
+    5854229 (100.00%) aligned 0 times
+    3 (0.00%) aligned exactly 1 time
+    0 (0.00%) aligned >1 times
+0.00% overall alignment rate
+5854232 reads; of these:
+  5854232 (100.00%) were unpaired; of these:
+    5853196 (99.98%) aligned 0 times
+    302 (0.01%) aligned exactly 1 time
+    734 (0.01%) aligned >1 times
+0.02% overall alignment rate
+7224393 reads; of these:
+  7224393 (100.00%) were unpaired; of these:
+    7224389 (100.00%) aligned 0 times
+    4 (0.00%) aligned exactly 1 time
+    0 (0.00%) aligned >1 times
+0.00% overall alignment rate
+7224393 reads; of these:
+  7224393 (100.00%) were unpaired; of these:
+    7223062 (99.98%) aligned 0 times
+    320 (0.00%) aligned exactly 1 time
+    1011 (0.01%) aligned >1 times
+0.02% overall alignment rate
+7906852 reads; of these:
+  7906852 (100.00%) were unpaired; of these:
+    7906848 (100.00%) aligned 0 times
+    4 (0.00%) aligned exactly 1 time
+    0 (0.00%) aligned >1 times
+0.00% overall alignment rate
+7906852 reads; of these:
+  7906852 (100.00%) were unpaired; of these:
+    7905515 (99.98%) aligned 0 times
+    327 (0.00%) aligned exactly 1 time
+    1010 (0.01%) aligned >1 times
+0.02% overall alignment rate
+5854232 reads; of these:
+  5854232 (100.00%) were unpaired; of these:
+    5726738 (97.82%) aligned 0 times
+    123371 (2.11%) aligned exactly 1 time
+    4123 (0.07%) aligned >1 times
+2.18% overall alignment rate
+5854232 reads; of these:
+  5854232 (100.00%) were unpaired; of these:
+    5726793 (97.82%) aligned 0 times
+    123205 (2.10%) aligned exactly 1 time
+    4234 (0.07%) aligned >1 times
+2.18% overall alignment rate
+7224393 reads; of these:
+  7224393 (100.00%) were unpaired; of these:
+    7158557 (99.09%) aligned 0 times
+    62165 (0.86%) aligned exactly 1 time
+    3671 (0.05%) aligned >1 times
+0.91% overall alignment rate
+7224393 reads; of these:
+  7224393 (100.00%) were unpaired; of these:
+    7157825 (99.08%) aligned 0 times
+    62548 (0.87%) aligned exactly 1 time
+    4020 (0.06%) aligned >1 times
+0.92% overall alignment rate
+7906852 reads; of these:
+  7906852 (100.00%) were unpaired; of these:
+    7794489 (98.58%) aligned 0 times
+    108024 (1.37%) aligned exactly 1 time
+    4339 (0.05%) aligned >1 times
+1.42% overall alignment rate
+7906852 reads; of these:
+  7906852 (100.00%) were unpaired; of these:
+    7794629 (98.58%) aligned 0 times
+    108069 (1.37%) aligned exactly 1 time
+    4154 (0.05%) aligned >1 times
+1.42% overall alignment rate

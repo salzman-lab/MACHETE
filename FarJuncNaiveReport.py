@@ -38,13 +38,13 @@ from collections import Counter
 def AddToDict(inputtype, TargetDict, line_raw_comparison, line_raw_FJ):
 
     lineFJ = ReadInfoFJ(line_raw_FJ)
-    if lineFJ.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
-        print "ERROR AT LINE 42"
-        print inputtype
-        print line_raw_comparison
-        print line_raw_FJ
-    
-    
+#    if lineFJ.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
+#        print "ERROR AT LINE 42"
+#        print inputtype
+#        print line_raw_comparison
+#        print line_raw_FJ
+#    
+
     if lineFJ.junction not in TargetDict:  # add junction to target dictionary if it doesn't exist
         TargetDict[lineFJ.junction] = [0,0,0.0,0.0] 
     
@@ -382,8 +382,8 @@ for line_raw in f1_FarJunc:
             AllJunctions[FJ1read.junction]=0
         AllJunctions[FJ1read.junction] +=1
         unmappedDict[FJ1read.ID] = FJ1read.junction
-    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
-        print "ERROR AT LINE 395"
+        #    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
+#print "ERROR AT LINE 395"
 f1_FarJunc.close()
 IDfile.flush()
 
@@ -397,8 +397,8 @@ for line_raw in f2_FarJunc:
     FJ2read = ReadInfoFJ(line_raw)
 
 
-    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
-        print "ERROR AT LINE 409"
+#    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
+#        print "ERROR AT LINE 409"
 
     # if R1 and R2 both in Far Junc, then add to FJ-FJ list
     if FJ2read.ID in AllFJRead1:
