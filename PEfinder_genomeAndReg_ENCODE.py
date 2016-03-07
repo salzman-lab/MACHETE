@@ -33,7 +33,7 @@ class ReadInfo:
 
 def ID(string):
     if string[-2:] == "/1" or string[-2:] == "/2":
-        return string[:-3]
+        return string[:-2]
     else:
         return string
 
@@ -155,8 +155,8 @@ UserBPdistance = int(args.UserBPdistance)
 os.chdir(inpath)
 
 
-genomefiles = sorted(glob.glob(inpath + "genome/*" + args.stem + "*.sam"))
-regfiles = sorted(glob.glob(inpath + "reg/*" + args.stem + "*.sam"))
+genomefiles = sorted(glob.glob(inpath + "genome/sorted*" + args.stem + "*.sam"))
+regfiles = sorted(glob.glob(inpath + "reg/sorted*" + args.stem + "*.sam"))
 
 print genomefiles
 print regfiles

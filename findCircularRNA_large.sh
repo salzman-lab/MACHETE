@@ -17,6 +17,8 @@
 #    sh findCircularRNA.sh read_directory read_id_style alignment_parent_directory dataset_name junction_overlap [mode] [report_directory_name] [ntrim] [denovoCircMode] [junction_id_suffix] 
 #    And then run again with same parameters as before but append "_unaligned" to the mode parameter
 
+cd /share/PI/horence/circularRNApipeline_SLURM/
+
 source analysis/depends_python.sh  # use correct version of python
 
 # very basic error checking
@@ -76,26 +78,26 @@ fi
 # change resource allocations based on job size
 if [[ "$MODE" = *large* ]]
 then
-  JUNC_VMEM="35000"
-  GENOME_VMEM="35000"
-  TRANSC_VMEM="35000"
-  REG_VMEM="35000"
-  RIBO_VMEM="25000"
+  JUNC_VMEM="80000"
+  GENOME_VMEM="80000"
+  TRANSC_VMEM="80000"
+  REG_VMEM="80000"
+  RIBO_VMEM="80000"
   ALIGN_MAX_RT="23:0:0"
-  PREPROCESS_VMEM="45000"
-  FILTER_VMEM="59000"
+  PREPROCESS_VMEM="200000"
+  FILTER_VMEM="200000"
   PREPROCESS_MAX_RT="23:0:0"
   FILTER_MAX_RT="23:0:0"
-  PFA_VMEM="40000"
+  PFA_VMEM="200000"
 elif [[ "$MODE" = *bigmem* ]]
 then
-  JUNC_VMEM="35000"
-  GENOME_VMEM="35000"
-  TRANSC_VMEM="35000"
-  REG_VMEM="35000"
-  RIBO_VMEM="25000"
+  JUNC_VMEM="80000"
+  GENOME_VMEM="80000"
+  TRANSC_VMEM="80000"
+  REG_VMEM="80000"
+  RIBO_VMEM="80000"
   ALIGN_MAX_RT="23:0:0"
-  PREPROCESS_VMEM="55000"
+  PREPROCESS_VMEM="80000"
   FILTER_VMEM="200000"  # this is used for the naive reports
   PREPROCESS_MAX_RT="16:0:0"  # this is a limit put on bigmem
   FILTER_MAX_RT="16:0:0"  # this is a limit put on bigmem
@@ -157,12 +159,19 @@ then
   python analysis/writeTaskIdFiles.py -r ${TASK_FILE_READ_DIR} -a ${ALIGN_PARDIR} -d ${DATASET_NAME} ${UFLAG}
   
   # select correct prefix name to use for bowtie index files
-  if [[ $MODE = *mouse* ]]
+  
+  if [[ $MODE = *grch38* ]]
+  then
+    bt_prefix="grch38"
+  elif [[ $MODE = *mouse* ]]
   then
     bt_prefix="mm10"
   elif [[ $MODE = *rat* ]]
   then
     bt_prefix="rn5"
+  elif [[ $MODE = *elegans* ]]
+  then
+    bt_prefix="celegans"
   elif [[ $MODE = *fly* ]]
   then
     bt_prefix="dm3"
@@ -220,7 +229,7 @@ then
     j_id=`sbatch -J JunctionAlign${DATASET_NAME} ${RESOURCE_FLAG} --array=1-${NUM_FILES} --time=${ALIGN_MAX_RT} --mem=${JUNC_VMEM} -D ${CODE_DIR}/index -o ${LOG_DIR}/align/${DATASET_NAME}AlignJunction_%A_%a.out -e ${LOG_DIR}/align/${DATASET_NAME}AlignJunction_%A_%a.err analysis/align.sh $TASK_DATA_FILE $ALIGN_PARDIR $DATASET_NAME $MODE ${bt_prefix}_junctions_scrambled junction ${bt_prefix}_junctions_scrambled.fa | awk '{print $4}'`
     r_id=`sbatch -J RiboAlign${DATASET_NAME} ${RESOURCE_FLAG} --array=1-${NUM_FILES} --time=${ALIGN_MAX_RT} --mem=${RIBO_VMEM} -D ${CODE_DIR}/index -o ${LOG_DIR}/align/${DATASET_NAME}AlignRibo_%A_%a.out -e ${LOG_DIR}/align/${DATASET_NAME}AlignRibo_%A_%a.err analysis/align.sh $TASK_DATA_FILE $ALIGN_PARDIR $DATASET_NAME $MODE ${bt_prefix}_ribosomal ribo ${bt_prefix}_ribosomal.fa | awk '{print $4}'`
     t_id=`sbatch -J TranscAlign${DATASET_NAME} ${RESOURCE_FLAG} --array=1-${NUM_FILES} --time=${ALIGN_MAX_RT} --mem=${TRANSC_VMEM} -D ${CODE_DIR}/index -o ${LOG_DIR}/align/${DATASET_NAME}AlignTranscriptome_%A_%a.out -e ${LOG_DIR}/align/${DATASET_NAME}AlignTranscriptome_%A_%a.err analysis/align.sh $TASK_DATA_FILE $ALIGN_PARDIR $DATASET_NAME $MODE ${bt_prefix}_transcriptome transcriptome ${bt_prefix}_transcriptome.fa | awk '{print $4}'`
-    reg_id=`sbatch -J RegAlign${DATASET_NAME} ${RESOURCE_FLAG} --array=1-${NUM_FILES} --time=${ALIGN_MAX_RT} --mem=${REG_VMEM} -D ${CODE_DIR}/index -o ${LOG_DIR}/align/{DATASET_NAME}AlignReg_%A_%a.out -e ${LOG_DIR}/align/${DATASET_NAME}AlignReg_%A_%a.err analysis/align.sh $TASK_DATA_FILE $ALIGN_PARDIR $DATASET_NAME $MODE ${bt_prefix}_junctions_reg reg ${bt_prefix}_junctions_reg.fa | awk '{print $4}'`  
+    reg_id=`sbatch -J RegAlign${DATASET_NAME} ${RESOURCE_FLAG} --array=1-${NUM_FILES} --time=${ALIGN_MAX_RT} --mem=${REG_VMEM} -D ${CODE_DIR}/index -o ${LOG_DIR}/align/${DATASET_NAME}AlignReg_%A_%a.out -e ${LOG_DIR}/align/${DATASET_NAME}AlignReg_%A_%a.err analysis/align.sh $TASK_DATA_FILE $ALIGN_PARDIR $DATASET_NAME $MODE ${bt_prefix}_junctions_reg reg ${bt_prefix}_junctions_reg.fa | awk '{print $4}'`  
     depend_str="--depend=afterok:${g_id}:${j_id}:${r_id}:${t_id}:${reg_id}"
   fi
 fi
@@ -263,6 +272,13 @@ then
   fi
 fi
 
+  # delete files
+  if [[ "$MODE" = *delete* ]]
+  then
+    sbatch -J ${TRIMMED_DATASET_NAME}DelFiles ${RESOURCE_FLAG} -o ${ALIGN_PARDIR}/${TRIMMED_DATASET_NAME}/${TRIMMED_DATASET_N
+AME}DelDirs.out -e ${ALIGN_PARDIR}/${TRIMMED_DATASET_NAME}/${TRIMMED_DATASET_NAME}DelDirs.err --depend=afterany:${ua_id} dele
+teDirs.sh ${RAW_READ_DIR} ${TRIMMED_READ_DIR} ${ALIGN_PARDIR}/${TRIMMED_DATASET_NAME}
+  fi
 
 
 

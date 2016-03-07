@@ -12,7 +12,7 @@ GLMReportDir=${2}
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
-mkdir -p ${1}reports/withIndels/
+mkdir -p ${1}reports/AppendedReports/
 
 ml load python/2.7.5
 

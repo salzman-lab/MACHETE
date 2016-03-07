@@ -31,7 +31,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--FarJuncDir", required=True, help = "Far Junction Directory")
-parser.add_argument("-g", "--glmReportsDir", required= True, help = "glmReports Directory")
+parser.add_argument("-g", "--glmReportsDir", required= True, help = "linear junc glmReports Directory")
 parser.add_argument("-s", "--stem", required=True, help = "file stem")
 
 args=parser.parse_args()
@@ -44,7 +44,7 @@ if args.glmReportsDir[-1] != "/":
 
 indelsDir = args.FarJuncDir + "IndelsHistogram/"
 reportsDir = args.FarJuncDir + "reports/"
-outputDir = args.FarJuncDir + "reports/withIndels/"
+outputDir = args.FarJuncDir + "reports/AppendedReports/"
 BadFJDir = args.FarJuncDir + "BadFJ/" + args.stem + "/"
 NoGLM=False
 
@@ -66,6 +66,23 @@ for BadFJfile in glob.glob(BadFJDir+"*.sam"):
     f1.close()
 
 
+## Parse thru FJ GLM and load results into a dictionary for appending onto the naive report
+FJ_GLM_Dict={}
+
+for FJ_GLM_file in glob.glob(reportsDir+"glmReports/"+args.stem+"*FUSION_W_ANOM*"):
+    GLMfile=open(FJ_GLM_file, mode="rU")
+    
+    for line_raw in GLMfile:
+        if line_raw[0:4]=="junc":
+            continue
+        
+        junc=line_raw.strip().split("\t")[0]
+        value=line_raw.strip()[len(junc):][1:]           
+        
+        FJ_GLM_Dict[junc]=value        
+       
+    GLMfile.close()
+
 ## parses through the report file and adds # indels.
 
 for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
@@ -77,14 +94,13 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
     f3 = open(indelfiles[1], mode="rU")  # the indels  histo _2 file
 
     glmReportfile = glob.glob(args.glmReportsDir + "*" + args.stem + "*linear*.txt")
-    print glmReportfile
 
     if glmReportfile==[]:
         NoGLM=True
     else:
         f4 = open(glmReportfile[0], mode="rU")
     
-    fout=open(outputDir+ args.stem + "_naive_report_withIndels.txt", mode="w")
+    fout=open(outputDir+ args.stem + "_naive_report_Appended.txt", mode="w")
     
     
     #populate a junction dictionary so each key is the junction name
@@ -155,7 +171,7 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
     f1 = open(reportfile, mode = "rU")
     for line_raw in f1:
         if line_raw[0] =="@":
-            fout.write(line_raw.strip()+"\t"+"_1 NoIndels:Indels \t_2 NoIndels:Indels\tBadFJ=1\tExonL\tExonR\n")
+            fout.write(line_raw.strip()+"\t"+"_1 NoIndels:Indels \t_2 NoIndels:Indels\tBadFJ=1\tExonL\tExonR\tGLMnumReads.x\tGLMp_predicted.x\tGLMp_value.x	\tGLMnumReads.y\tGLMp_predicted.y\tGLMp_value.y\tGLMp_diff\n")
             continue
 
         junc= line_raw.strip().split("\t")[0]
@@ -179,7 +195,15 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
             exonR="No glmReport"
         
         if junc in JunctionIndelsDict:
-            fout.write(line_raw.strip()+"\t"+JunctionIndelsDict[junc][0]+"\t"+JunctionIndelsDict[junc][1]+"\t"+ BadFJ + "\t" + exonL + "\t" + exonR + "\n")
+            fout.write(line_raw.strip()+"\t"+JunctionIndelsDict[junc][0]+"\t"+JunctionIndelsDict[junc][1]+"\t"+ BadFJ + "\t" + exonL + "\t" + exonR + "\t")
         else:
-            fout.write(line_raw.strip() +"\t-\t-\t"+ BadFJ + "\t" + exonL + "\t" + exonR + "\n" ) 
+            fout.write(line_raw.strip() +"\t-\t-\t"+ BadFJ + "\t" + exonL + "\t" + exonR + "\t" ) 
+            
+        
+        if junc in FJ_GLM_Dict:
+            fout.write(FJ_GLM_Dict[junc]+"\n")
+        else:
+            fout.write("-\t-\t-\t-\t-\t-\t-\n")
+
+fout.close()
     
