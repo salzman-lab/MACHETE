@@ -27,6 +27,10 @@ else
 MODE=sam
 fi
 
+
+INSTALLDIR="/scratch/PI/horence/gillian/MACHETE/"
+CIRCREF="/share/PI/horence/circularRNApipeline_SLURM/index/"
+
 if [[ "$REFGENOME" = *HG38* ]]
 then
 PICKLEDIR="/scratch/PI/horence/grch38_junctions/"
@@ -34,7 +38,7 @@ fi
 
 if [[ "$REFGENOME" = *HG19* ]]
 then
-PICKLEDIR="/scratch/PI/horence/gillian/HG19exons"
+PICKLEDIR="/scratch/PI/horence/gillian/HG19exons/"
 fi
 
 
@@ -43,10 +47,10 @@ then
 RESOURCE_FLAG="-p owners"
 fi
 
-if [[ "$MODE" = *horence* ]]
-then
-RESOURCE_FLAG="-p horence"
-fi
+#if [[ "$MODE" = *horence* ]]
+#then
+#RESOURCE_FLAG="-p horence"
+#fi
 
 ORIG_DIR=${1}orig/
 GLM_DIR=${1}circReads/glmReports/
@@ -81,7 +85,7 @@ rm ${2}err_and_out/*
 
 
 ml load python/2.7.5
-python /scratch/PI/horence/gillian/MACHETE/writeStemIDFiles.py -o ${ORIG_DIR} -f ${2}
+python ${INSTALLDIR}writeStemIDFiles.py -o ${ORIG_DIR} -f ${2}
 
 # counting # of times to go through the "PE matching" step - is the number of paired genome files ending in .sam /2
 NUM_FILES=$((`more ${StemFile} | wc -l`))
@@ -92,13 +96,13 @@ rm ${ORIG_DIR}reg/sorted*.sam
 rm ${ORIG_DIR}genome/sorted*.sam
 ## sorting reg files
 
-j1_id=`sbatch -J sortingReg ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortReg.txt -e ${2}err_and_out/err_1sortReg.txt /scratch/PI/horence/gillian/MACHETE/AlphabetizeENCODEreads.sh ${ORIG_DIR}reg/ ${StemFile} | awk '{print $4}'`
+j1_id=`sbatch -J sortingReg ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortReg.txt -e ${2}err_and_out/err_1sortReg.txt ${INSTALLDIR}AlphabetizeENCODEreads.sh ${ORIG_DIR}reg/ ${StemFile} | awk '{print $4}'`
 
 echo "sorting reg files: job# ${j1_id}"
 
 
 # sorting genome files
-j2_id=`sbatch -J sortingGenome ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortGenome.txt -e ${2}err_and_out/err_1sortGenome.txt /scratch/PI/horence/gillian/MACHETE/AlphabetizeENCODEreads.sh ${ORIG_DIR}genome/ ${StemFile} | awk '{print $4}'`
+j2_id=`sbatch -J sortingGenome ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortGenome.txt -e ${2}err_and_out/err_1sortGenome.txt ${INSTALLDIR}AlphabetizeENCODEreads.sh ${ORIG_DIR}genome/ ${StemFile} | awk '{print $4}'`
 
 echo "sorting genome files: job# ${j2_id}"
 #
@@ -106,7 +110,7 @@ echo "sorting genome files: job# ${j2_id}"
 # finding mismatched paired end reads
 #
 #
-j3_id=`sbatch -J PEMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_2PEfinder.txt -e ${2}err_and_out/err_2PEfinder.txt --depend=afterok:${j1_id}:${j2_id} /scratch/PI/horence/gillian/MACHETE/PEfinder_genomeAndReg_ENCODE.sh ${ORIG_DIR} ${2} ${3} | awk '{print $4}'`
+j3_id=`sbatch -J PEMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_2PEfinder.txt -e ${2}err_and_out/err_2PEfinder.txt --depend=afterok:${j1_id}:${j2_id} ${INSTALLDIR}PEfinder_genomeAndReg_ENCODE.sh ${ORIG_DIR} ${2} ${3} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "Outputting Mismatched paired ends: job ${j3_id}"
 #
@@ -114,12 +118,12 @@ echo "Outputting Mismatched paired ends: job ${j3_id}"
 #
 # counting rates of mismatched PE
 #
-j4_id=`sbatch -J CountMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_3PEcounter.txt -e ${2}err_and_out/err_3PEcounter.txt --depend=afterok:${j3_id} /scratch/PI/horence/gillian/MACHETE/DistantPE_Counter_genome_ENCODE.sh ${2} ${StemFile} | awk '{print $4}'`
+j4_id=`sbatch -J CountMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_3PEcounter.txt -e ${2}err_and_out/err_3PEcounter.txt --depend=afterok:${j3_id} ${INSTALLDIR}DistantPE_Counter_genome_ENCODE.sh ${2} ${StemFile} ${INSTALLDIR} | awk '{print $4}'`
 echo "counting mismatch rates: ${j4_id}"
 
 # sort mismatched PE by chromosome
 
-j5_id=`sbatch -J SortPE ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_4PEsort.txt -e ${2}err_and_out/err_4PEsort.txt --depend=afterok:${j4_id} /scratch/PI/horence/gillian/MACHETE/SortPairedEnds.sh ${2} | awk '{print $4}'`
+j5_id=`sbatch -J SortPE ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_4PEsort.txt -e ${2}err_and_out/err_4PEsort.txt --depend=afterok:${j4_id} ${INSTALLDIR}SortPairedEnds.sh ${2} | awk '{print $4}'`
 
 echo "sorting mismatched PE files: ${j5_id}"
 
@@ -131,7 +135,7 @@ A=${c}
     if [ ${c} -eq 23 ]; then A=X; fi
     if [ ${c} -eq 24 ]; then A=Y; fi
 
-    j6_id=`sbatch -J MakeFJFasta ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5makefasta.txt -e ${2}err_and_out/err_5makefasta.txt --depend=afterok:${j5_id} /scratch/PI/horence/gillian/MACHETE/makeJunctions.sh ${PICKLEDIR} ${2} ${A}| awk '{print $4}'`
+    j6_id=`sbatch -J MakeFJFasta ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5makefasta.txt -e ${2}err_and_out/err_5makefasta.txt --depend=afterok:${j5_id} ${INSTALLDIR}makeJunctions.sh ${PICKLEDIR} ${2} ${A} ${INSTALLDIR} | awk '{print $4}'`
     depend_str6=${depend_str6}:${j6_id}
 done
 
@@ -142,20 +146,20 @@ echo "make fusion fasta files: ${depend_str6}"
 #
 #make single FJ fasta from all the fastas and then call bowtie indexer
 
-j6a_id=`sbatch -J FJ_Index ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5FJIndexing.txt -e ${2}err_and_out/err_5FJIndexing.txt ${depend_str6} /scratch/PI/horence/gillian/MACHETE/linkfastafiles.sh ${2} | awk '{print $4}'`
+j6a_id=`sbatch -J FJ_Index ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5FJIndexing.txt -e ${2}err_and_out/err_5FJIndexing.txt ${depend_str6} ${INSTALLDIR}linkfastafiles.sh ${2} | awk '{print $4}'`
 echo "make FJ bowtie indices for each experiment: ${j6a_id}"
 
 
 #
 # make BadJunc directory --  bad juncs will align to genome/transcriptome/junc/reg but good juncs will not align
 #
-j7_id=`sbatch -J BadJuncs ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_6BadJunc.txt -e ${2}err_and_out/err_6BadJunc.txt ${depend_str6} /scratch/PI/horence/gillian/MACHETE/GoodvsBadFJ_SLURM.sh ${2} ${4} | awk '{print $4}'`
+j7_id=`sbatch -J BadJuncs ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_6BadJunc.txt -e ${2}err_and_out/err_6BadJunc.txt ${depend_str6} ${INSTALLDIR}GoodvsBadFJ_SLURM.sh ${2} ${4} ${INSTALLDIR} ${CIRCREF} | awk '{print $4}'`
 echo "Identify Bad FJ's: ${j7_id}"
 #
 #
 # align unaligned files to the FJ bowtie index
 #
-j8_id=`sbatch -J AlignFJ ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_7AlignFJ.txt -e ${2}err_and_out/err_7AlignFJ.txt --depend=afterok:${j6a_id} /scratch/PI/horence/gillian/MACHETE/AlignUnalignedtoFJ.sh ${2} ${ORIG_DIR} | awk '{print $4}'`
+j8_id=`sbatch -J AlignFJ ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_7AlignFJ.txt -e ${2}err_and_out/err_7AlignFJ.txt --depend=afterok:${j6a_id} ${INSTALLDIR}AlignUnalignedtoFJ.sh ${2} ${ORIG_DIR} | awk '{print $4}'`
 
 echo "align unaligned reads to FJ index: ${j8_id}"
 #
@@ -164,7 +168,7 @@ echo "align unaligned reads to FJ index: ${j8_id}"
 ##make FJ naive report
 #
 
-j9_id=`sbatch -J FJNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_8NaiveRpt.txt -e ${2}err_and_out/err_8NaiveRpt.txt --depend=afterok:${j8_id} /scratch/PI/horence/gillian/MACHETE/FarJuncNaiveReport.sh ${2} ${ORIG_DIR} ${5}| awk '{print $4}'`
+j9_id=`sbatch -J FJNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_8NaiveRpt.txt -e ${2}err_and_out/err_8NaiveRpt.txt --depend=afterok:${j8_id} ${INSTALLDIR}FarJuncNaiveReport.sh ${2} ${ORIG_DIR} ${5} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "make naive rpt - ${j9_id}"
 #
@@ -173,7 +177,7 @@ echo "make naive rpt - ${j9_id}"
 #Make Class input files for GLM
 #
 #
-j15a_id=`sbatch -J AddFJtoIDfile ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=5000 --nodes=1 --time=1:0:0 -o ${2}err_and_out/out_15FJforGLM.txt -e ${2}err_and_out/err_15FJforGLM.txt --depend=afterok:${j9_id} /scratch/PI/horence/gillian/MACHETE/parse_FJ_ID_for_GLM.sh ${2} "${1}circReads/" | awk '{print $4}'`
+j15a_id=`sbatch -J AddFJtoIDfile ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=5000 --nodes=1 --time=1:0:0 -o ${2}err_and_out/out_15FJforGLM.txt -e ${2}err_and_out/err_15FJforGLM.txt --depend=afterok:${j9_id} ${INSTALLDIR}parse_FJ_ID_for_GLM.sh ${2} "${1}circReads/" | awk '{print $4}'`
 
 echo "make FJ class input files: ${j15a_id}"
 
@@ -181,7 +185,7 @@ echo "make FJ class input files: ${j15a_id}"
 
 ## Run GLM
 #
-j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=1:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j15a_id} /scratch/PI/horence/gillian/MACHETE/run_GLM.sh ${1} ${2} | awk '{print $4}'`
+j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=1:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j15a_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "Run GLM: ${j15b_id}"
 
@@ -195,7 +199,7 @@ echo "Run GLM: ${j15b_id}"
 ##
 ##make FarJunctions.fa => Indel.fa files
 ##
-j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_10FJIndels.txt --depend=afterok:${j6a_id} /scratch/PI/horence/gillian/MACHETE/MakeIndelFiles.sh ${2} ${6} | awk '{print $4}'`
+j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_10FJIndels.txt --depend=afterok:${j6a_id} ${INSTALLDIR}MakeIndelFiles.sh ${2} ${6} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "make indel files: ${j10_id}"
 
@@ -209,7 +213,7 @@ depend_str11="--depend=afterok"
 START=1
 for (( c=$START; c<=${6}; c++ ))
 do
-j11_id=`sbatch -J IndexFJIndel ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_11indexindels.txt -e ${2}err_and_out/err_11indexindels.txt --depend=afterok:${j10_id} /scratch/PI/horence/gillian/MACHETE/BowtieIndexFJIndels.sh ${2}FarJuncIndels/ ${c} ${2}BowtieIndels/ ${2} | awk '{print $4}'`
+j11_id=`sbatch -J IndexFJIndel ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_11indexindels.txt -e ${2}err_and_out/err_11indexindels.txt --depend=afterok:${j10_id} ${INSTALLDIR}BowtieIndexFJIndels.sh ${2}FarJuncIndels/ ${c} ${2}BowtieIndels/ ${2} | awk '{print $4}'`
 depend_str11=${depend_str11}:${j11_id}
 
 done
@@ -227,7 +231,7 @@ START=1
 for (( c=$START; c<=${6}; c++ ))
 do
 BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50"
-j13_id=`sbatch -J AlignIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_12alignindels.txt -e ${2}err_and_out/err_12alignindels.txt ${depend_str11} /scratch/PI/horence/gillian/MACHETE/BowtieAlignFJIndels.sh ${2} "${BOWTIEPARAMETERS}" ${c} | awk '{print $4}'`
+j13_id=`sbatch -J AlignIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_12alignindels.txt -e ${2}err_and_out/err_12alignindels.txt ${depend_str11} ${INSTALLDIR}BowtieAlignFJIndels.sh ${2} "${BOWTIEPARAMETERS}" ${c} | awk '{print $4}'`
     depend_str13=${depend_str13}:${j13_id}
 
 done
@@ -242,7 +246,7 @@ echo "align to indels: ${depend_str13}"
 
 #
 
-j14_id=`sbatch -J FilterIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_13filterIndels.txt -e ${2}err_and_out/err_13filterIndels.txt ${depend_str13} /scratch/PI/horence/gillian/MACHETE/FindAlignmentArtifact_SLURM.sh ${2} ${7} ${6}| awk '{print $4}'`
+j14_id=`sbatch -J FilterIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_13filterIndels.txt -e ${2}err_and_out/err_13filterIndels.txt ${depend_str13} ${INSTALLDIR}FindAlignmentArtifact_SLURM.sh ${2} ${7} ${6} ${INSTALLDIR}| awk '{print $4}'`
 
 echo "make indels histo: ${j14_id}"
 ##
@@ -250,37 +254,37 @@ echo "make indels histo: ${j14_id}"
 # Append Naive report:  Add Indels, quality of junctions (good/bad), frequency of junction participation in linear junctions, and GLM report fields to the Naive report
 #
 #
-j15_id=`sbatch -J AppendNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_14AppendRpt.txt -e ${2}err_and_out/err_14AppendRpt.txt --depend=afterok:${j7_id}:${j14_id}:${j9_id}:${j15b_id} /scratch/PI/horence/gillian/MACHETE/AppendNaiveRept.sh ${2} ${GLM_DIR} | awk '{print $4}'`
+j15_id=`sbatch -J AppendNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_14AppendRpt.txt -e ${2}err_and_out/err_14AppendRpt.txt --depend=afterok:${j7_id}:${j14_id}:${j9_id}:${j15b_id} ${INSTALLDIR}AppendNaiveRept.sh ${2} ${GLM_DIR} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "append naive rpt: ${j15_id}"
-
-##
-##
-# REG INDELS ################
-
-# Align unaligned files to the expanded reg junctions with indels
-AlignedIndels=${1}/orig/RegIndelAlignments/
-mkdir -p ${AlignedIndels}
-
-depend_str16=--depend=afterok
-START=1
-for (( c=$START; c<=${6}; c++ ))
-do
-BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50"
-j16_id=`sbatch -J AlignRegIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_15AlignRegIndels.txt -e ${2}err_and_out/err_15AlignRegIndels.txt /scratch/PI/horence/gillian/MACHETE/AlignUnalignedtoRegIndel.sh ${1} ${c} ${2} "${BOWTIEPARAMETERS}" | awk '{print $4}'`
-    depend_str16=${depend_str16}:${j16_id}
-done
-echo "Aligning unaligned files to linear junc indels: ${depend_str16}"
-
-
-
-# Add anomalies and ratio of indels to GLM reports
 #
-
-j17_id=`sbatch -J AppendGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_17AppendGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16}  /scratch/PI/horence/gillian/MACHETE/AddIndelstoGLM.sh ${1} ${2} ${7} | awk '{print $4}'`
-echo " Appending GLM report: ${j17_id}"
+###
+###
+## REG INDELS ################
+#
+## Align unaligned files to the expanded reg junctions with indels
+#AlignedIndels=${1}/orig/RegIndelAlignments/
+#mkdir -p ${AlignedIndels}
+#
+#depend_str16=--depend=afterok
+#START=1
+#for (( c=$START; c<=${6}; c++ ))
+#do
+#BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50"
+#j16_id=`sbatch -J AlignRegIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_15AlignRegIndels.txt -e ${2}err_and_out/err_15AlignRegIndels.txt ${INSTALLDIR}AlignUnalignedtoRegIndel.sh ${1} ${c} ${2} "${BOWTIEPARAMETERS}" | awk '{print $4}'`
+#    depend_str16=${depend_str16}:${j16_id}
+#done
+#echo "Aligning unaligned files to linear junc indels: ${depend_str16}"
+#
+#
+#
+## Add anomalies and ratio of indels to GLM reports
 ##
 #
-
+#j17_id=`sbatch -J AppendGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_17AppendGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16}  ${INSTALLDIR}AddIndelstoGLM.sh ${1} ${2} ${7} | awk '{print $4}'`
+#echo " Appending GLM report: ${j17_id}"
+###
+##
+#
 
 

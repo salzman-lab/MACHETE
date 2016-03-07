@@ -7,6 +7,7 @@
 #
 CircularPipelineDir=${1} #directory that contains circReads, orig, logs, etc
 FJDir=${2}
+INSTALLDIR=${3}
 
 #testing mode
 
@@ -30,4 +31,4 @@ FJ_input=${file}
 done
 
 ml load R/3.0.2
-Rscript GLM_script.r ${FJ_input} ${class_input} ${STEM} ${OUTPUTDIR}
+Rscript ${INSTALLDIR}GLM_script.r ${FJ_input} ${class_input} ${STEM} ${OUTPUTDIR}
