@@ -22,21 +22,15 @@ Matching paired files must have identical names except for that which denotes th
 Please open and change the script createFarJunctions_SLURM.sh
 
 line31 - change your INSTALLDIR to the full path to the MACHETE script.  Last char must be "/"
-
 line32 - change CIRCREF to the path to the reference libraries generated for KNIFE e.g. directory that contains hg19_genome, hg19_transcriptome, hg19_junctions_reg and hg19_junctions_scrambled bowtie indices.
-
 line41 - PICKLEDIR - please change this path to the path that you used to store the HG19exons directory above
 
 Running MACHETE:
-
 First run KNIFE script completely to generate linear and scrambled junction reports and alignments.
-
 
 sh createFarJunctions_SLURM.sh <1. KNIFE parent directory> <2. output directory> <3. discordant read distance> <4. ref genome> <5. junction overlapping reads> <6. #indels to use> <7. indel junction overlapping reads> 
 
-
 NOTE -- ALL directory inputs must end in "/"
-
 
 1. KNIFE parent directory - contains output from the KNIFE algorithm.  This directory is the path to the directory that contains "circReads", "orig", "logs", "sampleStats"
 2. output directory - must already be in existence.
