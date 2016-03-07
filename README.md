@@ -4,9 +4,11 @@ More Accurate CHimEra Tracking Engine
 MACHETE is a fusion detection software that is in development.
 
 REQUIREMENTS: 
-KNIFE - https://github.com/lindaszabo/KNIFE
-R version 3.0.2
-Bowtie2 
+
+1. KNIFE - https://github.com/lindaszabo/KNIFE
+2. R version 3.0.2
+3. Bowtie2 
+4. python version 2.7.5
 
 Before you use:
 Please download "PICKLES" -- the HG19 annotated exon information created for the purpose of this script
