@@ -9,7 +9,10 @@
 ########## FUNCTIONS ##########
 #library(data.table)
 require(data.table)
- 
+library(base)
+set.seed(1, kind = NULL, normal.kind = NULL)
+
+
 # allows for variable read length (for trimmed reads)
 getOverlapForTrimmed <- function(x, juncMidpoint=150){
     if (as.numeric(x["pos"]) > juncMidpoint){

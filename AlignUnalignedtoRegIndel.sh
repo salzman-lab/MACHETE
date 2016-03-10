@@ -10,6 +10,8 @@ CircPipeDir=${1}
 IndelNumber=${2}
 FarJuncDir=${3}
 BOWTIEPARAM=${4}
+REG_INDEL_INDICES=${5}
+
 
 STEMFILE=${3}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
@@ -19,7 +21,7 @@ unalignedDir=${1}orig/unaligned/
 AlignedIndels=${1}orig/RegIndelAlignments/${STEM}/
 mkdir -p ${AlignedIndels}
 
-IndelIndex="/scratch/PI/horence/gillian/HG19_reg_indels/IndelIndices/hg19_junctions_reg_indels_${2}"
+IndelIndex="${5}hg19_junctions_reg_indels_${2}"
 
 for file in ${unalignedDir}*${STEM}*.fq
 do
