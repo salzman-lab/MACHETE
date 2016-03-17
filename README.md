@@ -18,7 +18,7 @@ or  ABCD_EFG_HIJ_KLM_001.fq & ABCD_EFG_HIJ_KLM_002.fq
 
 The last field  before ".fq" has to be the part that indicates whether the file contains R1 or R2 partners.
 
-2. R version 3.0.2
+2. R version 3.0.2 - or a later version but with the package "data.table" installed
 3. Bowtie2 
 4. python version 2.7.5
 
