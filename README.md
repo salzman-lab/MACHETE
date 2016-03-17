@@ -1,11 +1,18 @@
 # MACHETE
-More Accurate CHimEra Tracking Engine
+More Accurate vs Mismatched Alignment CHimEra Tracking Engine
 
 MACHETE is a fusion detection software that is in development.
 
 REQUIREMENTS: 
 
 1. KNIFE - https://github.com/lindaszabo/KNIFE
+   NOTE *** - before running KNIFE, please make sure your fastq files are in the following format:
+<UNIQUE STRING>_<read1 or 2 file notation>.fastq
+some examples of acceptable things are pairs called ABCD_EFG_HIJ_KLM_1.fq & ABCD_EFG_HIJ_KLM_2.fq 
+or  ABCD_EFG_HIJ_KLM_R1.fq & ABCD_EFG_HIJ_KLM_R2.fq 
+or  ABCD_EFG_HIJ_KLM_001.fq & ABCD_EFG_HIJ_KLM_002.fq 
+The last field  before ".fq" has to be the part that indicates whether the file contains R1 or R2 partners.
+
 2. R version 3.0.2
 3. Bowtie2 
 4. python version 2.7.5
