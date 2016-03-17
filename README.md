@@ -6,9 +6,9 @@ MACHETE is a fusion detection software that is in development.
 REQUIREMENTS: 
 
 1. KNIFE - https://github.com/lindaszabo/KNIFE
-   NOTE *** - before running KNIFE, please make sure your fastq files are in the following format:
+   NOTE --  before running KNIFE, please make sure your fastq files are in the following format:
 
-<UNIQUE STRING>_<read1 or 2 file notation>.fastq
+"UNIQUE STRING"_"read1 or 2 file notation".fastq
 
 some examples of acceptable things are pairs called ABCD_EFG_HIJ_KLM_1.fq & ABCD_EFG_HIJ_KLM_2.fq 
 
