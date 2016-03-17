@@ -26,11 +26,11 @@ Before you use:
 Please download "PICKLES" -- the HG19 annotated exon information created for the purpose of this script
 
 For Sherlock users, this is the directory "/scratch/PI/horence/gillian/HG19exons/"
+For Sherlock users, please download the REG INDELS INDICES from - /scratch/PI/horence/gillian/HG19_reg_indels/IndelIndices/
 
 For other users, please email glhsieh@stanford.edu for this directory.
 
 Requires paired end read data.
-Matching paired files must have identical names except for that which denotes them as read 1 or read 2. For example "abcdef_1.fq" and "abcdef_2.fq" OR "abcedf_R1.fq" and "abcdef_R2.fq"
 
 
 Please open and change the script createFarJunctions_SLURM.sh
