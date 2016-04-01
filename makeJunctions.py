@@ -20,7 +20,7 @@ class locationparameters:
             self.strand="-"
         else:
             self.strand="+"
-            
+        
         read = read.replace(":"," ").replace("-"," ").replace("strand=", " ").split(" ")
         self.chr = read[0]
         self.start = int(read[1])
@@ -203,8 +203,16 @@ def MakeJunc(chrA, strandA, NameA, LocA, chrB, strandB, NameB, LocB):
             JuncType = "reg"
         else: 
             JuncType = "rev"
-        
-    return "chr"+str(chrA)+":"+str(NameA)+":"+str(LocA)+":"+x[strandA]+"|chr"+str(chrB)+":"+str(NameB)+":"+str(LocB)+":"+x[strandB]+"|"+JuncType
+
+    trueLocA=int(LocA)
+    trueLocB=int(LocB)
+
+    if strandA==-1:
+        trueLocA+=1
+    if strandB==1:
+        trueLocB+=1
+
+    return "chr"+str(chrA)+":"+str(NameA)+":"+str(trueLocA)+":"+x[strandA]+"|chr"+str(chrB)+":"+str(NameB)+":"+str(trueLocB)+":"+x[strandB]+"|"+JuncType
             
 def MakeSeq(seqA, seqB):
     pad = "N"*150

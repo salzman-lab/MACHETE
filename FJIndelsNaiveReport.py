@@ -4,7 +4,7 @@ Created on Wed Sep 16 16:12:27 2015
 
 @author: Gillian
 """
-# takes alignments from Far Junctions and finds read partner. 
+# takes alignments from Indels and finds read partner. 
 # all Far Junction and Scrambled junction reads where the alignment does not overlap the 
 # Junction by args.window bp will be thrown out.
 
@@ -39,9 +39,9 @@ Created on Wed Sep 16 16:12:27 2015
 import argparse
 import os
 import glob
+import fileinput
 from math import sqrt
-from math import ceil
-from scipy.stats import poisson
+from scipy.stats import norm
 from collections import Counter
 
 def AddToDict(inputtype, TargetDict, line_raw_comparison, line_raw_FJ):
@@ -186,18 +186,15 @@ def ID(string):
     else:
         return string
 
-## actual MM - round up to nearest integer = X
-## expected MM  - no need to round = lambda
-## return 1- poisson.cdf(X, lambda)
 
 def Pvalue(AS, NumBases):
     ExpectedMMrate = 0.01
     ExpectedMM = ExpectedMMrate*float(NumBases)
     if NumBases == 0.0:
         return "-"
-    ActualMM = int(ceil(float(AS)/(-6.0)))
-    prob = 1 - poisson.cdf(ActualMM, ExpectedMM)
-    return prob
+    ActualMM = float(AS)/(-6.0)
+    Z = (ActualMM - ExpectedMM ) / sqrt(float(NumBases)*(ExpectedMMrate)*(1.0-ExpectedMMrate))
+    return norm.cdf(-Z)
 
 
 class ReadInfoFJ:
@@ -206,8 +203,12 @@ class ReadInfoFJ:
         self.ID = ID(line[0])       
         self.refstrand = line[1]
         self.junction = line[2]
+        if self.junction[-4:-1]=="DEL":
+            self.indel=-int(self.junction[-1:])
+        elif self.junction[-4:-1]=="INS":
+                self.indel=int(self.junction[-1:])
         self.MAPQ = int(line[4])
-        self.AS= int(line[11].split(":")[2])        
+        self.AS= int(line[11].split(":")[2])
         self.NumOfBases = len(line[9])
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
@@ -218,7 +219,7 @@ class ReadInfoFJ:
 
         JuncInfo = line[2].replace(":"," ").replace("|"," ").split(" ")
         self.chr_left=JuncInfo[0]
-        self.loc_left= JuncInfo[2]
+        self.loc_left=JuncInfo[2]
         self.strand_left = JuncInfo[3]
         self.chr_right = JuncInfo[4]
         self.loc_right = JuncInfo[6]
@@ -289,20 +290,27 @@ regfiles=[]
 junctionfiles=[]
 unalignedfiles=[]
 
-for name in glob.glob(args.FJDir + "FarJunctionAlignments/"+ stem + "/*.sam"):
+for name in glob.glob(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ stem + "/*.sam"):
+    print name
     FarJunctionfiles.append(name)
+    # FarJunctionFiles contains indel alignments for _1 and _2 files to indels 1-5
+
 
 for name in glob.glob(os.path.join(args.origDir,"genome/*" + stem + "*.sam")):        
+    print name
     if "sorted" not in name:       
         genomefiles.append(name)
 
 for name in glob.glob(os.path.join(args.origDir,"reg/*" + stem + "*.sam")):
+    print name
     if "sorted" not in name:       
         regfiles.append(name) 
 for name in glob.glob(os.path.join(args.origDir,"junction/*" + stem + "*.sam")):
+    print name
     if "sorted" not in name:       
         junctionfiles.append(name) 
 for name in glob.glob(os.path.join(args.origDir,"unaligned/*" + stem + "*.fq")):
+    print name
     if "sorted" not in name:       
         unalignedfiles.append(name)         
     
@@ -314,8 +322,25 @@ print sorted(regfiles)
 print sorted(junctionfiles)
 print sorted(unalignedfiles)
 
-f1_FarJunc= open(sorted(FarJunctionfiles)[0], mode ="rB")
-f2_FarJunc= open(sorted(FarJunctionfiles)[1], mode="rB")
+
+## concatenate all fJ indels files into a single big indels file
+fout_FJ1= open(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ stem + "/All_" + stem + "_1_indels.sam", mode="w")
+fout_FJ2= open(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ stem + "/All_" + stem + "_2_indels.sam", mode="w")
+
+FJ1_list= sorted(FarJunctionfiles)[0:len(FarJunctionfiles)/2]
+FJ2_list= sorted(FarJunctionfiles)[len(FarJunctionfiles)/2:]
+input_lines=fileinput.input(FJ1_list)
+fout_FJ1.writelines(input_lines)
+input_lines=fileinput.input(FJ2_list)
+fout_FJ2.writelines(input_lines)
+
+fout_FJ1.close()
+fout_FJ2.close()
+
+## open big indels files
+
+f1_FarJunc= open(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ stem + "/All_" + stem + "_1_indels.sam", mode ="rB")
+f2_FarJunc= open(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ stem + "/All_" + stem + "_2_indels.sam", mode="rB")
 
 f1_genome = open(sorted(genomefiles)[0], mode="rB")
 f2_genome = open(sorted(genomefiles)[1], mode="rB")
@@ -341,7 +366,7 @@ f2_unaligned=open(sorted(unalignedfiles)[1], mode="rB")
     # [10] = unmapped
 
 
-IDfile = open(args.FJDir+"reports/IDs_"+stem+".txt", mode= "w")
+IDfile = open(args.FJDir+"FJIndelsreports//IDs_"+stem+".txt", mode= "w")
 IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_AS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_AS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
 
 #populate all reads and junctions into separate dictionaries
@@ -360,46 +385,29 @@ unmappedDict= {} # start with all readIDs.  if a partner is seen, then remove fr
 # in order for R1 to feed into dictionary, must overlap entire offset (userspecified)
 print "opening FarJunc _1 file"
 
-linecounter=0
-newjunccounter=0
-goodlinecounter=0
-
 for line_raw in f1_FarJunc:
     if line_raw[0] =="@":
         continue
-    linecounter+=1
     
     FJ1read = ReadInfoFJ(line_raw)
-    if FJ1read.offset <= (150-window) and (FJ1read.offset+FJ1read.NumOfBases)>= 150+window:  
-        goodlinecounter+=1
+    
+    if FJ1read.offset <= (150+FJ1read.indel-window) and (FJ1read.offset+FJ1read.NumOfBases)>= 150+FJ1read.indel+window:    
         AllFJRead1[FJ1read.ID] = [line_raw, 0]
         if FJ1read.junction not in AllJunctions:
             AllJunctions[FJ1read.junction]=0
-            newjunccounter+=1
         AllJunctions[FJ1read.junction] +=1
         unmappedDict[FJ1read.ID] = FJ1read.junction
         
 f1_FarJunc.close()
-print "lines "+ str(linecounter)
-print "good lines " + str(goodlinecounter)
-print "independent juncs" + str(newjunccounter)
-
 IDfile.flush()
 
 # populate AllFJRead2 dictionary - all read 2's from FarJunc alignments
 # in order for R1 to feed into dictionary, must overlap entire offset (userspecified)
 print "opening farJunc _2 file"
-
-
-linecounter=0
-newjunccounter=0
-goodlinecounter=0
-overlapwithFJ1=0
-
 for line_raw in f2_FarJunc:
     if line_raw[0] =="@":
         continue
-    linecounter+=1
+    
     FJ2read = ReadInfoFJ(line_raw)
 
 #    if FJ1read.junction=="chr1:S100A4:153516097:-|chr1:IFI16:158985661:+|strandcross":
@@ -407,31 +415,23 @@ for line_raw in f2_FarJunc:
 
     # if R1 and R2 both in Far Junc, then add to FJ-FJ list
     if FJ2read.ID in AllFJRead1:
-        overlapwithFJ1+=1
         #print "found FJ read"
         #AllFJRead1[FJ2read.ID][1]="FJ"
-        if FJ2read.offset <= (150-window) and (FJ2read.offset+FJ2read.NumOfBases)>= 150+window and AllFJRead1[FJ2read.ID][1]==0:    
+        if FJ2read.offset <= (150+FJ2read.indel-window) and (FJ2read.offset+FJ2read.NumOfBases)>= 150+FJ2read.indel+window and AllFJRead1[FJ2read.ID][1]==0:    
             FJDict = AddToDict("FJ",FJDict,line_raw,AllFJRead1[FJ2read.ID][0])
             AllFJRead1[FJ2read.ID][1]="FJ"
             if FJ2read.ID in unmappedDict:
                 del unmappedDict[FJ2read.ID]
         # otherwise add to F2 read
     else:
-        if FJ2read.offset <= (150-window) and (FJ2read.offset+FJ2read.NumOfBases)>= 150+window:    
-            goodlinecounter+=1
-            AllFJRead2[FJ2read.ID]= [line_raw, 0]
-            unmappedDict[FJ2read.ID] = FJ2read.junction        
-            if FJ2read.junction not in AllJunctions:
-                newjunccounter+=1
-                AllJunctions[FJ2read.junction]=0
+        AllFJRead2[FJ2read.ID]= [line_raw, 0]
+        unmappedDict[FJ2read.ID] = FJ2read.junction
         
-            AllJunctions[FJ2read.junction]+=1
+    if FJ2read.junction not in AllJunctions:
+        AllJunctions[FJ2read.junction]=0
+        
+    AllJunctions[FJ2read.junction]+=1
 f2_FarJunc.close()
-
-print "lines "+ str(linecounter)
-print "good lines " + str(goodlinecounter)
-print "independent juncs" + str(newjunccounter)
-print "overlapping with FJ1 " + str(overlapwithFJ1)
 IDfile.flush()
 
 
@@ -570,7 +570,7 @@ f1_unaligned.close()
 IDfile.flush()
 
 # output header
-outputfile = "reports/" + stem + "_naive_report.txt"  
+outputfile = "FJIndelsreports/" + stem + "indels_naive_report.txt"  
 fout = open(args.FJDir+outputfile, mode = "w")
 print "fout: " + args.FJDir+outputfile
 

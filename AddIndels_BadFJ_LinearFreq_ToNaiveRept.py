@@ -19,9 +19,6 @@ def addindels(bracketedstring):
     return NumJuncAlignments, NumIndels
 
 
-
-
-
 ## START PROGRAM
 
 
@@ -74,10 +71,11 @@ for FJ_GLM_file in glob.glob(reportsDir+"glmReports/"+args.stem+"*FUSION_W_ANOM*
     
     for line_raw in GLMfile:
         if line_raw[0:4]=="junc":
+            FJ_GLM_Dict["header"]=line_raw.strip()[9:]
             continue
         
         junc=line_raw.strip().split("\t")[0]
-        value=line_raw.strip()[len(junc):][1:]           
+        value=line_raw.strip()[len(junc)+1:]           
         
         FJ_GLM_Dict[junc]=value        
        
@@ -171,7 +169,7 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
     f1 = open(reportfile, mode = "rU")
     for line_raw in f1:
         if line_raw[0] =="@":
-            fout.write(line_raw.strip()+"\t"+"_1 NoIndels:Indels \t_2 NoIndels:Indels\tBadFJ=1\tExonL\tExonR\tGLMnumReads.x\tGLMp_predicted.x\tGLMp_value.x	\tGLMnumReads.y\tGLMp_predicted.y\tGLMp_value.y\tGLMp_diff\n")
+            fout.write(line_raw.strip()+"\t_1NoIndels:Indels\t_2NoIndels:Indels\tBadFJ=1\tExonL\tExonR\t"+ FJ_GLM_Dict["header"]+"\n")
             continue
 
         junc= line_raw.strip().split("\t")[0]
@@ -205,5 +203,5 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
         else:
             fout.write("-\t-\t-\t-\t-\t-\t-\n")
 
-fout.close()
+    fout.close()
     

@@ -78,11 +78,13 @@ for filename in glob.glob(FarJunctionAlignments+ "*.sam"):
             continue
         
         line=line_raw.strip().split("\t")
+
+        if int(line[3]) > (150-int(args.overlap)) or (int(line[3])+len(line[9])) <  (150+int(args.overlap)):
+
+            if line[2] not in JunctionDict:
+                JunctionDict[line[2]]= [0]*(2*int(args.NumIndels)+1)
         
-        if line[2] not in JunctionDict:
-            JunctionDict[line[2]]= [0]*(2*int(args.NumIndels)+1)
-        
-        JunctionDict[line[2]][int(args.NumIndels)]+=1
+            JunctionDict[line[2]][int(args.NumIndels)]+=1
         
     f1.close()
 
