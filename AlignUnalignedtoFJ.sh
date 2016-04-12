@@ -23,7 +23,7 @@ mkdir -p ${STILL_UNALIGNED_DIR}
 for file in ${2}unaligned/*${STEM}*.fq
 do
 FILENAME=$(basename "$file" .fq)
-BOWTIEPARAM="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50 --un ${STILL_UNALIGNED_DIR}still_${FILENAME}.fq"
+BOWTIEPARAM="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50 --n-ceil L,0,1 --un ${STILL_UNALIGNED_DIR}still_${FILENAME}.fq"
 COMMAND="${BOWTIEPARAM} -x ${BOWTIE_INDEX} -U ${file} -S ${OUTPUT_SAM_DIR}${FILENAME}.sam"
 
 bowtie2 ${COMMAND}

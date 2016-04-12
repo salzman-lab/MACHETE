@@ -1,0 +1,349 @@
+Loading required package: data.table
+Read 62.5% of 911802 rowsRead 91.0% of 911802 rowsRead 911802 rows and 16 (of 16) columns from 0.112 GB file in 00:00:04
+[1] "IN DEBUGGING MODE"
+[1] "using  /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/SRR896703_1__output_FJ.txt"
+[1] "IN DEBUGGING MODE"
+Warning messages:
+1: In if (my.names != "none") { :
+  the condition has length > 1 and only the first element will be used
+2: In `names<-.data.table`(`*tmp*`, value = c("id", "class", "pos",  :
+  The names(x)<-value syntax copies the whole table. This is due to <- in R itself. Please change to setnames(x,old,new) which does not copy and is faster. See help('setnames'). You can safely ignore this warning if it is inconvenient to change right now. Setting options(warn=2) turns this warning into an error, so you can then use traceback() to find and change your names<- calls.
+[1] "using  /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/SRR896703_output_RegIndel.txt  and  /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/SRR896703_output_FJIndels.txt"
+[1] "IN DEBUGGING MODE"
+[1] "IN DEBUGGING MODE"
+Warning messages:
+1: In if (my.names != "none") { :
+  the condition has length > 1 and only the first element will be used
+2: In `names<-.data.table`(`*tmp*`, value = c("id", "class", "pos",  :
+  The names(x)<-value syntax copies the whole table. This is due to <- in R itself. Please change to setnames(x,old,new) which does not copy and is faster. See help('setnames'). You can safely ignore this warning if it is inconvenient to change right now. Setting options(warn=2) turns this warning into an error, so you can then use traceback() to find and change your names<- calls.
+3: In if (my.names != "none") { :
+  the condition has length > 1 and only the first element will be used
+4: In `names<-.data.table`(`*tmp*`, value = c("id", "class", "pos",  :
+  The names(x)<-value syntax copies the whole table. This is due to <- in R itself. Please change to setnames(x,old,new) which does not copy and is faster. See help('setnames'). You can safely ignore this warning if it is inconvenient to change right now. Setting options(warn=2) turns this warning into an error, so you can then use traceback() to find and change your names<- calls.
+[1] "class info processed 911802" "class info processed 16"    
+[1] "check if syntax for multiple makes sense"
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "finished circ_reads"
+[1] "check if syntax for multiple makes sense"
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "finished decoy_reads"
+[1] "check if syntax for multiple makes sense"
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "finished linear_reads"
+[1] "finished anomaly_reads"
+[1] "Finished reg indels"
+[1] "check if syntax for multiple makes sense"
+[1] "Finished FJ indels"
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "check if syntax for multiple makes sense"
+[1] "ANOMALY fusions defined as FJ bad-- of any variety"
+[1] "check if syntax for multiple makes sense"
+                  id qual
+1: SRR896703.1549701    0
+2: SRR896703.1691504    0
+3: SRR896703.1840563   40
+4: SRR896703.3056174    0
+5: SRR896703.3852194    3
+6: SRR896703.4559837    0
+7: SRR896703.4927211    0
+8: SRR896703.5344698    3
+                                                    junction qualR2 is.pos
+1: chr9:LOC100132352:68727638:+|chr4:FRG1:190864357:+|fusion      0      1
+2:      chr20:RBM39:34302107:-|chr8:GPAA1:145139946:+|fusion     42      1
+3:      chr20:BCAS4:49411710:+|chr17:BCAS3:59445688:+|fusion      0      1
+4: chr9:LOC100132352:68727638:+|chr4:FRG1:190864357:+|fusion      0      1
+5:   chr6:HLA-H:29856519:+|chr6:HLA-B:31323369:-|strandcross     23      1
+6:    chr10:BMS1:43312942:+|chr22:LOC96610:22661471:+|fusion      1      1
+7:    chr22:LOC96610:22657662:+|chr10:BMS1:43312766:+|fusion     42      1
+8:     chr17:CRYBA1:27576224:+|chr19:MYO9B:17311448:+|fusion      0      1
+   overlap lenAdjScore lenAdjScoreR2 is.anomaly
+1:      41 -0.21001000 -1.500100e-01          1
+2:      16 -0.20001000 -1.000000e-05          1
+3:      34 -0.06123469 -2.400100e-01          1
+4:      41 -0.22001000 -1.600100e-01          1
+5:      40 -0.15001000 -1.096027e-01          1
+6:      43 -0.12122222 -1.010101e-05          1
+7:      14 -0.05001000 -1.000000e-05          1
+8:      15 -0.15307143 -1.717273e-01          1
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+3: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+4: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "not using all data only 3 parameters"
+[1] "calling linear decoy model"
+[1] "1 total reads: 10069"
+[1] "both negative 52 out of  69"
+[1] "both positive 8165 out of  10000"
+[1] "classification errors 1852 out of 10069 0.183930876949052"
+                 Estimate  Std. Error    z value    Pr(>|z|)
+(Intercept)   -2.58959840  1.41722501 -1.8272317 0.067664946
+overlap        0.02224999  0.03084923  0.7212494 0.470756092
+lenAdjScore   31.06944032 10.03556661  3.0959328 0.001961948
+qual           0.05648455  0.02099008  2.6910113 0.007123579
+lenAdjScoreR2 -2.97845745  7.41636031 -0.4016064 0.687973750
+qualR2         0.05658787  0.02353138  2.4047829 0.016182077
+[1] "2 total reads: 10069"
+[1] "both negative 17 out of  69"
+[1] "both positive 7620 out of  10000"
+[1] "classification errors 2432 out of 10069 0.241533419406098"
+                  Estimate  Std. Error    z value   Pr(>|z|)
+(Intercept)    -6.53759626  4.68654792 -1.3949705 0.16302472
+overlap         0.03813418  0.10127539  0.3765395 0.70651589
+lenAdjScore    77.66251787 44.63484222  1.7399528 0.08186731
+qual            0.14772161  0.07841921  1.8837427 0.05959978
+lenAdjScoreR2 -10.69313754 22.52250037 -0.4747758 0.63494680
+qualR2          0.15014604  0.07717404  1.9455511 0.05170869
+[1] "before setnames"
+[1] "junction" "numReads" "iter_2"  
+[1] "after setnames"
+[1] "junction"    "numReads"    "p_predicted"
+Warning messages:
+1: In eval(expr, envir, enclos) :
+  non-integer #successes in a binomial glm!
+2: In eval(expr, envir, enclos) :
+  non-integer #successes in a binomial glm!
+[1] "check if syntax for multiple makes sense"
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "check if syntax for multiple makes sense"
+Warning messages:
+1: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScoreR2' then assigning NULL (deleting it).
+2: In `[.data.table`(dt, , `:=`(pos = NULL, aScoreR2 = NULL, numNR2 = NULL,  :
+  Adding new column 'adjScore' then assigning NULL (deleting it).
+[1] "calling good anomaly bad anomaly model with .8 and .2 as thresholds"
+[1] "1 total reads: 3968"
+[1] "both negative 1409 out of  2099"
+[1] "both positive 1680 out of  1869"
+[1] "classification errors 879 out of 3968 0.221522177419355"
+                  Estimate  Std. Error    z value      Pr(>|z|)
+(Intercept)    -4.14344112 0.233861518 -17.717499  3.072749e-70
+overlap        -0.02309187 0.004213649  -5.480255  4.247144e-08
+lenAdjScore   -11.52670089 1.770891236  -6.508983  7.566130e-11
+qual            0.10878980 0.004651187  23.389686 5.442262e-121
+lenAdjScoreR2  -8.82716979 0.743878868 -11.866408  1.769021e-32
+qualR2          0.03648088 0.003783286   9.642642  5.281086e-22
+[1] "2 total reads: 3968"
+[1] "both negative 1409 out of  2099"
+[1] "both positive 1694 out of  1869"
+[1] "classification errors 865 out of 3968 0.217993951612903"
+                  Estimate  Std. Error    z value     Pr(>|z|)
+(Intercept)    -7.74410016 0.488825130 -15.842271 1.589742e-56
+overlap        -0.04695407 0.006814336  -6.890483 5.560308e-12
+lenAdjScore   -20.54119757 3.238120223  -6.343556 2.245210e-10
+qual            0.20651782 0.011197224  18.443663 5.863185e-76
+lenAdjScoreR2 -17.93977316 1.184419546 -15.146468 7.994885e-52
+qualR2          0.07426098 0.005964165  12.451196 1.377658e-35
+[1] "before setnames"
+[1] "junction" "numReads" "iter_2"  
+[1] "after setnames"
+[1] "junction"    "numReads"    "p_predicted"
+Warning message:
+In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+[1] "RECYCLING data-- not valid----- COULD SUBAMPLE, also, NEED TO SIMPLY ADD PREDICTORS and data to list"
+[1] "Assigning null distribution for all linear reads"
+[1] "junction" "numReads" "logsum"  
+[1] "TESTNOW diff"
+                                    junction  V1
+1:  chr5|RPL37:40835285|RPL37:40834708|reg|- 0.0
+2:   chr12|GAPDH:6646382|GAPDH:6646475|reg|+ 0.0
+3:  chrX|COX7B:77158264|COX7B:77160681|reg|+ 0.0
+4:  chr5|CCNB1:68470236|CCNB1:68470704|reg|+ 0.1
+5: chr12|PA2G4:56498609|PA2G4:56500372|reg|+ 0.0
+6:   chr22|RPL3:39714405|RPL3:39713634|reg|- 0.0
+[1] "TESTNOW diff"
+                                    junction  V1
+1:  chr5|RPL37:40835285|RPL37:40834708|reg|- 0.6
+2:   chr12|GAPDH:6646382|GAPDH:6646475|reg|+ 0.7
+3:  chrX|COX7B:77158264|COX7B:77160681|reg|+ 0.8
+4:  chr5|CCNB1:68470236|CCNB1:68470704|reg|+ 0.8
+5: chr12|PA2G4:56498609|PA2G4:56500372|reg|+ 0.7
+6:   chr22|RPL3:39714405|RPL3:39713634|reg|- 0.8
+                                  junction numReads     logsum q_1 q_2
+1: chr10|A1CF:52569654|A1CF:52566640|reg|-        4 -0.8121675 0.7 0.8
+2: chr10|A1CF:52569654|A1CF:52566640|reg|-        4 -0.8121675 0.7 0.8
+3: chr10|A1CF:52569654|A1CF:52566640|reg|-        4 -0.8121675 0.7 0.8
+4: chr10|A1CF:52569654|A1CF:52566640|reg|-        4 -0.8121675 0.7 0.8
+5: chr10|A1CF:52570800|A1CF:52569802|reg|-        3 -4.7984006 0.1 0.1
+6: chr10|A1CF:52570800|A1CF:52569802|reg|-        3 -4.7984006 0.1 0.1
+          V1
+1: 0.9978566
+2: 0.9978566
+3: 0.9978566
+4: 0.9978566
+5: 0.0716763
+6: 0.0716763
+[1] "using threshold of ** below** for p value approximated by "
+[1] 5
+[1] "exact calculation through sampling 10K p predicted"
+[1] -0.1281970 -0.1283531 -0.2479033 -0.1919525 -0.1906893 -0.1671385
+[1]  -0.4156530  -0.4158092  -0.4193553 -16.7107812  -0.3482450  -0.3171346
+[1]  -2.9481796  -0.6554693  -0.6496417 -16.9543722  -0.6357009  -0.5404192
+[1]  -3.1072730  -6.5672383  -0.8019226 -17.2162829  -0.9027454  -0.6698187
+[1]  -3.3508639  -7.8490516  -1.1269784 -17.4119194  -3.0844242  -0.7987283
+Warning messages:
+1: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+2: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+3: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+4: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+5: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+[1] "junction" "numReads" "logsum"  
+[1] "TESTNOW diff"
+                                            junction  V1
+1:          chr6|HLA-L:30229256|HLA-A:29912277|rev|+ 0.0
+2:        chr13|GAS6:114529969|RASA3:114751269|rev|- 0.7
+3:           chr16|MT1X:56717142|MT2A:56643175|rev|+ 0.0
+4:          chr2|CUL3:225422376|CUL3:225422573|dup|- 0.9
+5: chr10|LOC399744:38736649|LOC399744:38734345|rev|+ 0.0
+6:        chr12|SLC25A3:98989626|TMPO:98921664|rev|+ 0.7
+[1] "TESTNOW diff"
+                                            junction  V1
+1:          chr6|HLA-L:30229256|HLA-A:29912277|rev|+ 0.0
+2:        chr13|GAS6:114529969|RASA3:114751269|rev|- 0.8
+3:           chr16|MT1X:56717142|MT2A:56643175|rev|+ 0.0
+4:          chr2|CUL3:225422376|CUL3:225422573|dup|- 0.9
+5: chr10|LOC399744:38736649|LOC399744:38734345|rev|+ 0.0
+6:        chr12|SLC25A3:98989626|TMPO:98921664|rev|+ 0.7
+                                            junction numReads      logsum q_1
+1:         chr10|GLUD1:88820445|GLUD1:88820582|dup|-        1  -5.5902133 0.0
+2: chr10|LOC399744:38736649|LOC399744:38734345|rev|+        1 -14.0218045 0.0
+3:       chr11|EFEMP2:65637592|EFEMP2:65638129|rev|-        1  -1.2590409 0.3
+4:              chr11|HBB:5248160|HBG2:5275744|rev|-        1 -36.0436534 0.0
+5:         chr11|RPL27A:8705628|RPL27A:8704749|rev|+        1  -4.6479787 0.0
+6:        chr11|SYTL2:85521997|PICALM:85742653|rev|-        2  -0.4290961 0.8
+   q_2           V1
+1: 0.0 3.734231e-03
+2: 0.0 8.135939e-07
+3: 0.3 2.839262e-01
+4: 0.0 2.220446e-16
+5: 0.0 9.580948e-03
+6: 0.8 9.458364e-01
+[1] "using threshold of ** below** for p value approximated by "
+[1] 5
+[1] "exact calculation through sampling 10K p predicted"
+[1] -1.2598393 -0.1271194 -0.2675688 -0.1518386 -0.5950318 -0.2479045
+[1] -1.4525092 -0.2939391 -0.6439969 -0.3289698 -0.7525870 -0.6489354
+[1] -2.1270030 -0.4221360 -0.8320963 -5.1504097 -6.2302447 -0.7851755
+[1] -14.6062422  -0.5564596  -0.9995907  -5.4444582  -6.4073760  -0.9732811
+[1] -15.005211  -0.695726  -2.899183  -5.622517  -6.566469  -2.466321
+Warning message:
+In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+[1] "junction" "numReads" "logsum"  
+[1] "TESTNOW diff"
+                                                         junction  V1
+1:    chr20:ARFGEF2:47538547:+|chr20:SULF2:46365686:-|strandcross 0.0
+2:           chr9:NUP214:134074402:+|chr22:XKR3:17288973:-|fusion 0.5
+3:           chr20:BCAS4:49411710:+|chr17:BCAS3:59445688:+|fusion 0.0
+4: chr11:FAM86C1:71504527:+|chr11:FAM86C2P:67560764:-|strandcross 0.8
+5:               chr19:RPL13A:49994804:+|chr19:FTL:49468566:+|rev 0.0
+6:          chr17:UNC119:26875610:-|chr20:ASXL1:30959967:+|fusion 0.0
+[1] "TESTNOW diff"
+                                                         junction  V1
+1:    chr20:ARFGEF2:47538547:+|chr20:SULF2:46365686:-|strandcross 0.2
+2:           chr9:NUP214:134074402:+|chr22:XKR3:17288973:-|fusion 0.8
+3:           chr20:BCAS4:49411710:+|chr17:BCAS3:59445688:+|fusion 0.0
+4: chr11:FAM86C1:71504527:+|chr11:FAM86C2P:67560764:-|strandcross 0.8
+5:               chr19:RPL13A:49994804:+|chr19:FTL:49468566:+|rev 0.0
+6:          chr17:UNC119:26875610:-|chr20:ASXL1:30959967:+|fusion 0.0
+                                                         junction numReads
+1: chr11:FAM86C1:71504527:+|chr11:FAM86C2P:67560764:-|strandcross        1
+2:       chr16:PKD1:2147869:-|chr16:PKD1P1:16429909:+|strandcross        2
+3:       chr16:PKD1:2147869:-|chr16:PKD1P1:16429909:+|strandcross        2
+4:          chr17:UNC119:26875610:-|chr20:ASXL1:30959967:+|fusion        1
+5:               chr19:RPL13A:49994804:+|chr19:FTL:49468566:+|rev        1
+6:    chr20:ARFGEF2:47538547:+|chr20:SULF2:46365686:-|strandcross        3
+        logsum q_1 q_2           V1
+1:  -0.1693381 0.8 0.8 8.442234e-01
+2:  -3.1667211 0.2 0.2 6.255101e-02
+3:  -3.1667211 0.2 0.2 6.255101e-02
+4: -36.0436534 0.0 0.0 2.220446e-16
+5: -36.0436534 0.0 0.0 2.220446e-16
+6:  -5.7192657 0.0 0.2 9.560216e-03
+[1] "using threshold of ** below** for p value approximated by "
+[1] 5
+[1] "exact calculation through sampling 10K p predicted"
+[1] -0.1289098 -0.4010311 -0.3471151 -1.3969278 -0.1575556 -0.1906895
+[1] -0.4475745 -0.5781626 -5.1177882 -1.5283000 -0.4011466 -2.1114935
+[1] -1.6025584 -0.7662693 -5.5188188 -1.6781352 -1.6995577 -6.0236332
+[1]  -5.514704  -2.734800  -6.172107  -1.808618  -1.840028 -11.605625
+[1]  -6.552775  -2.958084  -6.321923  -1.967711  -2.070314 -16.103650
+[1] "done with fusion normals, starting anomalies"
+[1] "junction" "numReads" "logsum"  
+[1] "TESTNOW diff"
+                                                    junction  V1
+1: chr9:LOC100132352:68727638:+|chr4:FRG1:190864357:+|fusion 0.0
+2:      chr20:RBM39:34302107:-|chr8:GPAA1:145139946:+|fusion 0.1
+3:      chr20:BCAS4:49411710:+|chr17:BCAS3:59445688:+|fusion 0.0
+4:   chr6:HLA-H:29856519:+|chr6:HLA-B:31323369:-|strandcross 0.0
+5:    chr10:BMS1:43312942:+|chr22:LOC96610:22661471:+|fusion 0.0
+6:    chr22:LOC96610:22657662:+|chr10:BMS1:43312766:+|fusion 0.0
+[1] "TESTNOW diff"
+                                                    junction  V1
+1: chr9:LOC100132352:68727638:+|chr4:FRG1:190864357:+|fusion 0.0
+2:      chr20:RBM39:34302107:-|chr8:GPAA1:145139946:+|fusion 0.1
+3:      chr20:BCAS4:49411710:+|chr17:BCAS3:59445688:+|fusion 0.1
+4:   chr6:HLA-H:29856519:+|chr6:HLA-B:31323369:-|strandcross 0.0
+5:    chr10:BMS1:43312942:+|chr22:LOC96610:22661471:+|fusion 0.0
+6:    chr22:LOC96610:22657662:+|chr10:BMS1:43312766:+|fusion 0.0
+                                                         junction numReads
+1:         chr10:BMS1:43312942:+|chr22:LOC96610:22661471:+|fusion        1
+2: chr11:FAM86C1:71504527:+|chr11:FAM86C2P:67560764:-|strandcross        1
+3:       chr16:PKD1:2147869:-|chr16:PKD1P1:16429909:+|strandcross        2
+4:       chr16:PKD1:2147869:-|chr16:PKD1P1:16429909:+|strandcross        2
+5:          chr17:CRYBA1:27576224:+|chr19:MYO9B:17311448:+|fusion        1
+6:          chr17:UNC119:26875610:-|chr20:ASXL1:30959967:+|fusion        1
+        logsum q_1 q_2           V1
+1:  -8.0644611 0.0 0.0 3.145206e-04
+2:  -0.1693381 0.8 0.8 8.442234e-01
+3:  -3.1667211 0.2 0.2 6.255101e-02
+4:  -3.1667211 0.2 0.2 6.255101e-02
+5:  -2.5643502 0.1 0.1 7.696918e-02
+6: -36.0436534 0.0 0.0 2.220446e-16
+[1] "using threshold of ** below** for p value approximated by "
+[1] 5
+[1] "exact calculation through sampling 10K p predicted"
+[1] -0.3250561 -0.8498812 -3.3200858 -0.1362401 -0.2479033 -0.1434473
+[1] -0.4547596 -2.3884874 -3.4719237 -0.3496994 -0.3768129 -0.3315541
+[1] -0.5909997 -2.5214081 -3.7198271 -0.5642480 -0.5359062 -0.4990489
+[1] -1.0375090 -2.6670603 -3.9768742 -0.7004881 -1.8741256 -4.8918576
+[1] -1.2380440 -2.8329653 -4.1287128 -0.8334084 -2.1044110 -5.1594273
+[1] "done with fusion anomalies starting indels"
+[1] "worked to get FJ predictions"
+[1] "CURRENTLY NEED TO JOIN THESE TABLES"
+Warning messages:
+1: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+2: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length
+3: In (1/(1 + exp(sim.readps))) < p_predicted :
+  longer object length is not a multiple of shorter object length

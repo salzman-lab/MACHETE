@@ -1,0 +1,3 @@
+/scratch/PI/horence/gillian/normal_fetal/FarJunc/fasta/Fetal_Stomach_360_ACAGTG_L008_FarJunctions.fa
+sbatch: error: slurm_receive_msg: Socket timed out on send/recv operation
+sbatch: error: Batch job submission failed: Socket timed out on send/recv operation

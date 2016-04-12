@@ -1,0 +1,22 @@
+Loading required package: data.table
+Read 61.4% of 911802 rowsRead 81.2% of 911802 rowsRead 911802 rows and 16 (of 16) columns from 0.112 GB file in 00:00:04
+[1] "IN DEBUGGING MODE"
+[1] "using  /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/SRR896703_1__output_FJ.txt"
+[1] "IN DEBUGGING MODE"
+Warning messages:
+1: In if (my.names != "none") { :
+  the condition has length > 1 and only the first element will be used
+2: In `names<-.data.table`(`*tmp*`, value = c("id", "class", "pos",  :
+  The names(x)<-value syntax copies the whole table. This is due to <- in R itself. Please change to setnames(x,old,new) which does not copy and is faster. See help('setnames'). You can safely ignore this warning if it is inconvenient to change right now. Setting options(warn=2) turns this warning into an error, so you can then use traceback() to find and change your names<- calls.
+[1] "using  /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/SRR896703_output_RegIndel.txt  and  /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/*SRR896703*output_FJIndels.txt"
+[1] "IN DEBUGGING MODE"
+sh: /scratch/PI/horence/gillian/SEQC_study_set/circpipe_SEQC/circReads/ids/*SRR896703*output_FJIndels.txt: No such file or directory
+Error in fread(classFile, sep = "\t", nrows = 1e+06) : 
+  File is empty: /dev/shm/filede8a28ff03f8
+Calls: processClassInput -> fread
+In addition: Warning messages:
+1: In if (my.names != "none") { :
+  the condition has length > 1 and only the first element will be used
+2: In `names<-.data.table`(`*tmp*`, value = c("id", "class", "pos",  :
+  The names(x)<-value syntax copies the whole table. This is due to <- in R itself. Please change to setnames(x,old,new) which does not copy and is faster. See help('setnames'). You can safely ignore this warning if it is inconvenient to change right now. Setting options(warn=2) turns this warning into an error, so you can then use traceback() to find and change your names<- calls.
+Execution halted

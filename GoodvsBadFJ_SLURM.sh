@@ -18,12 +18,18 @@ RESOURCE_FLAG=${5}
 ##bad juncs will align to genome/transcriptome/junc/reg but good juncs will not align
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
-
+#STEM=H5-AD018
 
 BadFJDir=${1}BadFJ/${STEM}/
 mkdir -p ${BadFJDir}
+${1}fasta/${STEM}
 
-FarJuncFasta=${1}fasta/${STEM}_FarJunctions.fa
+FastaDir=${1}fasta/${STEM}*FarJunctions.fa
+for file in ${FastaDir}
+do
+FarJuncFasta=${file}
+echo ${FarJuncFasta}
+done
 
 
 
@@ -45,7 +51,7 @@ fi
 # Align FarJunc fasta file to the above indices:
 
 
-BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --np 0 --rdg 50,50 --rfg 50,50"
+BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 --np 0 --rdg 50,50 --rfg 50,50"
 
 BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=24:0:0 -o out.txt -e err.txt ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 

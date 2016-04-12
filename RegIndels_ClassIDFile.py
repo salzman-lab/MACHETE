@@ -29,8 +29,8 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_RI):
     if inputtype=="RI": # if comparing Far Junc to Far Junc, they have to be identical
         line2= ReadInfoRI(line_raw_comparison)
         
-        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.AS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
-        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
+        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.adjAS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
+        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
 
         if lineRI.junction == line2.junction and lineRI.refstrand in ["0","16"] and line2.refstrand in ["0","16"] and lineRI.refstrand!=line2.refstrand:
             IDfiletype = "linear,RegIndelGood,"+lineRI.junction[-4:]
@@ -43,8 +43,8 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_RI):
     if inputtype=="reg":
         line2= ReadInfoJunc(line_raw_comparison)
         
-        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.AS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
-        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
+        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.adjAS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
+        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
         
         IDfiletype = "linear,RegGood,"+lineRI.junction[-4:]
         
@@ -69,8 +69,8 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_RI):
         
         line2 = ReadInfoJunc(line_raw_comparison)
 
-        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.AS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
-        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
+        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.adjAS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
+        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
 
         IDfiletype = "linear,JuncGood,"+lineRI.junction[-4:]
         
@@ -86,8 +86,8 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_RI):
 
         line2 = ReadInfoGenome(line_raw_comparison)
 
-        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.AS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
-        IDfileoutputR2 = str(line2.loc) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.chr + "\t" + line2.refstrand
+        IDfileoutputR1 =  str(lineRI.offset) +"\t" + str(lineRI.MAPQ) +"\t" + str(lineRI.adjAS) + "\t" + lineRI.NumN + "\t"+ str(lineRI.NumOfBases) + "\t" +lineRI.junction[:-5]+"\t"+lineRI.refstrand        
+        IDfileoutputR2 = str(line2.loc) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.chr + "\t" + line2.refstrand
 
         IDfiletype = "linear,genomeGood,"+lineRI.junction[-4:]
 
@@ -134,8 +134,10 @@ class ReadInfoRI:
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
             self.NumN=line[13][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[13][5:])
         else:
             self.NumN=line[12][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[12][5:])
 
         JuncInfo = line[2].replace(":"," ").replace("|"," ").split(" ")
         self.chr=JuncInfo[0]
@@ -156,8 +158,10 @@ class ReadInfoGenome:
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
             self.NumN=line[13][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[13][5:])
         else:
             self.NumN=line[12][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[12][5:])
 
         
 class ReadInfoJunc:
@@ -176,8 +180,10 @@ class ReadInfoJunc:
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
             self.NumN=line[13][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[13][5:])
         else:
             self.NumN=line[12][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[12][5:])
 
         
 #=========================================
@@ -339,7 +345,7 @@ f2_regIndel= open(args.origDir + "RegIndelAlignments/"+ stem + "/All_" + stem + 
 
 
 IDfile = open(args.circReads+"ids/"+stem+"_output_RegIndel.txt", mode= "w")
-IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_AS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_AS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
+IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_adjAS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_adjAS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
 
 #populate all reads and junctions into separate dictionaries
 AllRegIndelRead1= {}

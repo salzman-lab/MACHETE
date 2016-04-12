@@ -9,6 +9,8 @@ INPUTDIR=${1} #directory that contains circReads, orig, logs, etc
 OUTPUTDIR=${2}
 STEMFILE=${3}
 RSCRIPT=${4}
+FJDIR=${5}
+LINEARGLMDIR=${6}
 
 #echo ${4}
 
@@ -52,7 +54,7 @@ echo "Rscript /scratch/PI/horence/gillian/MACHETE/${RSCRIPT} ${FJ_input} ${class
 Rscript /scratch/PI/horence/gillian/MACHETE/${RSCRIPT} ${FJ_input} ${class_input} ${STEM} ${OUTPUTDIR}
 fi
 
-
+python /scratch/PI/horence/gillian/MACHETE/AddIndels_BadFJ_LinearFreq_ToNaiveRept.py -f ${5} -g ${6} -s ${STEM} -G ${2}
 
 ##
 #fusion_class_input=args[1]

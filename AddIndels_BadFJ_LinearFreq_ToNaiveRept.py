@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--FarJuncDir", required=True, help = "Far Junction Directory")
 parser.add_argument("-g", "--glmReportsDir", required= True, help = "linear junc glmReports Directory")
 parser.add_argument("-s", "--stem", required=True, help = "file stem")
-
+parser.add_argument("-G", "--FJGLM", required=True, help="directory with FJ pipeline GLM outputs")
 args=parser.parse_args()
 
 if args.FarJuncDir[-1] != "/":
@@ -38,6 +38,9 @@ if args.FarJuncDir[-1] != "/":
 
 if args.glmReportsDir[-1] != "/":
     args.glmReportsDir+="/"
+    
+if args.FJGLM[-1] != "/":
+    args.FJGLM+="/"
 
 indelsDir = args.FarJuncDir + "IndelsHistogram/"
 reportsDir = args.FarJuncDir + "reports/"
@@ -66,8 +69,17 @@ for BadFJfile in glob.glob(BadFJDir+"*.sam"):
 ## Parse thru FJ GLM and load results into a dictionary for appending onto the naive report
 FJ_GLM_Dict={}
 
-for FJ_GLM_file in glob.glob(reportsDir+"glmReports/"+args.stem+"*FUSION_W_ANOM*"):
-    GLMfile=open(FJ_GLM_file, mode="rU")
+FJ_GLM_files=glob.glob(args.FJGLM+args.stem+"*FUSION_W_ANOM_AND_INDEL*")
+print glob.glob(args.FJGLM+args.stem+"*FUSION_W_ANOM_AND_INDEL*")
+
+if glob.glob(args.FJGLM+args.stem+"*FUSION_W_ANOM_AND_INDEL*") == []:
+    print "no indels, using Fusion with Anom GLM reads"
+    FJ_GLM_files=glob.glob(args.FJGLM+args.stem+"*FUSION_W_ANOM*")
+
+
+for FJ_GLM_file in FJ_GLM_files:
+    
+    GLMfile=open(FJ_GLM_file, mode="rU")    
     
     for line_raw in GLMfile:
         if line_raw[0:4]=="junc":

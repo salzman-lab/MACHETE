@@ -39,7 +39,7 @@ Created on Wed Sep 16 16:12:27 2015
 import argparse
 import os
 import glob
-import fileinput
+
 
 def AddToDict(inputtype, line_raw_comparison, line_raw_FJ):
 
@@ -48,8 +48,8 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_FJ):
     if inputtype=="FJ": # if comparing Far Junc to Far Junc, they have to be identical
         line2= ReadInfoFJ(line_raw_comparison)
         
-        IDfileoutputR1 =  str(lineFJ.offset) +"\t" + str(lineFJ.MAPQ) +"\t" + str(lineFJ.AS) + "\t" + lineFJ.NumN + "\t"+ str(lineFJ.NumOfBases) + "\t" +lineFJ.junction[:-5]+"\t"+lineFJ.refstrand        
-        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
+        IDfileoutputR1 =  str(lineFJ.offset) +"\t" + str(lineFJ.MAPQ) +"\t" + str(lineFJ.adjAS) + "\t" + lineFJ.NumN + "\t"+ str(lineFJ.NumOfBases) + "\t" +lineFJ.junction[:-5]+"\t"+lineFJ.refstrand        
+        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
 
         if lineFJ.junction == line2.junction and lineFJ.refstrand in ["0","16"] and line2.refstrand in ["0","16"] and lineFJ.refstrand!=line2.refstrand:
 #            TargetDict[lineFJ.junction][0] +=1
@@ -66,57 +66,40 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_FJ):
         IDfile.write(line_raw_FJ.split("\t")[0]+"\t"+IDfiletype+"\t"+IDfileoutputR1+"\t"+IDfileoutputR2+"\n")
 
 
-    if inputtype=="reg" or inputtype =="junc": #if reg or junc read, then one side has to be within 100KB, and meets refstrand criteria below
+    if inputtype=="reg" or inputtype =="junc": #if reg or junc read and meets refstrand criteria below
         line2 = ReadInfoJunc(line_raw_comparison)
 
-        ## output R1 -  offset, MAPQ, AS, #N, readlen, junc name, strand
-        IDfileoutputR1 =  str(lineFJ.offset) +"\t" + str(lineFJ.MAPQ) +"\t" + str(lineFJ.AS) + "\t" + lineFJ.NumN + "\t"+ str(lineFJ.NumOfBases) + "\t" +lineFJ.junction[:-5]+"\t"+lineFJ.refstrand        
-         ## output R1 - offset, MAPQ, AS, #N, readlen, junc name, strand   
-        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
+        IDfileoutputR1 =  str(lineFJ.offset) +"\t" + str(lineFJ.MAPQ) +"\t" + str(lineFJ.adjAS) + "\t" + lineFJ.NumN + "\t"+ str(lineFJ.NumOfBases) + "\t" +lineFJ.junction[:-5]+"\t"+lineFJ.refstrand        
+        IDfileoutputR2 = str(line2.offset) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.junction + "\t" + line2.refstrand
 
+        if inputtype == "junc": 
+            IDfiletype = "FJbad,Junction,"+lineFJ.junction[-4:]
+        
+        if inputtype =="reg": 
+            IDfiletype = "FJbad,RegAnomaly,"+lineFJ.junction[-4:]
 
-        if inputtype =="reg": IDfiletype = "FJgood,Regular,"+lineFJ.junction[-4:]
-        if inputtype == "junc": IDfiletype = "FJbad,Junction,"+lineFJ.junction[-4:]
-
-#        addAS = lineFJ.AS+line2.AS
-#        addNumofBases = lineFJ.NumOfBases + line2.NumOfBases
-
-        if lineFJ.strand_left==line2.strand and lineFJ.strand_left=="-" and lineFJ.chr_left == line2.chr and int(line2.loc_1) in range(int(lineFJ.loc_left), int(lineFJ.loc_left)+100000000) and lineFJ.refstrand in ("0","16") and lineFJ.refstrand ==line2.refstrand:
-#            TargetDict[lineFJ.junction][0]+=1 
-            pass
-        elif lineFJ.strand_left==line2.strand and lineFJ.strand_left=="-" and lineFJ.chr_left == line2.chr and int(line2.loc_2) in range(int(lineFJ.loc_left), int(lineFJ.loc_left)+100000000) and lineFJ.refstrand in ("0","16") and lineFJ.refstrand ==line2.refstrand: 
-#            TargetDict[lineFJ.junction][0]+=1  
-            pass
-        elif lineFJ.strand_left==line2.strand and lineFJ.strand_left=="+" and lineFJ.chr_left == line2.chr and int(line2.loc_1) in range(int(lineFJ.loc_left)-100000000,int(lineFJ.loc_left)) and lineFJ.refstrand in ("0","16") and line2.refstrand in ("0","16") and lineFJ.refstrand!=line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        elif lineFJ.strand_left==line2.strand and lineFJ.strand_left=="+" and lineFJ.chr_left == line2.chr and int(line2.loc_2) in range(int(lineFJ.loc_left)-100000000,int(lineFJ.loc_left)) and lineFJ.refstrand in ("0","16") and line2.refstrand in ("0","16") and lineFJ.refstrand!=line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass                     
-        elif lineFJ.strand_right==line2.strand and lineFJ.strand_right == "-" and lineFJ.chr_right == line2.chr and int(line2.loc_1) in range(int(lineFJ.loc_right)-100000000,int(lineFJ.loc_right)) and lineFJ.refstrand in ("0","16") and lineFJ.refstrand ==line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        elif lineFJ.strand_right==line2.strand and lineFJ.strand_right == "-" and lineFJ.chr_right == line2.chr and int(line2.loc_2) in range(int(lineFJ.loc_right)-100000000,int(lineFJ.loc_right)) and lineFJ.refstrand in ("0","16") and lineFJ.refstrand ==line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        elif lineFJ.strand_right==line2.strand and lineFJ.strand_right == "+" and lineFJ.chr_right == line2.chr and int(line2.loc_1) in range(int(lineFJ.loc_right),int(lineFJ.loc_right)+100000000) and lineFJ.refstrand in ("0","16") and line2.refstrand in ("0","16") and lineFJ.refstrand!=line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        elif lineFJ.strand_right==line2.strand and lineFJ.strand_right == "+" and lineFJ.chr_right == line2.chr and int(line2.loc_2) in range(int(lineFJ.loc_right),int(lineFJ.loc_right)+100000000) and lineFJ.refstrand in ("0","16") and line2.refstrand in ("0","16") and lineFJ.refstrand!=line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass            
-            
-        else:
-#            TargetDict[lineFJ.junction][1]+=1
-            if inputtype =="reg": IDfiletype = "FJbad,RegAnomaly,"+lineFJ.junction[-4:]
-            if inputtype == "junc": IDfiletype = "FJbad,JuncAnomaly,"+lineFJ.junction[-4:]
-#            addAS = 0.0
-#            addNumofBases = 0.0
-
-#
-#        TargetDict[lineFJ.junction][2] += addAS
-#        TargetDict[lineFJ.junction][3] += addNumofBases 
-       
+            if lineFJ.chr_left == line2.chr:
+                if lineFJ.strand_left==line2.strand:
+                    if lineFJ.strand_left=="-":
+                        if lineFJ.refstrand ==line2.refstrand:
+                            if int(lineFJ.loc_left) <= int(line2.loc_2):
+                                IDfiletype = "FJgood,Regular,"+lineFJ.junction[-4:]
+                    elif lineFJ.strand_left=="+":
+                        if lineFJ.refstrand !=line2.refstrand:
+                            if int(lineFJ.loc_left) >= int (line2.loc_2):
+                                IDfiletype = "FJgood,Regular,"+lineFJ.junction[-4:]
+            if IDfiletype == "FJbad,RegAnomaly,"+lineFJ.junction[-4:]:
+                if lineFJ.chr_right == line2.chr:
+                    if lineFJ.strand_right==line2.strand:
+                        if lineFJ.strand_right=="-":
+                            if lineFJ.refstrand ==line2.refstrand:
+                                if int(lineFJ.loc_right) >= int(line2.loc_1):
+                                    IDfiletype = "FJgood,Regular,"+lineFJ.junction[-4:]
+                        elif lineFJ.strand_right=="+":
+                            if lineFJ.refstrand !=line2.refstrand:
+                                 if int(lineFJ.loc_right) <= int(line2.loc_1):
+                                    IDfiletype = "FJgood,Regular,"+lineFJ.junction[-4:]
+ 
         IDfile.write(line_raw_FJ.split("\t")[0]+"\t"+IDfiletype+"\t"+IDfileoutputR1+"\t"+IDfileoutputR2+"\n")
         IDfile.flush()
 
@@ -125,35 +108,35 @@ def AddToDict(inputtype, line_raw_comparison, line_raw_FJ):
         line2 = ReadInfoGenome(line_raw_comparison)
 
         ## output R1 -  offset, MAPQ, AS, #N, readlen, junc name, strand
-        IDfileoutputR1 =  str(lineFJ.offset) +"\t" + str(lineFJ.MAPQ) +"\t" + str(lineFJ.AS) + "\t" + lineFJ.NumN + "\t"+ str(lineFJ.NumOfBases) + "\t" +lineFJ.junction[:-5]+"\t"+lineFJ.refstrand        
+        IDfileoutputR1 =  str(lineFJ.offset) +"\t" + str(lineFJ.MAPQ) +"\t" + str(lineFJ.adjAS) + "\t" + lineFJ.NumN + "\t"+ str(lineFJ.NumOfBases) + "\t" +lineFJ.junction[:-5]+"\t"+lineFJ.refstrand        
          ## output R1 - offset, MAPQ, AS, #N, readlen, junc name, strand   
-        IDfileoutputR2 = str(line2.loc) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.AS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.chr + "\t" + line2.refstrand
+        IDfileoutputR2 = str(line2.loc) + "\t" + str(line2.MAPQ) + "\t"+ str(line2.adjAS) + "\t"+ line2.NumN + "\t" + str(line2.NumOfBases) + "\t" + line2.chr + "\t" + line2.refstrand
 
 
-
-
-        IDfiletype = "FJgood,genome,"+lineFJ.junction[-4:]
-#        addAS = lineFJ.AS+line2.AS
-#        addNumofBases = lineFJ.NumOfBases + line2.NumOfBases
-
- 
-        if lineFJ.strand_left=="-" and lineFJ.chr_left == line2.chr and int(line2.loc) in range(int(lineFJ.loc_left), int(lineFJ.loc_left)+100000000) and lineFJ.refstrand in ("0","16") and lineFJ.refstrand ==line2.refstrand: 
-#            TargetDict[lineFJ.junction][0]+=1  
-            pass
-        elif lineFJ.strand_left=="+" and lineFJ.chr_left == line2.chr and int(line2.loc) in range(int(lineFJ.loc_left)-100000000,int(lineFJ.loc_left)) and lineFJ.refstrand in ("0","16") and line2.refstrand in ("0","16") and lineFJ.refstrand!=line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        elif lineFJ.strand_right == "-" and lineFJ.chr_right == line2.chr and int(line2.loc) in range(int(lineFJ.loc_right)-100000000,int(lineFJ.loc_right)) and lineFJ.refstrand in ("0","16") and lineFJ.refstrand ==line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        elif lineFJ.strand_right == "+" and lineFJ.chr_right == line2.chr and int(line2.loc) in range(int(lineFJ.loc_right),int(lineFJ.loc_right)+100000000) and lineFJ.refstrand in ("0","16") and line2.refstrand in ("0","16") and lineFJ.refstrand!=line2.refstrand:
-#            TargetDict[lineFJ.junction][0] +=1
-            pass
-        else:
-#            TargetDict[lineFJ.junction][1] +=1
-            IDfiletype = "FJbad,genomAnomaly,"+lineFJ.junction[-4:]
-
-
+        IDfiletype = "FJbad,genomAnomaly,"+lineFJ.junction[-4:]   
+        #compare left
+        if lineFJ.chr_left == line2.chr:
+            if lineFJ.strand_left=="-":
+                if lineFJ.refstrand ==line2.refstrand:
+                    if int(lineFJ.loc_left) <= int(line2.loc):
+                        IDfiletype = "FJgood,genome,"+lineFJ.junction[-4:]                
+            elif lineFJ.strand_left=="+":
+                if lineFJ.refstrand != line2.refstrand:
+                    if int(lineFJ.loc_left) >= int(line2.loc):                    
+                        IDfiletype = "FJgood,genome,"+lineFJ.junction[-4:] 
+        ## if left not the same, then compare right        
+        if IDfiletype == "FJbad,genomAnomaly,"+lineFJ.junction[-4:]: 
+            if lineFJ.chr_right == line2.chr:  
+                if lineFJ.strand_right=="-":
+                    if lineFJ.refstrand ==line2.refstrand:
+                        if int(lineFJ.loc_right) >= int(line2.loc):
+                            IDfiletype = "FJgood,genome,"+lineFJ.junction[-4:]                
+                elif lineFJ.strand_right=="+":
+                    if lineFJ.refstrand !=line2.refstrand:
+                        if int(lineFJ.loc_right) <= int(line2.loc):
+                            IDfiletype = "FJgood,genome,"+lineFJ.junction[-4:] 
+            
+    
         IDfile.write(line_raw_FJ.split("\t")[0]+"\t"+IDfiletype+"\t"+IDfileoutputR1+"\t"+IDfileoutputR2+"\n")
 
 #   
@@ -181,8 +164,10 @@ class ReadInfoFJ:
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
             self.NumN=line[13][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[13][5:])
         else:
             self.NumN=line[12][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[12][5:])
 
 
         JuncInfo = line[2].replace(":"," ").replace("|"," ").split(" ")
@@ -206,8 +191,10 @@ class ReadInfoGenome:
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
             self.NumN=line[13][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[13][5:])
         else:
             self.NumN=line[12][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[12][5:])
 
         
 class ReadInfoJunc:
@@ -226,8 +213,10 @@ class ReadInfoJunc:
         self.offset = int(line[3])
         if "XS:i:" in line[12]:
             self.NumN=line[13][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[13][5:])
         else:
             self.NumN=line[12][5:]
+            self.adjAS=int(line[11].split(":")[2])+int(line[12][5:])
 
         
 #=========================================
@@ -305,7 +294,7 @@ f1_FJ_noIndel=open(sorted(FarJunction_noIndelfiles)[0], mode="rB")
 f2_FJ_noIndel=open(sorted(FarJunction_noIndelfiles)[1], mode="rB")
 
 
-IDfile = open(args.circReads+"ids/"+stem+"_output_FJIndels.txt", mode= "w")
+IDfile = open(args.circReads+"ids/"+ args.stem + "_output_FJIndels.txt", mode= "w")
 IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_AS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_AS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
 
 #populate all reads and junctions into separate dictionaries
@@ -340,17 +329,11 @@ for line_raw in f2_FarJunc:
 
     # if R1 and R2 both in Far Junc, then add to FJ-FJ list
     if FJ2read.ID in AllFJRead1:
-        #print "found FJ read"
-        #AllFJRead1[FJ2read.ID][1]="FJ"
         if FJ2read.offset <= (150+FJ2read.indel-window) and (FJ2read.offset+FJ2read.NumOfBases)>= 150+FJ2read.indel+window and AllFJRead1[FJ2read.ID][1]==0:    
             AddToDict("FJ",line_raw,AllFJRead1[FJ2read.ID][0])
             AllFJRead1[FJ2read.ID][1]="FJ"
-#            if FJ2read.ID in unmappedDict:
-#                del unmappedDict[FJ2read.ID]
-        # otherwise add to F2 read
     else:
         AllFJRead2[FJ2read.ID]= [line_raw, 0]
-#        unmappedDict[FJ2read.ID] = FJ2read.junction
         
 #    if FJ2read.junction not in AllJunctions:
 #        AllJunctions[FJ2read.junction]=0
@@ -392,8 +375,10 @@ for line_raw in f1_FJ_noIndel:
 f1_FJ_noIndel.close()    
 IDfile.flush()
 
-f2_genome = open(sorted(genomefiles)[1], mode="rB")
 
+
+
+f2_genome = open(sorted(genomefiles)[1], mode="rB")
 
 # compare FJ read 1 to genome read 2
 print "comparing indels with genome_2"
@@ -404,20 +389,17 @@ for line_raw in f2_genome:
     g2read = ReadInfoGenome(line_raw)
     
     if g2read.ID in AllFJRead1 and AllFJRead1[g2read.ID][1]==0:
-        #print "found genome R2"+ g2read.ID     
-#        if g2read.ID in unmappedDict:
-#            del unmappedDict[g2read.ID]
         AddToDict("genome", line_raw, AllFJRead1[g2read.ID][0])
         AllFJRead1[g2read.ID][1]="genome"
 
 f2_genome.close()    
+
 IDfile.flush()
 
 f1_genome = open(sorted(genomefiles)[0], mode="rB")
 
 # compare FJ read 2 to genome read 1
 print "comparing indels with genome _1"
-
 for line_raw in f1_genome:
     if line_raw[0] =="@":
         continue
@@ -430,6 +412,7 @@ for line_raw in f1_genome:
         AddToDict("genome", line_raw, AllFJRead2[g1read.ID][0])
         AllFJRead2[g1read.ID][1]="genome"
 f1_genome.close()
+
 IDfile.flush()
 
 f2_reg = open(sorted(regfiles)[1], mode="rB")
