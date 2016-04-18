@@ -46,6 +46,7 @@ indelsDir = args.FarJuncDir + "IndelsHistogram/"
 reportsDir = args.FarJuncDir + "reports/"
 outputDir = args.FarJuncDir + "reports/AppendedReports/"
 BadFJDir = args.FarJuncDir + "BadFJ/" + args.stem + "/"
+BadFJV2Dir = args.FarJuncDir+ "BadFJ_ver2/" + args.stem+ "/"
 NoGLM=False
 
 # parses through bad FJ alignments.  for every FJ that aligned to genome/transcriptome/reg/junc
@@ -63,6 +64,19 @@ for BadFJfile in glob.glob(BadFJDir+"*.sam"):
         badjunction=line_raw.strip().split("\t")[0]
         BadFJDictionary[badjunction]=1
         
+    f1.close()
+
+## parses thru version 2 bad FJ alignments. For every FJ whose midportion aligned to genome/transcrip
+## tome / reg/ junc, the FJ is stored in badFJv2 dictionary.
+BadFJ_V2_dict={}
+
+for BadFJV2file in glob.glob(BadFJV2Dir+"*.sam"):
+    f1=open(BadFJV2file, mode="rU")
+    for line_raw in f1:
+        if line_raw[0]=="@":
+            continue   
+        badjunction=line_raw.strip().split("\t")[0]
+        BadFJ_V2_dict[badjunction]=1
     f1.close()
 
 
@@ -98,7 +112,7 @@ for FJ_GLM_file in FJ_GLM_files:
 for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
 
     f1 = open(reportfile, mode = "rU")
-    indelfiles = sorted(glob.glob(indelsDir+ "*" + args.stem + "*.txt"))
+    indelfiles = sorted(glob.glob(indelsDir+ "indels_" + args.stem + "*.txt"))
     
     f2 = open(indelfiles[0], mode="rU")  # the indels  histo _1 file
     f3 = open(indelfiles[1], mode="rU")  # the indels  histo _2 file
@@ -181,7 +195,7 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
     f1 = open(reportfile, mode = "rU")
     for line_raw in f1:
         if line_raw[0] =="@":
-            fout.write(line_raw.strip()+"\t_1NoIndels:Indels\t_2NoIndels:Indels\tBadFJ=1\tExonL\tExonR\t"+ FJ_GLM_Dict["header"]+"\n")
+            fout.write(line_raw.strip()+"\t_1NoIndels:Indels\t_2NoIndels:Indels\tBadFJ=1\tBadFJv2=1\tExonL\tExonR\t"+ FJ_GLM_Dict["header"]+"\n")
             continue
 
         junc= line_raw.strip().split("\t")[0]
@@ -191,6 +205,11 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
             BadFJ="1"
         else:
             BadFJ="0"
+            
+        if junc in BadFJ_V2_dict:
+            BadFJv2="1"
+        else:
+            BadFJv2="0"
         
 #        try: 
         exonL= str(exonDict[line_raw.strip().split("\t")[0].split(":")[1]])
@@ -205,9 +224,9 @@ for reportfile in glob.glob(reportsDir+ "*" + args.stem + "*naive*.txt"):
             exonR="No glmReport"
         
         if junc in JunctionIndelsDict:
-            fout.write(line_raw.strip()+"\t"+JunctionIndelsDict[junc][0]+"\t"+JunctionIndelsDict[junc][1]+"\t"+ BadFJ + "\t" + exonL + "\t" + exonR + "\t")
+            fout.write(line_raw.strip()+"\t"+JunctionIndelsDict[junc][0]+"\t"+JunctionIndelsDict[junc][1]+"\t"+ BadFJ + "\t" + BadFJv2 + "\t" + exonL + "\t" + exonR + "\t")
         else:
-            fout.write(line_raw.strip() +"\t-\t-\t"+ BadFJ + "\t" + exonL + "\t" + exonR + "\t" ) 
+            fout.write(line_raw.strip() +"\t-\t-\t"+ BadFJ + "\t" + BadFJv2 + "\t" + exonL + "\t" + exonR + "\t" ) 
             
         
         if junc in FJ_GLM_Dict:

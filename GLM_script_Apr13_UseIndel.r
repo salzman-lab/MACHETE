@@ -30,34 +30,25 @@ processScoreInput <- function(scoreFile){
 #print ("WARNING< in process score input, only 1000 reads")
 
 #  scores = fread(scoreFile,header=FALSE, sep="\t")
-#   setnames(scores,names(scores),c("id", "pos", "qual", "aScore", "numN", "readLen", "junction"))
+
   setkey(scores, id)
   
   return(scores)
 }
 
 addDerivedFields <- function(dt, useClass){
-numN=0 # correction 4/2016 of class files
+# correction 4/2016 of class files
 if(nrow(dt) > 0){
     # calculate and add on cols for junction overlap, score adjusted for N penalties, 
     ########## now, we have info for read1 and read2 
-#    dt[,`:=`(is.pos=useClass,overlap=apply(dt, 1, getOverlapForTrimmed), adjScore=aScore+numN)]  # syntax for multiple :=
-#    # and length-adjusted alignment score (laplace smoothing so alignment score of 0 treated different for different length reads)
-#    dt[, lenAdjScore:=(adjScore - 0.001)/as.numeric(as.vector(readLen))]
-###was     dt[,`:=`(pos=NULL, aScore=NULL, numN=NULL, readLen=NULL, adjScore=NULL)]
-  
     # calculate and add on cols for junction overlap, score adjusted for N penalties,
     dt[,`:=`(is.pos=useClass,overlap=apply(dt, 1, getOverlapForTrimmed))]  # syntax for multiple :=
     # and length-adjusted alignment score (laplace smoothing so alignment score of 0 treated different for different length reads)
     dt[, lenAdjScore:=(as.numeric(aScore) - 0.001)/as.numeric(readLen)]
     dt[,`:=`(pos=NULL, aScore=NULL, numN=NULL, readLen=NULL)]
-
-
 ################# repeat for read2
-    ## overlap doesn't make sense for R2 unless it is junctional, not going to model thatdt[,`:=`(is.pos=useClass,overlap=apply(dt, 1, getOverlapForTrimmed), adjScore=aScore+numN)]  # syntax for multiple :=
-print ("check if syntax for multiple makes sense")
-## therefore, only add length adjusted alignment score for R2 !!
-    # and length-adjusted alignment score (laplace smoothing so alignment score of 0 treated different for different length reads)
+ ## therefore, only add length adjusted alignment score for R2 !!
+    # and length-adjusted alignment score (`` smoothing" so alignment score of 0 treated different for different length reads)
     dt[, lenAdjScoreR2:=(aScoreR2 - 0.001)/readLenR2]
     dt[,`:=`(pos=NULL, aScoreR2=NULL, numNR2=NULL, readLenR2=NULL, adjScoreR2=NULL, aScore=NULL, numN=NULL, readLen=NULL, adjScore=NULL)]
 }
@@ -396,7 +387,7 @@ return(junctionPredictions)
 ######## END FUNCTIONS, BEGIN WORK #########
 
 ## command line inputs
-user.input=0
+user.input=1
 if (user.input==1){
 args = commandArgs(trailingOnly = TRUE)
 fusion_class_input=args[1]
@@ -455,7 +446,7 @@ sampletest="engstrom1"
 }
 if (use.cml==1){
 parentdir=""
-cmli=2
+cmli=1
 srr=paste("ENCFF000HOC",cmli,sep="")
 parentdir="/scratch/PI/horence/gillian/CML_test/aligned/CML/circReads/ids/"
 fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
@@ -468,7 +459,7 @@ sampletest=paste("CML",cmli,sep="")
 }
 if (use.ews==1){
 srr="SRR1594025" #
-#srr="SRR1594023"
+srr="SRR1594022"
 parentdir="/scratch/PI/horence/gillian/Ewing/circpipe/circReads/ids/"
 fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
 class_input = paste(parentdir,srr,"_1__output.txt",sep="")

@@ -24,7 +24,7 @@ fi
 
 if [[ "$Version" = UseIndel ]]
 then
-RSCRIPT=GLM_script_Apr11_UseIndel.r
+RSCRIPT=GLM_script_Apr13_UseIndel.r
 fi
 if [[ "$Version" = NoIndel ]]
 then

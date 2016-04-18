@@ -4,6 +4,12 @@
 #  
 #
 #  Created by Gillian Hsieh on 3/17/16.
+
+# FJ indels class output file
+## This script calls FJIndelsClassID.sh
+## This takes the FJdir/FarJunctionSecondary/AlignedIndels/<STEM>/All_<STEM>_1/2_FJindels.sam and identifies read partners.  The same criteria to identify read partners as FarJuncNaiveReport.sh are applied.
+## Output files are placed into KNIFE dir/circReads/ids/<STEM>_output_FJIndels.txt
+
 #
 FJDir=${1} # FJ Dir
 circpipedir=${2}
@@ -15,9 +21,6 @@ circReads=${2}circReads/
 
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
-
-#### TESTING
-#STEM=SRR1027188
 
 mkdir -p ${1}FJIndelsreports/
 

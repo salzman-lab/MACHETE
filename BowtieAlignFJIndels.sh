@@ -6,7 +6,8 @@
 #  Created by Gillian Hsieh on 2/10/16.
 #
 
-# aligns still unaligned files in far junc secondary to the indel indices.
+# This section calls the shell BowtieAlignFJIndels.sh to align the fq files FJdir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_1/2.fq to the Bowtie2 indices of the far junction indels created in the previous step.  Aligned indels are stored in FJdir/FarJunctionSecondary/AlignedIndels/<STEM>/still_unaligned_<STEM>_indels<N>.sam where N is the number of indels in the Bowtie index where the reads aligned.  The bowtie parameters include a max of ~4 mismatches / 100 basepairs, max #N is the read length, and prohibits gapped alignments or gaps in the read.
+
 
 FJDir=${1}
 BOWTIEPARAMETERS=${2}
