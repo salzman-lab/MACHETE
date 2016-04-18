@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/scratch/PI/horence/gillian/MACHETE/KNIFEglmReportsForMachete.py", line 104, in <module>
-    circ_output.write(AnomalyandDecoyDict[junction][1]+"\n")
-KeyError: 'chr10|ATP5C1:7844817|ATP5C1:7839009|rev|+'
