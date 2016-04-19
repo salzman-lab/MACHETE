@@ -67,6 +67,7 @@ Below is the workflow for the MACHETE and there are several parallel steps and s
 
 SEQUENCE1 and SEQUENCE 5 are started in parallel
 
+
 SEQUENCE 1 
 j1 - sort reg
 j2 - sort genome
@@ -77,14 +78,17 @@ j6 - make Junctions
 j6a - linkFastaFiles
 
 From j6, three separate sequences (SEQUENCE 2, 3, 4) are called in parallel
+
 SEQUENCE 2
 j7 - LenientBadFJ.sh
 dependstr7 - BadFJ & BadFJver2
+
 
 SEQUENCE 3
 j8 - alignUnalignedFJ
 j9 - FJNaiveRept
 j15a - parse_FJ_ID_for_GLM
+
 
 SEQUENCE 4
 j10 - makeIndelFiles
@@ -93,11 +97,15 @@ J13 - BowtieAlignFJIndels
 j14 - FindAlignmentArtifact
 j19 - FJIndelsClassOutput
 
+
 SEQUENCE 5 (concurrently with SEQUENCE 1)
 j16 - AlignUnalignedtoRegIndel-> j17 - AddIndelstoLinearGLM
+
 j18 - regIndelsClassOutput
 
+
 When SEQUENCE 3-5 are complete then the script j15b - run_GLM.sh is called
+
 
 When SEQUENCE2 and j15b - run_GLM.sh are complete -- j15 - AppendNaiveRept.sh is called. This completes the MACHETE.  
 
