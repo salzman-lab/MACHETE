@@ -18,3 +18,5 @@ STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 mkdir -p ${3}${STEM}
 
 bowtie2-build ${1}${STEM}/${STEM}_FJ_Indels_${2}.fa ${3}${STEM}/${STEM}_Indels_${2}
+
+echo "BowtieIndexFJIndels.sh complete. Check for the bowtie index ${4}/BowtieIndels/${STEM}/${STEM}_Indels_${2}" >> ${4}MasterError.txt

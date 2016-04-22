@@ -29,3 +29,4 @@ FILENAME=$(basename "$file" .fq)
 bowtie2 ${2} -x ${Index} -U ${file} -S ${OutputDir}${FILENAME}_indels${3}.sam
 done
 
+echo "BowtieAlignFJIndels.sh complete- check for ${1}FarJunctionSecondary/AlignedIndels/${STEM}/still_unaligned_${STEM}_indels${3}.sam" >> ${1}MasterError.txt

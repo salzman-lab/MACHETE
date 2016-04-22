@@ -9,7 +9,7 @@
 ## This is a simple shell script SortPairedEnds.sh to sort the chrA_Distant_PE_frequency.txt files into alphabetical order.  It takes FJDir/DistantPEFiles/chrA_Distant_PE_frequency.txt and outputs to same directory, sorted_chrA_Distant_PE_frequency.txt using the linux "sort" command.
 ## The reason for sorting is to increase the speed of the next step.
 
-FJFile=${1} ## MACHETE output directory
+FJDir=${1} ## MACHETE output directory
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
@@ -29,3 +29,5 @@ sort -k1,1.1 -k1,1.2 -k2,2 ${file} > ${DIR_TO_SORT}${SORTEDNAME}
 fi
 
 done;
+
+echo "SortPairedEnds.sh complete for ${STEM}" >> ${1}MasterError.txt

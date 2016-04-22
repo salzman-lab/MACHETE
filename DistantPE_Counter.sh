@@ -12,7 +12,7 @@
 
 #  The output files chr?_Distant_PE_frequency.txt files contain three columns: chrA:M-N, chrB:P-Q, and R, where R is the number of times that these two exact windows were matched together.  R could be used to cull the fasta file if it gets too large, but at this point we are still looking for junctions between exons if only one read pair aligned discordantly.
 
-FJFile=${1}  ## MACHETE output file
+FJDir=${1}  ## MACHETE output dir
 INSTALLDIR=${2} ## MACHETE installation file (so python script can run)
 
 STEMFILE=${1}StemList.txt
@@ -24,4 +24,4 @@ mkdir -p ${1}DistantPEFiles/${STEM}
 ml python/2.7.5
 python ${INSTALLDIR}DistantPE_Counter.py -d ${1} -s ${STEM}
 
-
+echo "DistantPE_counter completed for ${STEM}" >> ${1}MasterError.txt

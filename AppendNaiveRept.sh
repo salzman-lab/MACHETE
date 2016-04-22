@@ -19,3 +19,5 @@ mkdir -p ${1}reports/AppendedReports/
 ml load python/2.7.5
 
 python ${INSTALLDIR}AppendNaiveRept.py -f ${1} -g ${2} -s ${STEM} -G ${4}
+
+echo "AppendNaiveReports.sh completed for ${STEM} -- check ${1}reports/AppendedReports/${STEM}_naive_report_Appended.txt.    This is the last step of the MACHETE."  >> ${1}MasterError.txt

@@ -68,13 +68,13 @@ RegIndelsFile_1.close()
 ## loop through naive reports to extract rates of linear anomalies and circular decoys
 AnomalyandDecoyDict={} # key = junction, value = [x,y] where x = # anomaly reads, y = # decoy reads
 
-NaiveRptFile=open( glob.glob(naiveRptDir+"*"+args.stem+"*.txt")[0] , mode="rU")
-
+NaiveRptFile=open(naiveRptDir+args.stem+"_1_report.txt", mode="rU")
 for line in NaiveRptFile:
     if line[0]=="@":
         continue
-    line=line.strip().split("\t")    
-    AnomalyandDecoyDict[line[0]]=[line[2], line[6]]
+    line=line.strip().split("\t")
+    junction=line[0]
+    AnomalyandDecoyDict[junction]=[line[2], line[6]]
 
 NaiveRptFile.close()
 
@@ -112,7 +112,6 @@ circ_output.close()
 
 linear_output=open(args.FJDir+"reports/AppendedReports/"+args.stem+"_linearJunc_reports.txt", mode="w")
 linearInputFile= open( glob.glob(glmDir+"*"+args.stem+"*linearJuncProbs.txt")[0], mode="rU")
-
 for line in linearInputFile:
     if line[0:8]=="junction":
         linear_output.write(line.strip()+"\tanomaly\tnoIndel:Indel1\n")

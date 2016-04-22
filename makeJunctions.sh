@@ -34,3 +34,6 @@ done;
 
 ## FJDir/<STEM>_ChrA_FarJunction_duplicates.fa exists because when extracting the sequence/name/location from the pickles, it's faster just to generate the output than to search a dictionary for the previous existence of the same exon pair and sequence.  The python file then parses the output files and removes duplicate fasta entries.  After duplicates are removed, the intermediate ChrA_FarJunction_duplicates.fa file is also removed by the shell.
 rm ${OUTPUTDIR}${STEM}_chr${3}_*_duplicates.fa
+
+
+echo "makeJunctions.sh completed for ${STEM}" >> ${2}MasterError.txt

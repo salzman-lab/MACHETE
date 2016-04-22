@@ -38,4 +38,4 @@ done;
 ## The second step of the linkfastafiles.sh calls Bowtie to build the Far Junctions bowtie index named <FJDir>/BowtieIndex/<STEM>_FJ_Index
 bowtie2-build ${BigFastaFile} ${BowtieIndex}
 
-
+echo "linkfastafiles and Bowtie Index built for Far Junctions for sample ${STEM}" >> ${1}MasterError.txt

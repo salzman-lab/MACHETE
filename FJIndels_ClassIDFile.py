@@ -294,7 +294,7 @@ f1_FJ_noIndel=open(sorted(FarJunction_noIndelfiles)[0], mode="rB")
 f2_FJ_noIndel=open(sorted(FarJunction_noIndelfiles)[1], mode="rB")
 
 
-IDfile = open(args.circReads+"ids/"+ args.stem + "_output_FJIndels.txt", mode= "w")
+IDfile = open(args.FJDir+"GLM_classInput/"+ args.stem + "_output_FJIndels.txt", mode= "w")
 IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_AS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_AS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
 
 #populate all reads and junctions into separate dictionaries

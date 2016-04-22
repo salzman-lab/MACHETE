@@ -1,0 +1,154 @@
+961298 reads; of these:
+  961298 (100.00%) were unpaired; of these:
+    561582 (58.42%) aligned 0 times
+    317297 (33.01%) aligned exactly 1 time
+    82419 (8.57%) aligned >1 times
+41.58% overall alignment rate
+961292536245 reads; of these:
+  2536245 (100.00%) were unpaired; of these:
+    2288855 (90.25%) aligned 0 times
+    184358 (7.27%) aligned exactly 1 time
+    63032 (2.49%) aligned >1 times
+9.75% overall alignment r2510155578 reads; of these:
+  155578 (100.00%) were unpaired; of these:
+    86535 (55.62%) aligned 0 times
+    63446 (40.78%) aligned exactly 1 time
+    5597 (3.60%) aligned >1 times
+44.38% overall alignment rate
+155578 reads; of these:
+  155578 (100.00%) were unpaired; of these:
+    97114 (62.42%) aligned 0 times
+    54085 (34.76%) aligned exactly 1 time
+    4379 (2.81%) aligned >1 times
+37.58% overall alignment rate
+BBuilding a SMALL index2536245 reads; of these:
+  2536245 (100.00%) were unpaired; of these:
+    2493938 (98.33%) aligned 0 times
+    26942 (1.06%) aligned exactly 1 time
+    15365 (0.61%) aligned >1 times
+1.67% overall alignment rate
+RROR: found more than 1 R2 genome alignment fq:['SRR1594021_2_genome_output.sam', 'sorted_SRR1594021_2_genome_output.sam']994798 reads; of these:
+  994798 (100.00%) were unpaired; of these:
+    574145 (57.71%) aligned 0 times
+    324560 (32.63%) aligned exactly 1 time
+    96093 (9.66%) aligned >1 times
+42.29% overall alignment rate
+994798 reads; of these:
+  994798 (100.00%) were unpaired; of these:
+    362019 (36.39%) aligned 0 times
+    474968 (47.75%) aligned exactly 1 time
+    157811 (15.86%) aligned >1 times
+63.61% overall alignment rate
+268479 reads; of these:
+  268479 (100.00%) were unpaired; of these:
+    124640 (46.42%) aligned 0 times
+    129478 (48.23%) aligned exactly 1 time
+    14361 (5.35%) aligned >1 times
+53.58% overall alignment rate
+268479 reads; of these:
+  268479 (100.00%) were unpaired; of these:
+    138677 (51.65%) aligned 0 times
+    117168 (43.64%) aligned exactly 1 time
+    12634 (4.71%) aligned >1 times
+48.35% overall alignment rate
+Building a SMALL index
+994798 reads; of these:
+  994798 (100.00%) were unpaired; of these:
+    872178 (87.67%) aligned 0 times
+    81328 (8.18%) aligned exactly 1 time
+    41292 (4.15%) aligned >1 times
+12.33% overall alignment rate
+ERROR: found more than 1 R2 genome alignment fq:['SRR1594022_2_genome_output.sam', 'sorted_SRR1594022_2_genome_output.sam']906478 reads; of these:
+  906478 (100.00%) were unpaired; of these:
+    606572 (66.92%) aligned 0 times
+    233151 (25.72%) aligned exactly 1 time
+    66755 (7.36%) aligned >1 times
+33.08% overall alignment rate
+906478 reads; of these:
+  906478 (100.00%) were unpaired; of these:
+    453165 (49.99%) aligned 0 times
+    343047 (37.84%) aligned exactly 1 time
+    110266 (12.16%) aligned >1 times
+50.01% overall alignment rate
+178167 reads; of these:
+  178167 (100.00%) were unpaired; of these:
+    88998 (49.95%) aligned 0 times
+    81628 (45.82%) aligned exactly 1 time
+    7541 (4.23%) aligned >1 times
+50.05% overall alignment rate
+178167 reads; of these:
+  178167 (100.00%) were unpaired; of these:
+    98397 (55.23%) aligned 0 times
+    73509 (41.26%) aligned exactly 1 time
+    6261 (3.51%) aligned >1 times
+44.77% overall alignment rate
+Building a SMALL index
+906478 reads; of these:
+  906478 (100.00%) were unpaired; of these:
+    834266 (92.03%) aligned 0 times
+    48538 (5.35%) aligned exactly 1 time
+    23674 (2.61%) aligned >1 times
+7.97% overall alignment rate
+ERROR: found more than 1 R2 genome alignment fq:['sorted_SRR1594025_2_genome_output.sam', 'SRR1594025_2_genome_output.sam']917869 reads; of these:
+  917869 (100.00%) were unpaired; of these:
+    543150 (59.18%) aligned 0 times
+    290160 (31.61%) aligned exactly 1 time
+    84559 (9.21%) aligned >1 times
+40.82% overall alignment rate
+917869 reads; of these:
+  917869 (100.00%) were unpaired; of these:
+    355580 (38.74%) aligned 0 times
+    420886 (45.85%) aligned exactly 1 time
+    141403 (15.41%) aligned >1 times
+61.26% overall alignment rate
+238446 reads; of these:
+  238446 (100.00%) were unpaired; of these:
+    112029 (46.98%) aligned 0 times
+    113361 (47.54%) aligned exactly 1 time
+    13056 (5.48%) aligned >1 times
+53.02% overall alignment rate
+238446 reads; of these:
+  238446 (100.00%) were unpaired; of these:
+    123786 (51.91%) aligned 0 times
+    103155 (43.26%) aligned exactly 1 time
+    11505 (4.82%) aligned >1 times
+48.09% overall alignment rate
+Building a SMALL index
+917869 reads; of these:
+  917869 (100.00%) were unpaired; of these:
+    810515 (88.30%) aligned 0 times
+    68915 (7.51%) aligned exactly 1 time
+    38439 (4.19%) aligned >1 times
+11.70% overall alignment rate
+ERROR: found more than 1 R2 genome alignment fq:['sorted_SRR1594020_2_genome_output.sam', 'SRR1594020_2_genome_output.sam']835514 reads; of these:
+  835514 (100.00%) were unpaired; of these:
+    526150 (62.97%) aligned 0 times
+    233299 (27.92%) aligned exactly 1 time
+    76065 (9.10%) aligned >1 times
+37.03% overall alignment rate
+835514 reads; of these:
+  835514 (100.00%) were unpaired; of these:
+    376621 (45.08%) aligned 0 times
+    333436 (39.91%) aligned exactly 1 time
+    125457 (15.02%) aligned >1 times
+54.92% overall alignment rate
+183754 reads; of these:
+  183754 (100.00%) were unpaired; of these:
+    92854 (50.53%) aligned 0 times
+    80492 (43.80%) aligned exactly 1 time
+    10408 (5.66%) aligned >1 times
+49.47% overall alignment rate
+183754 reads; of these:
+  183754 (100.00%) were unpaired; of these:
+    102510 (55.79%) aligned 0 times
+    72013 (39.19%) aligned exactly 1 time
+    9231 (5.02%) aligned >1 times
+44.21% overall alignment rate
+Building a SMALL index
+835514 reads; of these:
+  835514 (100.00%) were unpaired; of these:
+    763301 (91.36%) aligned 0 times
+    48363 (5.79%) aligned exactly 1 time
+    23850 (2.85%) aligned >1 times
+8.64% overall alignment rate
+ERROR: found more than 1 R2 genome alignment fq:['SRR1594024_2_genome_output.sam', 'sorted_SRR1594024_2_genome_output.sam']

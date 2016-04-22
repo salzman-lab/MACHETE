@@ -18,8 +18,8 @@ INSTALLDIR=${4}
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
-mkdir -p ${1}FarJuncSecondary/AlignedIndels/RemoveNonOverlap/${STEM}/
-
 module load python/2.7.5
 
 python ${INSTALLDIR}MakeIndelsHisto.py -s ${STEM} -f ${1} -w ${2} -x ${3}
+
+echo "FindAlignmentArtifact_SLURM.sh complete - check for ${1}IndelsHistogram/indels_${STEM}_*.txt" >> ${1}MasterError.txt

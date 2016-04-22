@@ -27,3 +27,5 @@ ml load python/2.7.5
 
 python ${INSTALLDIR}PEfinder.py -o ${1} -s ${STEM} -f ${2} -w 10000 -n ${3}
 
+echo "PEfinder.sh step completed for ${STEM}" >> ${2}MasterError.txt
+

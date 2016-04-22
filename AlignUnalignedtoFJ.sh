@@ -30,5 +30,6 @@ COMMAND="${BOWTIEPARAM} -x ${BOWTIE_INDEX} -U ${file} -S ${OUTPUT_SAM_DIR}${FILE
 
 bowtie2 ${COMMAND}
 
-
 done;
+
+echo "AlignUnalignedtoFJ.sh complete - check for ${1}/FarJunctionAlignments/${STEM}/unaligned_${STEM}_*.sam and for unaligned files check for ${1}/FarJuncSecondary/${STEM}/still_unaligned_${STEM}_*.fq" >> ${1}MasterError.txt
