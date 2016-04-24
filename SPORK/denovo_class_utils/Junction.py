@@ -147,18 +147,21 @@ class Junction(object):
 
     #Check to see if this jct represents a fusion
     def check_fusion(self):
-        if self.upstream_genes != "no_genes" and self.downstream_genes != "no_genes":
-            upstream_gene_list = self.upstream_genes.split(",")
-            downstream_gene_list = self.downstream_genes.split(",")
-            found_shared_gene = False
-            for upstream_gene in upstream_gene_list:
-                if upstream_gene in downstream_gene_list:
-                    found_shared_gene = True
-                    break
-            
-            self.fusion = not found_shared_gene
-        else:
-            self.fusion = False
+#        if self.upstream_genes != "no_genes" and self.downstream_genes != "no_genes":
+        upstream_gene_list = self.upstream_genes.split(",")
+        downstream_gene_list = self.downstream_genes.split(",")
+        found_shared_gene = False
+        for upstream_gene in upstream_gene_list:
+            if upstream_gene in downstream_gene_list:
+                found_shared_gene = True
+                break
+        
+        self.fusion = not found_shared_gene
+
+
+
+#        else:
+#            self.fusion = False
 
 
     #Format the junction to print in fasta form

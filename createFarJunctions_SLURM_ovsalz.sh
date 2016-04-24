@@ -63,7 +63,6 @@ fi
 ORIG_DIR=${1}orig/  # KNIFE alignments
 UNALIGNEDDIR=${ORIG_DIR}unaligned/ # KNIFE unaligned reads
 GLM_DIR=${1}circReads/glmReports/ # KNIFE GLM reports
-
 DistantPEDir=${2}DistantPEFiles/ # new directory that will contain mismatched paired end reads
 FASTADIR=${2}fasta/ # MACHETE far junctions fasta dir
 BOWTIE_DIR=${2}BowtieIndex/ # MACHETE bowtie indices for far junctions fasta
@@ -73,7 +72,6 @@ BadFJDir=${2}BadFJ/ # MACHETE far junction fasta entries that align to a KNIFE r
 StemFile=${2}StemList.txt # file containing unique IDs of each experiment e.g. SRR#
 
 # make temporary and output directories
-mkdir -p ${OUTPUT_DIR}
 mkdir -p ${FASTADIR}
 mkdir -p ${2}reports/
 mkdir -p ${2}err_and_out/
@@ -84,15 +82,17 @@ mkdir -p ${BadFJDir}
 mkdir -p ${DistantPEDir}
 mkdir -p ${2}BowtieIndels/
 mkdir -p ${2}FarJuncIndels/
-mkdir -p ${SECONDFARJUNCDIR}AlignedIndels/RemoveNonOverlap/
+mkdir -p ${SECONDFARJUNCDIR}AlignedIndels/
 mkdir -p ${2}IndelsHistogram/
 mkdir -p ${2}reports/AppendedReports/
 mkdir -p ${GLM_DIR}AppendGLM/
 mkdir -p ${2}GLM_classInput/
 
+
 ## remove the old error files
-if [ "$(ls -A ${2}err_and_out/)" ]
+if [ "$(ls -A ${2}/err_and_out/*)" ]
 then
+echo "old error files exist -- removing"
 rm ${2}err_and_out/*
 fi
 
@@ -119,11 +119,8 @@ echo ${NUM_FILES}
 ## these are removed if they are present.
 ## All files from the original KNIFE alignments are sorted into alphabetical order because it is faster for python to identify read partners in two alphabetically sorted files than it is to find read pairs in two huge files where read IDs are scrambled.
 
-### if the files have not previously been sorted, you may see some error like "sorted*.sam does not exist" -- that is ok.
-#rm ${ORIG_DIR}reg/sorted*.sam
-#rm ${ORIG_DIR}genome/sorted*.sam
-#
-### the shell AlphabetizeENCODEreads.sh takes directories reg and genome, where we plan to search for mismatched paired ends, and sorts them alphabetically using the linux sort function
+
+## the shell AlphabetizeKNIFEreads.sh takes directories reg and genome, where we plan to search for mismatched paired ends, and sorts them alphabetically using the linux sort function
 #
 ### sorting reg files
 #j1_id=`sbatch -J sortingReg ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortReg.txt -e ${2}err_and_out/err_1sortReg.txt ${INSTALLDIR}AlphabetizeKNIFEreads.sh ${ORIG_DIR}reg/ ${2} | awk '{print $4}'`
@@ -235,20 +232,42 @@ echo ${NUM_FILES}
 #
 #
 ### submit SLURM jobs to do bowtie alignments for each of BadFJ indices above
-#BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
+#if [ -e ${BadFJDir}${STEM}_BadFJtoGenome.sam ]
+#then
+#echo "${BadFJDir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
+#else
+#BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 #echo "BadFJ to genome: ${BadFJj1_id}"
+#depend_str7=${depend_str7}:${BadFJj1_id}
+#fi
 #
-#BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
+#if [ -e ${BadFJDir}${STEM}_BadFJtotranscriptome.sam ]
+#then
+#echo "${BadFJDir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
+#else
+#BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
 #echo "BadFJ to transcriptome: ${BadFJj2_id}"
+#depend_str7=${depend_str7}:${BadFJj2_id}
+#fi
 #
-#
-#BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
+#if [ -e ${BadFJDir}${STEM}_BadFJtoReg.sam ]
+#then
+#echo "${BadFJDir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
+#else
+#BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
 #echo "BadFJ to reg: ${BadFJj3_id}"
+#depend_str7=${depend_str7}:${BadFJj3_id}
 #
+#fi
 #
-#BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
+#if [ -e ${BadFJDir}${STEM}_BadFJtoJunc.sam ]
+#then
+#echo "${BadFJDir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
+#else
+#BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
 #echo "BadFJ to junc: ${BadFJj4_id}"
-#depend_str7=${depend_str7}:${BadFJj1_id}:${BadFJj2_id}:${BadFJj3_id}:${BadFJj4_id}
+#depend_str7=${depend_str7}:${BadFJj4_id}
+#fi
 #
 ### Read gaps are disallowed in the first version of BadJuncs.  A second version of BadJuncs was created to also find genome/reg/junc/transcriptome alignments with gapped alignments.
 ### For BadFJ ver2 we use bowtie to align the reads1 and 2 as if they were paired end reads from the same strand.  We impose a minimum gap of 0 between the two and a maximum gap of 50,000 bases to allow up to a 50,000 base gapped alignment.
@@ -260,21 +279,43 @@ echo ${NUM_FILES}
 #
 #
 ### submit SLURM jobs to do the bowtie alignment for each of the BadFJ Ver 2 indices above
-#BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4  --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
+#if [ -e ${BadFJver2Dir}${STEM}_BadFJtoGenome.sam ]
+#then
+#echo "${BadFJver2Dir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
+#else
+#BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
 #echo "BadFJ_ver2 to genome: ${BadFJv2j1_id}"
+#depend_str7=${depend_str7}:${BadFJv2j1_id}
+#fi
 #
+#if [ -e ${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam ]
+#then
+#echo "${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
+#else
 #BadFJv2j2_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${transcriptomeBOWTIEPARAM}" | awk '{print $4}'`
 #echo "BadFJ_ver2 to transcriptome: ${BadFJv2j2_id}"
+#depend_str7=${depend_str7}:${BadFJv2j2_id}
+#fi
 #
+#if [ -e ${BadFJver2Dir}${STEM}_BadFJtoReg.sam ]
+#then
+#echo "${BadFJver2Dir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
+#else
 #BadFJv2j3_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${regBOWTIEPARAM}" | awk '{print $4}'`
 #echo "BadFJ_ver2 to reg: ${BadFJv2j3_id}"
+#depend_str7=${depend_str7}:${BadFJv2j3_id}
+#fi
 #
+#if [ -e ${BadFJver2Dir}${STEM}_BadFJtoJunc.sam ]
+#then
+#echo "${BadFJver2Dir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
+#else
 #BadFJv2j4_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${juncBOWTIEPARAM}" | awk '{print $4}'`
 #echo "BadFJ_ver2 to junc: ${BadFJv2j4_id}"
-#
-#depend_str7=${depend_str7}:${BadFJv2j1_id}:${BadFJv2j2_id}:${BadFJv2j3_id}:${BadFJv2j4_id}
-#
+#depend_str7=${depend_str7}:${BadFJv2j4_id}
+#fi
 #done
+#
 #
 #
 #
@@ -300,30 +341,30 @@ echo ${NUM_FILES}
 ###Make fJ Class input files for GLM
 ###parse_FJ_ID_for_GLM.sh is a simple shell script that takes the ID files generated above in FJDir/reports/IDs_<STEM>.txt as inputs and removes any unmapped or unaligned read IDs using the "grep -v" command.  The outputs are fed into the  FJDir/GLM_classInput/<STEM>__output_FJ.txt with the other class input files for the GLM.
 ####
-#j15a_id=`sbatch -J AddFJtoIDfile ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=5000 --nodes=1 --time=1:0:0 -o ${2}err_and_out/out_15FJforGLM.txt -e ${2}err_and_out/err_15FJforGLM.txt ${INSTALLDIR}parse_FJ_ID_for_GLM.sh ${2} | awk '{print $4}'`
+#j15a_id=`sbatch -J AddFJtoIDfile ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=5000 --nodes=1 --time=1:0:0 -o ${2}err_and_out/out_15FJforGLM.txt -e ${2}err_and_out/err_15FJforGLM.txt --depend=afterok:${j9_id} ${INSTALLDIR}parse_FJ_ID_for_GLM.sh ${2} | awk '{print $4}'`
 #
 #echo "make FJ class input files: ${j15a_id}"
 #
 ##
+###
+####
+####### ESTIMATE LIGATION ARTIFACT
+### Ligation artifact refers to the rate at which cDNA are artificially ligated, producing what appears to be a true junctional alignment.  In this step, reads that remained unaligned to the Far Junctions Bowtie index that are located in FarJuncSecondary are then aligned to new indel fasta indices under the assumption that in any local area, the rate of false ligation of a junction is similar to the rate of false ligation of any two cDNAs that do not end at exon boundaries.
 ##
-###
-###### ESTIMATE LIGATION ARTIFACT
-## Ligation artifact refers to the rate at which cDNA are artificially ligated, producing what appears to be a true junctional alignment.  In this step, reads that remained unaligned to the Far Junctions Bowtie index that are located in FarJuncSecondary are then aligned to new indel fasta indices under the assumption that in any local area, the rate of false ligation of a junction is similar to the rate of false ligation of any two cDNAs that do not end at exon boundaries.
-#
-###
+####
 #### MakeIndelFiles.sh is a shell script that calls the python script AddIndelsToFasta.py.  It takes the FarJunctions fasta files as inputs (FJDir/fasta/<STEM>_FarJunctions.fa) and outputs five files called FJDir/FarJuncIndels/<STEM>/<STEM>_FJ_Indels_1,2,3,4,5.fa where the numbers 1-5 indicate the N's inserted on each side of the breakpoint or deletions on each side of the breakpoint.  For example, the FJ_indels_3 file is the same as the FarJunctions.fa file except every sequence has 3 N's on each side of the breakpoint (total of 6 N's inserted at the breakpoint), or 3 bases are deleted from each exon on each side of the breakpoint (total of 6 deletions at the breakpoint).
 #####
-#j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_10FJIndels.txt ${INSTALLDIR}MakeIndelFiles.sh ${2} ${NumIndels} ${INSTALLDIR} | awk '{print $4}'`
+#j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_10FJIndels.txt --depend=afterok:${j6a_id} ${INSTALLDIR}MakeIndelFiles.sh ${2} ${NumIndels} ${INSTALLDIR} | awk '{print $4}'`
 #
 #echo "make indel files: ${j10_id}"
-#
-#
-
+##
 ##
 #
-#
-# make Bowtie Indices for Far Junc Indel files
-#
+###
+##
+##
+## make Bowtie Indices for Far Junc Indel files
+##
 ### The shell script BowtieIndexFJIndels.sh calls bowtie to index the indels_N.fa files that were created in the previous step.  The indels are output to the directory FJDir/BowtieIndels/<STEM>/<STEM>_Indels_N where N is the number of indels in that index.
 #
 #depend_str11="--depend=afterok"
@@ -337,24 +378,24 @@ echo ${NUM_FILES}
 #done
 #echo "index indels ${depend_str11}"
 #
-
-
-##Align FarJuncSecondary (unaligned to FJ index) to FJ indels
-
-# This section calls the shell BowtieAlignFJIndels.sh to align the fq files FJdir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_1/2.fq to the Bowtie2 indices of the far junction indels created in the previous step.  Aligned indels are stored in FJdir/FarJunctionSecondary/AlignedIndels/<STEM>/still_unaligned_<STEM>_indels<N>.sam where N is the number of indels in the Bowtie index where the reads aligned.  The bowtie parameters include a max of ~4 mismatches / 100 basepairs, max #N is the read length, and prohibits gapped alignments or gaps in the read.
 #
+#
+###Align FarJuncSecondary (unaligned to FJ index) to FJ indels
+#
+## This section calls the shell BowtieAlignFJIndels.sh to align the fq files FJdir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_1/2.fq to the Bowtie2 indices of the far junction indels created in the previous step.  Aligned indels are stored in FJdir/FarJunctionSecondary/AlignedIndels/<STEM>/still_unaligned_<STEM>_indels<N>.sam where N is the number of indels in the Bowtie index where the reads aligned.  The bowtie parameters include a max of ~4 mismatches / 100 basepairs, max #N is the read length, and prohibits gapped alignments or gaps in the read.
 ##
+###
 #depend_str13="--depend=afterok"
 #START=1
 #for (( c=$START; c<=${NumIndels}; c++ ))
 #do
 #BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,1 -p 4 --rdg 50,50 --rfg 50,50"
-#j13_id=`sbatch -J AlignIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_12alignindels.txt -e ${2}err_and_out/err_12alignindels.txt ${INSTALLDIR}BowtieAlignFJIndels.sh ${2} "${BOWTIEPARAMETERS}" ${c} | awk '{print $4}'`
+#j13_id=`sbatch -J AlignIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_12alignindels.txt -e ${2}err_and_out/err_12alignindels.txt ${depend_str11} ${INSTALLDIR}BowtieAlignFJIndels.sh ${2} "${BOWTIEPARAMETERS}" ${c} | awk '{print $4}'`
 #    depend_str13=${depend_str13}:${j13_id}
 #
 #done
 #echo "align to indels: ${depend_str13}"
-#
+##
 
 #
 ## Calls FindAlignmentArtifact_SLURM.sh which is a shell that calls MakeIndelsHisto.py.  The MakeIndelsHisto.py script reads in the aligned indels from the sam files FJdir/FarJunctionSecondary/AlignedIndels/<STEM>/still_unaligned_<STEM>_indels<N>.sam.  It concatenates all the indels_1,2,3,4,5.sam files into a larger file All_<STEM>_1/2_indels.sam in the same directory as the original sam files. In the All_<STEM>_1/2_indels.sam files, any indels that did not overlap the junction by the user specified # base pairs around the breakpoint are removed. Additionally, since the FarJuncSecondary files were aligned independently to the indels_1-5 bowtie indices, the same read could align to multiple indices.  Therefore for each read, the read with the best alignment score is placed in the All_<STEM>_1/2_indels sam file, and all other alignments to other indices are discarded.
@@ -366,8 +407,8 @@ j14_id=`sbatch -J FilterIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=550
 
 echo "make indels histo/FilterIndels: ${j14_id}"
 
+###
 ####
-#####
 ###### REG INDELS ################
 ###
 ##  To train the GLM, indel alignments are also created for the linear junctions.  The reference index of indels to the linear junctions is static and has already been created and is referenced above as "REG_INDEL_INDICES" on line 44.  The script AlignRegIndels calls bowtie to align reads that were unaligned the the KNIFE indices (in KNIFEdir/orig/unaligned/*.fq) to the REG_INDEL_INDICES, with the parameters of 1) approx 4 mismatches / 100 bases, maximum number N's = readlength, and no gapped alignments or read gaps.
@@ -414,7 +455,7 @@ echo "FJ Indels Class Input: ${j19_id}"
 ## Run GLM
 ##  This calls the GLM script.  Class input files from KNIFE dir/circReads/ids/ are fed into the GLM and GLM reports are generated in FJDir/reports/glmReports.  Please see GLM documentation for additional information.
 
-j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=1:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j19_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
+j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=5:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j19_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "Run GLM: ${j15b_id}"
 
@@ -427,9 +468,9 @@ echo "Run GLM: ${j15b_id}"
 #j17_id=`sbatch -J AppendRegGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=2 --time=24:0:0 -o ${2}err_and_out/out_17AppendRegGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16} ${INSTALLDIR}AddIndelstolinearGLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 #echo " Appending linearJuncs GLM report: ${j17_id}"
 ###
-####
-
-### The AppendNaiveRept.sh shell calls the AppendNaiveRept.py script.  This reads in the IndelsHistogram, BadFJ and BadFJ_ver2 files, and GLM report results and outputs all the results into a single file in /FJDir/reports/AppendedReports/<STEM>_naive_report_Appended.txt
+#####
+#
+#### The AppendNaiveRept.sh shell calls the AppendNaiveRept.py script.  This reads in the IndelsHistogram, BadFJ and BadFJ_ver2 files, and GLM report results and outputs all the results into a single file in /FJDir/reports/AppendedReports/<STEM>_naive_report_Appended.txt
 ###
 j15_id=`sbatch -J AppendNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=2:0:0 -o ${2}err_and_out/out_14AppendRpt.txt -e ${2}err_and_out/err_14AppendRpt.txt --depend=afterok:${j15b_id} ${INSTALLDIR}AppendNaiveRept.sh ${2} ${GLM_DIR} ${INSTALLDIR} ${2}reports/glmReports/ | awk '{print $4}'`
 

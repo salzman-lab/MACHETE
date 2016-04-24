@@ -232,20 +232,42 @@ BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 -p 4 --
 
 
 ## submit SLURM jobs to do bowtie alignments for each of BadFJ indices above
-BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
+if [ -e ${BadFJDir}${STEM}_BadFJtoGenome.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
+else
+BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 echo "BadFJ to genome: ${BadFJj1_id}"
+depend_str7=${depend_str7}:${BadFJj1_id}
+fi
 
-BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
+if [ -e ${BadFJDir}${STEM}_BadFJtotranscriptome.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
+else
+BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
 echo "BadFJ to transcriptome: ${BadFJj2_id}"
+depend_str7=${depend_str7}:${BadFJj2_id}
+fi
 
-
-BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
+if [ -e ${BadFJDir}${STEM}_BadFJtoReg.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
+else
+BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
 echo "BadFJ to reg: ${BadFJj3_id}"
+depend_str7=${depend_str7}:${BadFJj3_id}
 
+fi
 
-BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
+if [ -e ${BadFJDir}${STEM}_BadFJtoJunc.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
+else
+BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
 echo "BadFJ to junc: ${BadFJj4_id}"
-depend_str7=${depend_str7}:${BadFJj1_id}:${BadFJj2_id}:${BadFJj3_id}:${BadFJj4_id}
+depend_str7=${depend_str7}:${BadFJj4_id}
+fi
 
 ## Read gaps are disallowed in the first version of BadJuncs.  A second version of BadJuncs was created to also find genome/reg/junc/transcriptome alignments with gapped alignments.
 ## For BadFJ ver2 we use bowtie to align the reads1 and 2 as if they were paired end reads from the same strand.  We impose a minimum gap of 0 between the two and a maximum gap of 50,000 bases to allow up to a 50,000 base gapped alignment.
@@ -257,21 +279,43 @@ juncBOWTIEPARAM="--no-unal --no-mixed --no-sq -p 8 -I 0 -X 50000 -f --ff -x ${ju
 
 
 ## submit SLURM jobs to do the bowtie alignment for each of the BadFJ Ver 2 indices above
-BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4  --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtoGenome.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
+else
+BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to genome: ${BadFJv2j1_id}"
+depend_str7=${depend_str7}:${BadFJv2j1_id}
+fi
 
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j2_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${transcriptomeBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to transcriptome: ${BadFJv2j2_id}"
+depend_str7=${depend_str7}:${BadFJv2j2_id}
+fi
 
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtoReg.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j3_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${regBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to reg: ${BadFJv2j3_id}"
+depend_str7=${depend_str7}:${BadFJv2j3_id}
+fi
 
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtoJunc.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j4_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${juncBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to junc: ${BadFJv2j4_id}"
-
-depend_str7=${depend_str7}:${BadFJv2j1_id}:${BadFJv2j2_id}:${BadFJv2j3_id}:${BadFJv2j4_id}
-
+depend_str7=${depend_str7}:${BadFJv2j4_id}
+fi
 done
+
 
 
 

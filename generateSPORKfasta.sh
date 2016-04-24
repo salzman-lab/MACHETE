@@ -11,11 +11,11 @@ SPORKDIR=${2}
 NUMBASES=${3}
 SPORK_INSTALL_DIR=${4}
 
+cd ${4}
+
 STEMFILE=${2}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
-#STEM=SRR1027188
-cd ${4}
-pwd
+#STEM=Fetal_Adrenal_360_CTTGTA_L006
 
 MODE="complete"
 DENOVOCIRC="1"
@@ -30,6 +30,7 @@ if [ -e ${2}fasta/${STEM}/${STEM}_SPORK_Junctions.fa ]
 then
 echo "SPORK fasta has already been generated"
 else
+rm ${2}fasta/${STEM}/*
 ml load python/2.7.5
 python denovo_pipeline_GH.py ${ORIGDIR} ${STEM} ${MODE} ${NUMFLANKING} ${NUMBASES} ${DENOVOCIRC} ${OUTPUTDIR}
 python SPORK_reformat_header.py -f ${OUTPUTDIR} -s ${STEM}

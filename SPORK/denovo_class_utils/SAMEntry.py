@@ -25,7 +25,10 @@ class SAMEntry(object):
         #[17:string for mismatches] MD:Z:33
         #[18:whether or not paired] YT:Z:UU
         self.read_id         = split_line[0]
-        self.strand          = "+" if split_line[1] == "0" else "-"
+        try:
+            self.strand          = "+" if split_line[1] == "0" else "-"
+        except:
+            print full_line
         self.chromosome      = split_line[2]
         self.upstream_pos    = int(split_line[3])
         self.mapping_quality = int(split_line[4])

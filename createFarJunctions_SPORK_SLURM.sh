@@ -124,7 +124,7 @@ echo "make SPORK fastas: ${j1_id}"
 ###call bowtie indexer
 ##
 #
-j6a_id=`sbatch -J FJ_Index ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5FJIndexing.txt -e ${2}err_and_out/err_5FJIndexing.txt --depend=afterok:${j1_id} ${INSTALLDIR}Spork_BowtieIndex.sh ${2} | awk '{print $4}'`
+j6a_id=`sbatch -J FJ_Index ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=4:0:0 -o ${2}err_and_out/out_5FJIndexing.txt -e ${2}err_and_out/err_5FJIndexing.txt --depend=afterok:${j1_id} ${INSTALLDIR}Spork_BowtieIndex.sh ${2} | awk '{print $4}'`
 echo "make SPORK bowtie indices for each experiment: ${j6a_id}"
 
 ##
@@ -166,20 +166,42 @@ BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 -p 4 --
 
 
 ## submit SLURM jobs to do bowtie alignments for each of BadFJ indices above
+if [ -e ${BadFJDir}${STEM}_BadFJtoGenome.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
+else
 BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 echo "BadFJ to genome: ${BadFJj1_id}"
+depend_str7=${depend_str7}:${BadFJj1_id}
+fi
 
+if [ -e ${BadFJDir}${STEM}_BadFJtotranscriptome.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
+else
 BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
 echo "BadFJ to transcriptome: ${BadFJj2_id}"
+depend_str7=${depend_str7}:${BadFJj2_id}
+fi
 
-
+if [ -e ${BadFJDir}${STEM}_BadFJtoReg.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
+else
 BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
 echo "BadFJ to reg: ${BadFJj3_id}"
+depend_str7=${depend_str7}:${BadFJj3_id}
 
+fi
 
+if [ -e ${BadFJDir}${STEM}_BadFJtoJunc.sam ]
+then
+echo "${BadFJDir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
+else
 BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${SPORKFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
 echo "BadFJ to junc: ${BadFJj4_id}"
-depend_str7=${depend_str7}:${BadFJj1_id}:${BadFJj2_id}:${BadFJj3_id}:${BadFJj4_id}
+depend_str7=${depend_str7}:${BadFJj4_id}
+fi
 
 ## Read gaps are disallowed in the first version of BadJuncs.  A second version of BadJuncs was created to also find genome/reg/junc/transcriptome alignments with gapped alignments.
 ## For BadFJ ver2 we use bowtie to align the reads1 and 2 as if they were paired end reads from the same strand.  We impose a minimum gap of 0 between the two and a maximum gap of 50,000 bases to allow up to a 50,000 base gapped alignment.
@@ -191,19 +213,43 @@ juncBOWTIEPARAM="--no-unal --no-mixed --no-sq -p 8 -I 0 -X 50000 -f --ff -x ${ju
 
 
 ## submit SLURM jobs to do the bowtie alignment for each of the BadFJ Ver 2 indices above
+
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtoGenome.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to genome: ${BadFJv2j1_id}"
+depend_str7=${depend_str7}:${BadFJv2j1_id}
+fi
 
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j2_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${transcriptomeBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to transcriptome: ${BadFJv2j2_id}"
+depend_str7=${depend_str7}:${BadFJv2j2_id}
+fi
 
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtoReg.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j3_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${regBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to reg: ${BadFJv2j3_id}"
+depend_str7=${depend_str7}:${BadFJv2j3_id}
+fi
 
+if [ -e ${BadFJver2Dir}${STEM}_BadFJtoJunc.sam ]
+then
+echo "${BadFJver2Dir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
+else
 BadFJv2j4_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${juncBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to junc: ${BadFJv2j4_id}"
+depend_str7=${depend_str7}:${BadFJv2j4_id}
+fi
 
-depend_str7=${depend_str7}:${BadFJv2j1_id}:${BadFJv2j2_id}:${BadFJv2j3_id}:${BadFJv2j4_id}
 
 done
 
@@ -305,7 +351,7 @@ START=1
 for (( c=$START; c<=${NumIndels}; c++ ))
 do
 BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --n-ceil L,0,1 --rfg 50,50"
-j16_id=`sbatch -J AlignRegIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_15AlignRegIndels.txt -e ${2}err_and_out/err_15AlignRegIndels.txt ${INSTALLDIR}AlignUnalignedtoRegIndel.sh ${1} ${c} ${2} "${BOWTIEPARAMETERS}" ${REG_INDEL_INDICES} | awk '{print $4}'`
+j16_id=`sbatch -J AlignRegIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=12:0:0 -o ${2}err_and_out/out_15AlignRegIndels.txt -e ${2}err_and_out/err_15AlignRegIndels.txt ${INSTALLDIR}AlignUnalignedtoRegIndel.sh ${1} ${c} ${2} "${BOWTIEPARAMETERS}" ${REG_INDEL_INDICES} | awk '{print $4}'`
 depend_str16=${depend_str16}:${j16_id}
 done
 echo "Aligning unaligned files to linear junc indels: ${depend_str16}"
@@ -314,7 +360,7 @@ echo "Aligning unaligned files to linear junc indels: ${depend_str16}"
 #
 ### reg indels class output file
 #
-j18_id=`sbatch -J RegIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_18RegIndelsClassOutput.txt -e ${2}err_and_out/err_18RegIndelsClassOutput.txt ${depend_str16} ${INSTALLDIR}RegIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
+j18_id=`sbatch -J RegIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=5:0:0 -o ${2}err_and_out/out_18RegIndelsClassOutput.txt -e ${2}err_and_out/err_18RegIndelsClassOutput.txt ${depend_str16} ${INSTALLDIR}RegIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
 echo " Reg Indels Class Output: ${j18_id}"
 
 #
@@ -328,7 +374,7 @@ echo " Reg Indels Class Output: ${j18_id}"
 ####
 
 #
-j19_id=`sbatch -J FJIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=60000 --nodes=6 --time=24:0:0 -o ${2}err_and_out/out_19FJIndelsClassOutput.txt -e ${2}err_and_out/err_19FJIndelsClassOutput.txt --depend=afterok:${j14_id} ${INSTALLDIR}FJIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
+j19_id=`sbatch -J FJIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=60000 --nodes=6 --time=5:0:0 -o ${2}err_and_out/out_19FJIndelsClassOutput.txt -e ${2}err_and_out/err_19FJIndelsClassOutput.txt --depend=afterok:${j14_id} ${INSTALLDIR}FJIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
 echo "FJ Indels Class Input: ${j19_id}"
 
 
@@ -336,7 +382,7 @@ echo "FJ Indels Class Input: ${j19_id}"
 #
 ## Run GLM
 ##
-j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=1:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j15a_id}:${j18_id}:${j19_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
+j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=5:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j15a_id}:${j18_id}:${j19_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "Run GLM: ${j15b_id}"
 
@@ -346,14 +392,14 @@ echo "Run GLM: ${j15b_id}"
 #
 ### Append linear junctions GLM report with anomalies, indels
 ##
-j17_id=`sbatch -J AppendRegGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=2 --time=24:0:0 -o ${2}err_and_out/out_17AppendRegGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16} ${INSTALLDIR}AddIndelstolinearGLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
+j17_id=`sbatch -J AppendRegGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=2 --time=2:0:0 -o ${2}err_and_out/out_17AppendRegGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16} ${INSTALLDIR}AddIndelstolinearGLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 echo " Appending linearJuncs GLM report: ${j17_id}"
 ###
 ####
 
 ### Append Naive report:  Add Indels, quality of junctions (good/bad), frequency of junction participation in linear junctions, and GLM report fields to the Naive report
 ###:${j7_id}:${j9_id}
-j15_id=`sbatch -J AppendNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_14AppendRpt.txt -e ${2}err_and_out/err_14AppendRpt.txt ${depend_str7}:${j15b_id} ${INSTALLDIR}AppendNaiveRept.sh ${2} ${GLM_DIR} ${INSTALLDIR} ${2}reports/glmReports/ | awk '{print $4}'`
+j15_id=`sbatch -J AppendNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=2:0:0 -o ${2}err_and_out/out_14AppendRpt.txt -e ${2}err_and_out/err_14AppendRpt.txt ${depend_str7}:${j15b_id} ${INSTALLDIR}AppendNaiveRept.sh ${2} ${GLM_DIR} ${INSTALLDIR} ${2}reports/glmReports/ | awk '{print $4}'`
 
 echo "append naive rpt: ${j15_id}"
 ##

@@ -31,6 +31,7 @@ parser.add_argument("-f", "--FarJuncDir", required=True, help = "Far Junction Di
 parser.add_argument("-g", "--glmReportsDir", required= True, help = "linear junc glmReports Directory")
 parser.add_argument("-s", "--stem", required=True, help = "file stem")
 parser.add_argument("-G", "--FJGLM", required=True, help="directory with FJ pipeline GLM outputs")
+parser.add_argument("-o", "--outputdir", help="optional- if this exists then will default output dir of FJ/reports/AppendedReports/ with new output dir")
 args=parser.parse_args()
 
 if args.FarJuncDir[-1] != "/":
@@ -44,7 +45,13 @@ if args.FJGLM[-1] != "/":
 
 indelsDir = args.FarJuncDir + "IndelsHistogram/"
 reportsDir = args.FarJuncDir + "reports/"
-outputDir = args.FarJuncDir + "reports/AppendedReports/"
+if args.outputdir:
+    if args.outputdir[-1]!="/":
+        args.outputdir+="/"
+    outputDir=args.outputdir
+else:
+    outputDir = args.FarJuncDir + "reports/AppendedReports/"
+print "output to " + outputDir
 BadFJDir = args.FarJuncDir + "BadFJ/" + args.stem + "/"
 BadFJV2Dir = args.FarJuncDir+ "BadFJ_ver2/" + args.stem+ "/"
 NoGLM=False

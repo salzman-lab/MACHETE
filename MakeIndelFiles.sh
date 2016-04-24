@@ -14,7 +14,7 @@ INSTALLDIR=${3}
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
-InputFile=${1}fasta/${STEM}/${STEM}_FarJunctions.fa
+InputFile=${1}fasta/${STEM}_FarJunctions.fa
 if [ ! -e ${InputFile} ]
 then
 InputFile=${1}fasta/${STEM}/${STEM}_SPORK_Junctions.fa

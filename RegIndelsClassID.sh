@@ -25,8 +25,15 @@ STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 #### TESTING
 #STEM=SRR1027188
 
-ml load python/2.7.5
 
+if [ -e ${circReads}ids/${STEM}_output_RegIndel.txt ]
+then
+echo "RegIndel class input file exists, skipping step"
+else
+
+ml load python/2.7.5
 python ${INSTALLDIR}RegIndels_ClassIDFile.py -s ${STEM} -c ${circReads} -i ${origDir} -w ${WINDOW}
 
 echo "RegIndelsClassID.sh complete for ${STEM} -- check ${circReads}/ids/${STEM}_output_RegIndel.txt" >> ${1}MasterError.txt
+
+fi

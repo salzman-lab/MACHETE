@@ -68,7 +68,7 @@ RegIndelsFile_1.close()
 ## loop through naive reports to extract rates of linear anomalies and circular decoys
 AnomalyandDecoyDict={} # key = junction, value = [x,y] where x = # anomaly reads, y = # decoy reads
 
-NaiveRptFile=open(naiveRptDir+args.stem+"_1_report.txt", mode="rU")
+NaiveRptFile=open(glob.glob(naiveRptDir+args.stem+"_*_report.txt")[0], mode="rU")
 for line in NaiveRptFile:
     if line[0]=="@":
         continue
