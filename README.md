@@ -121,6 +121,29 @@ If the read partner is not in genome, the next library opened is the linear (reg
 If the read partner R2 is not in FJ, genome, or reg, the partner is searched for in scrambled junction alignments.  For R1 in FJ and R2 in junc, all reads are considered "false".  The same is done for FJ R2 and junc R1.
 If a FJ R1's read partner R2 is in none of the above, the unaligned reads are searched for R2. The same is done for FJ R2 and unaligned R1.
 All reads where R1 or R2 was in FJ and the partner is in none of the above are tagged as "unmapped".  One caveat - if a read was found in any of the junctional alignment files (FJ, reg, or junc) but did not overlap the junction by the below specified overlap (-w ${3}) then that read is not considered.  For example, for FJ R1 that did overlap the junction by the desired number of bases and genome R2 that did NOT overlap the junction by the desired number of bases, the script would continue to search for R2 in reg, junc, and unaligned.  If the R2 does not occur in any of those other alignment files, then R2 would be labeled "unmapped" even though it technically did map to a genome alignment.
+Fields in naive reports:
+
+NAIVE REPORTS:
+    Junction - name and location of fusion
+    genome - number read pairs where R1 aligned to FJ and R2 aligned to genome OR r1 aligned to genome and R2 aligned to FJ in "true" fashion, as specified above
+    genome anomaly - number read pairs where R1 aligned to FJ and R2 aligned to genome OR r1 aligned to genome and R2 aligned to FJ but did not meet location/strand criteria
+    genome p value - Genome mismatch rate = sum of # mismatches in all R1 and R2 involved in FJ-genome "true" alignments / sum of read lengths of all R1 and R2 involved in FJ-genome "true" alignments.  Genome mismatch rate compared to poisson CDF with mean mismatch rate 0.01.  P value is generated.
+    reg - number read pairs where R1 aligned to FJ and R2 aligned to reg OR r1 aligned to reg and R2 aligned to FJ in "true" fashion, as specified above
+    reg anomaly - number read pairs where R1 and R2 aligned to FJ and reg or vice versa, but did not meet criteria to be "true" reg alignments
+    reg p value - Reg mismatch rate = sum of # mismatches in all R1 and R2 involved in FJ-reg "true" alignments / sum of read lengths of all R1 and R2 involved in FJ-reg "true" alignments.  Reg mismatch rate compared to poisson CDF with mean mismatch rate 0.01.  P value is generated.
+    junc - this is a placeholder, because currently all FJ-junc alignments are considered false.
+    junc anomaly - number of read pairs where R1 and R2 aligned to FJ and junc or vice versa.
+    junc p value- currently a place holder because currently all FJ-junc alignments are considered false.
+    Far Junc - number of reads where R1 and R2 both aligned in the FJ index and aligned to the exact same junction but on opposite strands.
+    Far Junc anomaly - number of reads where R1 and R2 both aligned in FJ index to different junctions or on same strand
+    Far Junc p value - FJ mismatch rate = sum of # mismatches in all R1 and R2 involved in FJ-FJ "True" alignments / sum of read lengths of R1 and R2 involved in FJ-FJ "true alignments.  FJ mismatch rate compared to poisson CDF with mean mismatch rate 0.01.  P value is generated.
+    unaligned - R1 aligned to FJ but R2 was unaligned or vice versa
+    no partner - R1 aligned to FJ but R2 was 1) not in any dictionaries - genome, reg, junc, or unaligned or 2) R2 aligned to reg or junc but didn't overlap junction enough to be considered an alignment, or opposite cases for R1 and R2.
+    net p value - Net mismatch rate = sum of # mismatches of all R1 and R2 participating in all "true" alignments to any other index (aggregated # mismatches from all previous categories) / read length of all R1 and R2 participating in all "true" alignments to any other index.  This is compared to a Poisson CDF with mean mismatch rate 0.01.  P value is generated
+    
+    
+
+
 
 The Indels columns refer to the number of reads that aligned to a far junction : the number of times a read aligned to one of the indel indices. These are used for the GLM.
 
