@@ -16,6 +16,7 @@ IndelNum=${3}
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 
+
 InputFQDir=${1}FarJuncSecondary/${STEM}/
 OutputDir=${1}FarJuncSecondary/AlignedIndels/${STEM}/
 mkdir -p ${OutputDir}

@@ -30,7 +30,7 @@ For Sherlock users, please download the REG INDELS INDICES from - /scratch/PI/ho
 
 For other users, please email glhsieh@stanford.edu for this directory.
 
-Requires paired end read data.
+Requires paired end reads but aligns in a single end fashion.
 
 
 Please open and change the script createFarJunctions_SLURM.sh
@@ -42,7 +42,7 @@ line41 - PICKLEDIR - please change this path to the path that you used to store 
 Running MACHETE:
 First run KNIFE script completely to generate linear and scrambled junction reports and alignments.
 
-sh createFarJunctions_SLURM.sh <1. KNIFE parent directory> <2. output directory> <3. discordant read distance> <4. ref genome> <5. junction overlapping reads> <6. #indels to use> <7. indel junction overlapping reads> 
+sh createFarJunctions_SLURM.sh <1. KNIFE parent directory> <2. output directory> <3. discordant read distance> <4. ref genome> <5. #indels to use> <6. special queue> 
 
 NOTE -- ALL directory inputs must end in "/"
 
@@ -110,22 +110,40 @@ When SEQUENCE 3-5 are complete then the script j15b - run_GLM.sh is called
 When SEQUENCE2 and j15b - run_GLM.sh are complete -- j15 - AppendNaiveRept.sh is called. This completes the MACHETE.  
 
 =========================================
-Output files
+Output directories
 
- MACHETE output dir/reports/AppendedReports - these are the final output files of MACHETE containing p values and posterior probabilities for reads.
-1. naive_report_Appended.txt -- The first part of the report sequentially opens the far junctions read 1 and 2 alignments, genome read 1 and 2 alignments, reg (linear junction) 1 and 2 alignments, junc (scrambled junction) 1 and 2 alignments, and the unaligned files.
-Alignments are designated as "true" or "false". Each column - genome, genome anomaly, genome p value, reg, reg anomaly, reg p value, etc...) refers to the count of alignments of a read partner of FJ to align to one of those libraries, or the p value. All true alignments from each category (genome, reg, junc) are used to calculate p values using the read length and the alignment score.  Using an estimated mismatch rate of 0.01 (per Illumina specifications), the mismatch rate is compared to the estimated mismatch rate using a Poisson cdf.
-First FJ_1 is opened and compared to FJ2 to look for read partners.  If a read pair R1 and R2 in these files align to the exact same junction, those are considered a "true" FJ alignment.  If a read pair R1 and R2 do not align to the same junction, these are a "false" alignment.
-If read partners R1 or R2 are not found in the FJ Directory, then the genome alignment files are opened.  If R1 is in FJ and R2 in genome, then the following criteria are used to designate those partners as "true" -- R2 must occur on the same chromosome as either upstream of the 5' gene or downstream of the 3' gene, and the two reads must have aligned to opposite reference strands.  If these criteria are not all met, then the read is considered "false". The same is done for FJ R2 and genome R1.
-If the read partner is not in genome, the next library opened is the linear (reg) alignments.  For R1 in FJ and R2 in reg, the following criteria are used to designate read partners as "true".  For the location criterion, the downstream exon of the reg R2 must occur on the same chromosome and upstream of the upstream exon of the FJ R1 or the upstream exon of the reg R2 must occur on the same chromosome and downstream of the downstream exon of FJ R1.  Whichever of the R1 and R2 exons that meet the location criterion must also be on the same strand (+ or -).  Because the KNIFE sequences for (-) stranded exons are reverse complemented whereas the MACHETE sequences are not reverse complemented, for (-) R1 and R2 exons the reference strands must match (0 and 0 or 16 and 16, indicating that alignments were made to opposite sides of the cDNA), but for (+) R1 and R2 exons, the reference strands must be opposite (0 and 16). The same is done for FJ R2 and reg R1.
-If the read partner R2 is not in FJ, genome, or reg, the partner is searched for in scrambled junction alignments.  For R1 in FJ and R2 in junc, all reads are considered "false".  The same is done for FJ R2 and junc R1.
-If a FJ R1's read partner R2 is in none of the above, the unaligned reads are searched for R2. The same is done for FJ R2 and unaligned R1.
-All reads where R1 or R2 was in FJ and the partner is in none of the above are tagged as "unmapped".  One caveat - if a read was found in any of the junctional alignment files (FJ, reg, or junc) but did not overlap the junction by the below specified overlap (-w ${3}) then that read is not considered.  For example, for FJ R1 that did overlap the junction by the desired number of bases and genome R2 that did NOT overlap the junction by the desired number of bases, the script would continue to search for R2 in reg, junc, and unaligned.  If the R2 does not occur in any of those other alignment files, then R2 would be labeled "unmapped" even though it technically did map to a genome alignment.
+1. DistantPEfiles - 
+<STEM>_distant_pairs.txt -- list of three columns - readID / position1 / position2.  Position1 and Position2 are the windows surrounding "discordant" bases from either the genome or reg alignment files.
+    Subdirectory <STEM>:
+    A. file chr(1,2,3,..,X,Y)_Distant_PE_frequency.txt.  If, for the pair of windows, the upstream location is on chrA, then it will be binned into the chrA_Distant_PE_frequency.txt file.  Three columns appear -- Window1, Window2, and the number of times that these two windows were matched. 
+    B. file sorted_chr(1,2,3,..)_Distant_PE_frequency.txt -- File A, sorted on the numerical value of the first column followed by the numerical values of the second column, to reduce parsing time later.
+2. fasta -
+    Subdirectory <STEM>:
+    A: <STEM>_chr(1,2,3,..)FarJunctions.fa - a fusion reference fasta file is created from the corresponding sorted_chr(1,2,3,...)Distant_PE_Frequency. 
+    <STEM>_FarJunctions.fa -- the concatenated list of all fasta entries from fasta/<STEM>/<STEM>_chr*_FarJunctions.fa
+3. BadFJ/<STEM> -
+    A. err/out.txt- error and output files from bowtie alignment of fasta to reference dictionaries
+    B. <STEM>_BadFJto(Genome/Reg/Junc/transcriptome).sam - aligns fasta/<STEM>_FarJunctions.fa to the KNIFE reference indices Genome, Reg, Junc, and transcriptome with bowtie parameters "-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 -p 4 --np 0 --rdg 50,50 --rfg 50,50"
+4. BadFJ_ver2/<STEM> - 
+    A. err/out.txt- error and output files from bowtie alignment of fasta to reference dictionaries
+    B. <STEM>_FarJunctions_R1/2.fa - contains reads from fasta/<STEM>_FarJunctions.fa where all N's are removed from reads and the first 40 nt of the original fasta read is fed into the R1 file and the last 40 nt of the original fasta read is fed into the R2 file. 
+    C. <STEM>_BadFJto(Genome/Reg/Junc/transcriptome).sam - aligns BadFJ_ver2/<STEM>_FarJunctions_R1/2.fa to the KNIFE reference indices Genome, Reg, Junc, and transcriptome as if they were paired end alignments to allow a read gap.  Bowtie parameters are "--no-unal --no-mixed --no-sq -p 8 -I 0 -X 50000 -f --ff" 
+5. BowtieIndex - 
+    Subdirectory <STEM>
+    A: <STEM>_FJ_Index*bt2 -- corresponding bowtie indices are created for each of the fasta files from the fasta/<STEM>_chr(1,2,3...)_FarJunctions.fa
+6. FarJunctionAlignments - 
+    Subdirectory <STEM>
+    A. unaligned_<STEM>_R1/2.sam - contains reads that were unaligned to the KNIFE reference indices that have been aligned to the bowtie indices in the BowtieIndex/<STEM>/ directory
+7. FarJuncSecondary - 
+    Subdirectory <STEM>
+    A. still_unaligned_<STEM>_R1/2.fq - contains reads that were unaligned to the KNIFE reference indices that did not align to the FarJunctions bowtie indices in the BowtieIndex/<STEM>/ directory
+    Subdirectory AlignedIndels/<STEM>/
+    A. still_unaligned_<STEM>_R1/2_indels(1-5).sam - contains reads that were unaligned to the KNIFE reference indices, did not align to the FarJunctions bowtie indices, but DID align to an the expanded FarJunctions indels bowtie indices.
+    B. All_<STEM>_R1/2_indels.sam -- concatenates all still_unaligned_<STEM>_R1/2_indels(1-5).sam files but removes reads that aligned to multiple indel indices and keeps the one with the best alignment score and removes reads that aligned to the indel indices but did not overlap the junction by the user specified number of nt.
+8. FarJuncIndels
 
-The Indels columns refer to the number of reads that aligned to a far junction : the number of times a read aligned to one of the indel indices. These are used for the GLM.
+< "IF script doesn't have "INDELS" in glmReports dir means that indels were omitted " >"'
 
-If there is homology between a FarJunctions fasta sequence and the genome or transcriptome or a linear junction or circular junction, then the fusion read is less likely.  Alignments of the FarJunctions fasta sequences to the KNIFE reference indices, genome, transcriptome, linear junctions (reg), and scrambled junctions (junc) are created with two different bowtie parameters.  Bad juncs will align to genome/transcriptome/junc/reg but good juncs will not align. These are just aligning the FJ Fasta to the bad juncs with various alignment parameters. Any junctions aligning to here will eventually be tagged as "BadFJ=1" in the final reports whereas if junctions don't align, they will receive a "BadFJ=0" in the final reports.
-For BadFJ we Align FarJunc fasta file to the above indices with the following bowtie parameters:  A minimum alignment score corresponding to 4 mismatches per 100 base pairs, no N ceiling, and a prohibitive read gap penalty that disallows any read gaps in the fasta sequence or the reference index.  For BadFJ ver2 we use bowtie to align the reads1 and 2 as if they were paired end reads from the same strand.  We impose a minimum gap of 0 between the two and a maximum gap of 50,000 bases to allow up to a 50,000 base gapped alignment.
-ExonL and ExonR refer to the number of times that the left or right exon of that particular fusion participated in a linear junction.
-The last several columns refer to the posterior probability of the junction, as calculated by the GLM.  Currently we are using both a 3 coefficient posterior probability (p_predicted.x) and a 5 coefficient posterior probability (p_predicted.y). 
-2.  Other files in the AppendedReports directory include a circJunc reports and linearJunc reports.  These are parsed from the KNIFE.  The purpose of this is to place all reports in a single directory for the user.  KNIFE reports junctions up to 100Kb apart and MACHETE reports junctions beyond the user setting, which in our default, has been 100Kb. For the linear glmReports from KNIFE, the script collects any junctions where 1) the two exons from the linear report are from different genes or 2) the posterior probability is >0.9.  It adds on the rate of anomaly reads and indels to the reports and feeds them into FJDir/reports/AppendedReports.  For circular reports, the script collects any junctions where the posterior probability is <0.9, appends the "Decoy" rate, and feeds the reports into FJDir/reports/Appended reports. 
+
+
+

@@ -1,6 +1,0 @@
-AppendNaiveReports.sh completed for  -- check --depend=afterok:8240479reports/AppendedReports/_naive_report_Appended.txt.    This is the last step of the MACHETE.
-AppendNaiveReports.sh completed for  -- check --depend=afterok:8240479reports/AppendedReports/_naive_report_Appended.txt.    This is the last step of the MACHETE.
-AppendNaiveReports.sh completed for  -- check --depend=afterok:8240479reports/AppendedReports/_naive_report_Appended.txt.    This is the last step of the MACHETE.
-AppendNaiveReports.sh completed for  -- check --depend=afterok:8240479reports/AppendedReports/_naive_report_Appended.txt.    This is the last step of the MACHETE.
-AppendNaiveReports.sh completed for  -- check --depend=afterok:8240479reports/AppendedReports/_naive_report_Appended.txt.    This is the last step of the MACHETE.
-AppendNaiveReports.sh completed for  -- check --depend=afterok:8240479reports/AppendedReports/_naive_report_Appended.txt.    This is the last step of the MACHETE.

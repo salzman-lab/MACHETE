@@ -89,7 +89,7 @@ echo "normal_breast Append naive rpt: ${j2_id}"
 ################### BLADDER CANCER #########################
 
 CircPipe_bladder=/scratch/PI/horence/gillian/bladder/circpipe/
-FJDir_bladder=/scratch/PI/horence/gillian/bladder/FarJunc/
+FJDir_bladder=/scratch/PI/horence/gillian/bladder/FarJunc_Apr28/
 
 Output_bladder=${1}bladder/
 mkdir -p ${Output_bladder}
@@ -112,7 +112,7 @@ echo "bladder Append naive rpt: ${j2_id}"
 ################# CML_TEST (CALTECH) ###########################
 
 CircPipe_CML_test=/scratch/PI/horence/gillian/CML_test/aligned/CML/
-FJDir_CML_test=/scratch/PI/horence/gillian/CML_test/FarJunc_Feb22/
+FJDir_CML_test=/scratch/PI/horence/gillian/CML_test/FarJunc_Apr28/
 
 Output_CML_test=${1}CML_test/
 mkdir -p ${Output_CML_test}
