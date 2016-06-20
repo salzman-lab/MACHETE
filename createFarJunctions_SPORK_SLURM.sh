@@ -162,7 +162,7 @@ echo "BadfJ ver 2 Split -- ${j7_id}"
 
 # for BadFJ we Align FarJunc fasta file to the above indices with the following bowtie parameters:
 # A minimum alignment score corresponding to 4 mismatches per 100 base pairs, no N ceiling, and a prohibitive read gap penalty that disallows any read gaps in the fasta sequence or the reference index.  Alignments are found in <FJDir>/BadFJ/<STEM>/<STEM>_BadFJto<ReferenceIndex>.sam.
-BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 -p 4 --np 0 --rdg 50,50 --rfg 50,50"
+BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 -p 4 --rdg 50,50 --rfg 50,50"
 
 
 ## submit SLURM jobs to do bowtie alignments for each of BadFJ indices above

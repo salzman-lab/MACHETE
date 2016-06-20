@@ -35,7 +35,7 @@ RESOURCE_FLAG="-p horence"
 fi
 
 
-INSTALLDIR="/scratch/PI/horence/gillian/MACHETE/"
+INSTALLDIR="/scratch/PI/horence/julia/MACHETE/"
 
 mkdir -p ${1}
 

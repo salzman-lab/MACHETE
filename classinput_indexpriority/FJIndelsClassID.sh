@@ -25,6 +25,4 @@ STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 ml load python/2.7.5
 python ${INSTALLDIR}FJIndels_ClassIDFile.py -s ${STEM} -c ${circReads} -f ${FJDir} -i ${origDir} -w ${WINDOW}
 
-rm ${FJDir}/GLM_classInput/${STEM}_temp_output_FJIndels.txt
-
 echo "FJIndelsClassID.sh complete for ${STEM} - check ${FJDir}GLM_classInput/${STEM}_output_FJIndels.txt" >> ${1}MasterError.txt

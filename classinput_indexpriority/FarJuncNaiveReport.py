@@ -8,8 +8,6 @@ Created on Wed Sep 16 16:12:27 2015
 # all Far Junction and Scrambled junction reads where the alignment does not overlap the 
 # Junction by args.window bp will be thrown out.
 
-## Also creates class input files for Far Junctions (R1 = FJ, R2 = something else)
-
 # This program then tells if read partners "makes sense" or not
 # final Output categories -- [0] R1 junc name
             #   [1] genome - R2 location < 100mill bp away
@@ -139,7 +137,7 @@ def AddToDict(inputtype, TargetDict, line_raw_comparison, line_raw_FJ):
         IDfile.write(line_raw_FJ.split("\t")[0]+"\t"+IDfiletype+"\t"+IDfileoutputR1+"\t"+IDfileoutputR2+"\n")
 
 
-    if inputtype == "genome": #comparing FJ to genome, meet ref strand criteria (opp refstrand if + read, same refstrand if - read)
+    if inputtype == "genome": #comparing FJ to genome, has to be within 100Kbp, meet ref strand criteria (opp refstrand if + read, same refstrand if - read)
 
         line2 = ReadInfoGenome(line_raw_comparison)
 
@@ -319,6 +317,8 @@ parser.add_argument("-w", "--window", required=True, help = "# of bases needed o
 args = parser.parse_args()
 window= int(args.window)
 
+# f1 = open("/Users/Gillian/Desktop/sherlock/unaligned_ENCFF000HOC1_1.sam", mode ="rU")
+# f2 = open("/Users/Gillian/Desktop/sherlock/20000_ENCFF000HOC2_1_genome_output.sam", mode ="rU")
 
 if args.FJDir[-1]!= "/":
     args.FJDir+="/"
@@ -386,7 +386,7 @@ f2_unaligned=open(sorted(unalignedfiles)[1], mode="rB")
     # [10] = unmapped
 
 
-IDfile = open(args.FJDir+"reports/temp_IDs_"+stem+".txt", mode= "w")
+IDfile = open(args.FJDir+"reports/IDs_"+stem+".txt", mode= "w")
 IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_adjAS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_adjAS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
 
 #populate all reads and junctions into separate dictionaries
@@ -417,10 +417,6 @@ for line_raw in f1_FarJunc:
     FJ1read = ReadInfoFJ(line_raw)
     if FJ1read.offset <= (150-window) and (FJ1read.offset+FJ1read.NumOfBases)>= 150+window:  
         goodlinecounter+=1
-        # Dict AllFJRead1 contains key = read ID of all FJ R1
-        # Value = [ FJ read info, indicator of which library the R2 is in]
-        # indicator = 0 if no R2 detected
-        # indicator = FJ if R2 in FJ, genome if R2 in genome, reg if r2 in reg, etc...
         AllFJRead1[FJ1read.ID] = [line_raw, 0]
         if FJ1read.junction not in AllJunctions:
             AllJunctions[FJ1read.junction]=0
@@ -461,7 +457,6 @@ for line_raw in f2_FarJunc:
         #AllFJRead1[FJ2read.ID][1]="FJ"
         if FJ2read.offset <= (150-window) and (FJ2read.offset+FJ2read.NumOfBases)>= 150+window and AllFJRead1[FJ2read.ID][1]==0:    
             FJDict = AddToDict("FJ",FJDict,line_raw,AllFJRead1[FJ2read.ID][0])
-
             AllFJRead1[FJ2read.ID][1]="FJ"
             if FJ2read.ID in unmappedDict:
                 del unmappedDict[FJ2read.ID]
@@ -528,13 +523,12 @@ for line_raw in f2_reg:
     reg2read = ReadInfoJunc(line_raw)
 
     if reg2read.offset <= (150-window) and (reg2read.offset+reg2read.NumOfBases)>=(150+window):    
-        if reg2read.ID in AllFJRead1:
-            if AllFJRead1[reg2read.ID][1]==0 or AllFJRead1[reg2read.ID][1]=="genome":
-                #print "found reg R2" + reg2read.ID            
-                if reg2read.ID in unmappedDict:
-                    del unmappedDict[reg2read.ID]
-                regDict = AddToDict("reg", regDict, line_raw, AllFJRead1[reg2read.ID][0])
-                AllFJRead1[reg2read.ID][1]="reg"
+        if reg2read.ID in AllFJRead1 and AllFJRead1[reg2read.ID][1]==0:
+            #print "found reg R2" + reg2read.ID            
+            if reg2read.ID in unmappedDict:
+                del unmappedDict[reg2read.ID]
+            regDict = AddToDict("reg", regDict, line_raw, AllFJRead1[reg2read.ID][0])
+            AllFJRead1[reg2read.ID][1]="reg"
 f2_reg.close()
 IDfile.flush()
 
@@ -548,13 +542,12 @@ for line_raw in f1_reg:
     reg1read = ReadInfoJunc(line_raw)
     
     if reg1read.offset <= (150-window) and (reg1read.offset+reg1read.NumOfBases)>=( 150+window):    
-        if reg1read.ID in AllFJRead2:
-            if AllFJRead2[reg1read.ID][1]==0 or AllFJRead2[reg1read.ID][1]=="genome":
-                #print "found reg R1: " + reg1read.ID            
-                if reg1read.ID in unmappedDict:
-                    del unmappedDict[reg1read.ID]
-                regDict = AddToDict("reg", regDict, line_raw, AllFJRead2[reg1read.ID][0])
-                AllFJRead2[reg1read.ID][1]="reg"
+        if reg1read.ID in AllFJRead2 and AllFJRead2[reg1read.ID][1]==0:
+            #print "found reg R1: " + reg1read.ID            
+            if reg1read.ID in unmappedDict:
+                del unmappedDict[reg1read.ID]
+            regDict = AddToDict("reg", regDict, line_raw, AllFJRead2[reg1read.ID][0])
+            AllFJRead2[reg1read.ID][1]="reg"
 f1_reg.close()
 IDfile.flush()
 
@@ -708,75 +701,4 @@ fout.close()
         #   [13] unaligned - R2 didn't align
         #   [14] unmapped - R2 missing 
         #  [15] P value for all non-anomaly classes
-
-
-
-
-#############################################################################
-## This section of code takes the written ID file above (temp_IDs_STEM.txt) and
-## removes duplicate entries of genome and reg. The same readID may be found 
-## in both libraries and would both be in the ID file.
-## The new ID file removes duplicates and only keeps the readID with the 
-## best alignment score.
-tempIDfile = open(args.FJDir+"reports/temp_IDs_"+stem+".txt", mode= "rU")
-newIDfile = open(args.FJDir+"reports/IDs_"+stem+".txt", mode= "w")
-
-##grep col 2 for "genom", "Regular" or "RegAnomaly". if not found ,write to
-## new file immediately.
-## if found, feed into dictionary (key=readID, value= entire line from temp file)
-## if duplicate entry, then compare R2 AS. if AS larger, then replace
-## value with new value from new R2
-## at completion of file, write entire dictionary into new ID file.
-
-GenomeAndRegReadIDs={}
-
-for line in tempIDfile:
-    line=line.strip()
-    if "unaligned" in line:
-        continue
-
-    if "Unmapped" in line:
-        continue
-    
-    readID = line.split("\t")[0]
-    classID = line.split("\t")[1]
-    AS_new=line.split("\t")[11]
-    
-
-    
-    if "genom" in classID:
-        ## if readID has been seen previously, then replace value in dictionary
-    ## only if AS is greater.
-        if readID in GenomeAndRegReadIDs:
-            AS_old=GenomeAndRegReadIDs[readID].split("\t")[11]
-            if int(AS_new)>int(AS_old):
-                GenomeAndRegReadIDs[readID]=line
-        else:
-            GenomeAndRegReadIDs[readID]=line
-    elif "Regular" in classID:
-        ## do the same if reg 
-        if readID in GenomeAndRegReadIDs:
-            AS_old=GenomeAndRegReadIDs[readID].split("\t")[11]
-            if int(AS_new)>int(AS_old):
-                GenomeAndRegReadIDs[readID]=line
-        else:
-            GenomeAndRegReadIDs[readID]=line
-    elif "RegAnomaly" in classID:
-        ## do the same if reg anomaly
-        if readID in GenomeAndRegReadIDs:
-            AS_old=GenomeAndRegReadIDs[readID].split("\t")[11]
-            if int(AS_new)>int(AS_old):
-                GenomeAndRegReadIDs[readID]=line
-        else:
-            GenomeAndRegReadIDs[readID]=line
-    else:
-        ## if not genome/genome anomaly/ reg/ reg anomaly then 
-    ## write line directly in new file.
-        newIDfile.write(line)
-
-for entry in GenomeAndRegReadIDs:
-    newIDfile.write(GenomeAndRegReadIDs[entry]+"\n")
-
-tempIDfile.close()
-newIDfile.close()
 

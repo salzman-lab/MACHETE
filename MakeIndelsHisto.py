@@ -7,6 +7,7 @@ Created on Fri Mar 25 15:25:42 2016
 
 import argparse
 import glob
+import sys
 
 
 def ID(string):
@@ -88,14 +89,18 @@ newjunc=0
 for line_raw in f1:
     if line_raw[0]=="@":
         continue
-    linecount+=1
-    FJread=ReadInfoFJ(line_raw)
-    if FJread.offset <= (150-int(args.overlap)) and FJread.offset+FJread.NumOfBases >= (150+int(args.overlap)):
-        if FJread.junction not in FJDict_1:
-            FJDict_1[FJread.junction]=[0]*(2*int(args.NumIndels)+1)
-            newjunc+=1
-        FJDict_1[FJread.junction][int(args.NumIndels)]+=1
-        goodlinecount+=1
+    try:
+        linecount+=1
+        FJread=ReadInfoFJ(line_raw)
+        if FJread.offset <= (150-int(args.overlap)) and FJread.offset+FJread.NumOfBases >= (150+int(args.overlap)):
+            if FJread.junction not in FJDict_1:
+                FJDict_1[FJread.junction]=[0]*(2*int(args.NumIndels)+1)
+                newjunc+=1
+            FJDict_1[FJread.junction][int(args.NumIndels)]+=1
+            goodlinecount+=1
+    except:
+        print "error parsing FJFile1 for", line_raw
+        print "error:", sys.exc_info()[0] 
 f1.close()
 print "new junc added" + str(newjunc)
 print linecount
@@ -111,15 +116,20 @@ print "opening" + FJFile2
 for line_raw in f2:
     if line_raw[0]=="@":
         continue
-    FJread=ReadInfoFJ(line_raw)
-    linecount+=1
-    if FJread.offset <= (150-int(args.overlap)) and FJread.offset+FJread.NumOfBases >= (150+int(args.overlap)):
-        if FJread.junction not in FJDict_2:
-            FJDict_2[FJread.junction]=[0]*(2*int(args.NumIndels)+1)
-            newjunc+=1
-
-        FJDict_2[FJread.junction][int(args.NumIndels)]+=1
-        goodlinecount+=1
+    
+    try:
+        FJread=ReadInfoFJ(line_raw)
+        linecount+=1
+        if FJread.offset <= (150-int(args.overlap)) and FJread.offset+FJread.NumOfBases >= (150+int(args.overlap)):
+            if FJread.junction not in FJDict_2:
+                FJDict_2[FJread.junction]=[0]*(2*int(args.NumIndels)+1)
+                newjunc+=1
+    
+            FJDict_2[FJread.junction][int(args.NumIndels)]+=1
+            goodlinecount+=1
+    except:
+        print "error parsing FJFile2 for", line_raw
+        print "error:", sys.exc_info()[0] 
 f2.close()
 print "new junc added" + str(newjunc)
 print linecount
@@ -153,21 +163,24 @@ for name in FJ1_list:
     for line in f1:
         if line[0]=="@":
             continue
-        
-        read = ReadInfoFJ(line)
-        # if the read overlaps the junction
-        if read.offset <= (150-int(args.overlap)+read.indel) and read.offset+read.NumOfBases >= (150+int(args.overlap)+read.indel):
-
-            # if the read isn't in dictionary then add it 
-            if read.ID not in IndelsReadIDs:             
-                IndelsReadIDs[read.ID]= line
-            # if the read is in the dictionary, compare it to existing read. If AS is better, then replace existing read
-            else:
-                compareRead= ReadInfoFJ(IndelsReadIDs[read.ID])
-                if int(compareRead.AS) >= int(read.AS):
-                    pass
+        try:
+            read = ReadInfoFJ(line)
+            # if the read overlaps the junction
+            if read.offset <= (150-int(args.overlap)+read.indel) and read.offset+read.NumOfBases >= (150+int(args.overlap)+read.indel):
+    
+                # if the read isn't in dictionary then add it 
+                if read.ID not in IndelsReadIDs:             
+                    IndelsReadIDs[read.ID]= line
+                # if the read is in the dictionary, compare it to existing read. If AS is better, then replace existing read
                 else:
-                    IndelsReadIDs[read.ID]= line                            
+                    compareRead= ReadInfoFJ(IndelsReadIDs[read.ID])
+                    if int(compareRead.AS) >= int(read.AS):
+                        pass
+                    else:
+                        IndelsReadIDs[read.ID]= line
+        except:
+            print "error parsing FJ1 indels for", line
+            print "error:", sys.exc_info()[0] 
     f1.close()
   
 # write all distinct readIDs to an All_1_indels file  
@@ -190,21 +203,24 @@ for name in FJ2_list:
     for line in f1:
         if line[0]=="@":
             continue
-        
-        read = ReadInfoFJ(line)
-        # if the read overlaps the junction
-        if read.offset <= (150-int(args.overlap)+read.indel) and read.offset+read.NumOfBases >= (150+int(args.overlap)+read.indel):
-
-            # if the read isn't in dictionary then add it 
-            if read.ID not in IndelsReadIDs:             
-                IndelsReadIDs[read.ID]= line
-            # if the read is in the dictionary, compare it to existing read. If AS is better, then replace existing read
-            else:
-                compareRead= ReadInfoFJ(IndelsReadIDs[read.ID])
-                if int(compareRead.AS) >= int(read.AS):
-                    pass
+        try:
+            read = ReadInfoFJ(line)
+            # if the read overlaps the junction
+            if read.offset <= (150-int(args.overlap)+read.indel) and read.offset+read.NumOfBases >= (150+int(args.overlap)+read.indel):
+    
+                # if the read isn't in dictionary then add it 
+                if read.ID not in IndelsReadIDs:             
+                    IndelsReadIDs[read.ID]= line
+                # if the read is in the dictionary, compare it to existing read. If AS is better, then replace existing read
                 else:
-                    IndelsReadIDs[read.ID]= line                            
+                    compareRead= ReadInfoFJ(IndelsReadIDs[read.ID])
+                    if int(compareRead.AS) >= int(read.AS):
+                        pass
+                    else:
+                        IndelsReadIDs[read.ID]= line
+        except:
+            print "error parsing FJ2 indels for", line
+            print "error:", sys.exc_info()[0] 
     f1.close()
   
 
@@ -220,16 +236,24 @@ fout_FJ2.close()
 
 Indels1=open(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ args.stem + "/All_" + args.stem + "_1_indels.sam", mode="rU")
 for line in Indels1:
-    read=ReadInfoFJ(line) 
-    if read.junction[:-5] in FJDict_1:
-        FJDict_1[read.junction[:-5]][int(args.NumIndels) + read.indel]+=1
+    try:
+        read=ReadInfoFJ(line) 
+        if read.junction[:-5] in FJDict_1:
+            FJDict_1[read.junction[:-5]][int(args.NumIndels) + read.indel]+=1
+    except:
+        print "error parsing Indels1 for", line
+        print "error:", sys.exc_info()[0] 
 Indels1.close()
 
 Indels2=open(args.FJDir + "FarJuncSecondary/AlignedIndels/"+ args.stem + "/All_" + args.stem + "_2_indels.sam", mode="rU")
 for line in Indels2:
-    read=ReadInfoFJ(line) 
-    if read.junction[:-5] in FJDict_2:
-        FJDict_2[read.junction[:-5]][int(args.NumIndels) + read.indel]+=1
+    try:
+        read=ReadInfoFJ(line) 
+        if read.junction[:-5] in FJDict_2:
+            FJDict_2[read.junction[:-5]][int(args.NumIndels) + read.indel]+=1
+    except:
+        print "error parsing Indels2 for", line
+        print "error:", sys.exc_info()[0] 
 Indels2.close()
 
 ## output indels histo

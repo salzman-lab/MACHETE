@@ -34,8 +34,6 @@ else
 ml load python/2.7.5
 python ${INSTALLDIR}RegIndels_ClassIDFile.py -s ${STEM} -c ${circReads} -i ${origDir} -w ${WINDOW}
 
-rm ${circReads}/ids/${STEM}_temp_output_RegIndel.txt
-
 echo "RegIndelsClassID.sh complete for ${STEM} -- check ${circReads}/ids/${STEM}_output_RegIndel.txt" >> ${1}MasterError.txt
 
 fi

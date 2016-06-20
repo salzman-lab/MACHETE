@@ -32,6 +32,4 @@ STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
 ml load python/2.7.5
 python ${INSTALLDIR}FarJuncNaiveReport.py -s ${STEM} -f ${1} -i ${2} -w ${3}
 
-rm ${FJDir}/reports/temp_IDs_${STEM}.txt
-
 echo "FarJuncNaiveRept.sh complete for ${STEM} - check for ${1}reports/${STEM}_naive_report.txt and ${1}reports/IDs_${STEM}.txt" >> ${1}MasterError.txt

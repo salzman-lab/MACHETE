@@ -344,7 +344,7 @@ f2_regIndel= open(args.origDir + "RegIndelAlignments/"+ stem + "/All_" + stem + 
 
 
 
-IDfile = open(args.circReads+"ids/"+stem+"_temp_output_RegIndel.txt", mode= "w")
+IDfile = open(args.circReads+"ids/"+stem+"_output_RegIndel.txt", mode= "w")
 IDfile.write("ID\tclass\tR1_offset\tR1_MAPQ\tR1_adjAS\tR1_NumN\tR1_Readlength\tR1_JuncName\tR1_strand\tR2_offset\tR2_MAPQ\tR2_adjAS\tR2_NumN\tR2_Readlength\tR2_JuncName\tR2_strand\n")
 
 #populate all reads and junctions into separate dictionaries
@@ -540,74 +540,3 @@ IDfile.flush()
 IDfile.close()
 
 #
-
-
-#############################################################################
-## This section of code takes the written ID file above (temp_IDs_STEM.txt) and
-## removes duplicate entries of genome and reg. The same readID may be found 
-## in both libraries and would both be in the ID file.
-## The new ID file removes duplicates and only keeps the readID with the 
-## best alignment score.
-tempIDfile = open(args.circReads+"ids/"+stem+"_temp_output_RegIndel.txt", mode= "rU")
-newIDfile = open(args.circReads+"ids/"+stem+"_output_RegIndel.txt", mode= "w")
-
-
-
-##grep col 2 for "genom", "Regular" or "RegAnomaly". if not found ,write to
-## new file immediately.
-## if found, feed into dictionary (key=readID, value= entire line from temp file)
-## if duplicate entry, then compare R2 AS. if AS larger, then replace
-## value with new value from new R2
-## at completion of file, write entire dictionary into new ID file.
-
-GenomeAndRegReadIDs={}
-
-for line in tempIDfile:
-    line=line.strip()
-    if "unaligned" in line:
-        continue
-
-    if "Unmapped" in line:
-        continue
-    
-    readID = line.split("\t")[0]
-    classID = line.split("\t")[1]
-    AS_new=line.split("\t")[11]
-    
-
-    
-    if "genom" in classID:
-        ## if readID has been seen previously, then replace value in dictionary
-    ## only if AS is greater.
-        if readID in GenomeAndRegReadIDs:
-            AS_old=GenomeAndRegReadIDs[readID].split("\t")[11]
-            if int(AS_new)>int(AS_old):
-                GenomeAndRegReadIDs[readID]=line
-        else:
-            GenomeAndRegReadIDs[readID]=line
-    elif "Regular" in classID:
-        ## do the same if reg 
-        if readID in GenomeAndRegReadIDs:
-            AS_old=GenomeAndRegReadIDs[readID].split("\t")[11]
-            if int(AS_new)>int(AS_old):
-                GenomeAndRegReadIDs[readID]=line
-        else:
-            GenomeAndRegReadIDs[readID]=line
-    elif "RegAnomaly" in classID:
-        ## do the same if reg anomaly
-        if readID in GenomeAndRegReadIDs:
-            AS_old=GenomeAndRegReadIDs[readID].split("\t")[11]
-            if int(AS_new)>int(AS_old):
-                GenomeAndRegReadIDs[readID]=line
-        else:
-            GenomeAndRegReadIDs[readID]=line
-    else:
-        ## if not genome/genome anomaly/ reg/ reg anomaly then 
-    ## write line directly in new file.
-        newIDfile.write(line)
-
-for entry in GenomeAndRegReadIDs:
-    newIDfile.write(GenomeAndRegReadIDs[entry]+"\n")
-
-tempIDfile.close()
-newIDfile.close()

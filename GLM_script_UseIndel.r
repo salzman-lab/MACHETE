@@ -53,8 +53,8 @@ if(nrow(dt) > 0){
 # the input file is just the file output by the circularRNApipeline under /ids
 processClassInput <- function(classFile,my.names){
 
-#cats = fread(classFile,  sep="\t", nrows=1000000)
-cats = fread(classFile,  sep="\t")
+cats = fread(classFile,  sep="\t", nrows=1000000)
+#cats = fread(classFile,  sep="\t")
 ############################################################
 if ( my.names!="none"){
 names(cats)=my.names
@@ -236,7 +236,7 @@ print (names(junctionPredictions))
 ########### adding quantiles of p_predicted
 n.quant=2
 for (qi in 1:n.quant){
-my_quantiles = my_reads[,round(10*quantile(p_predicted/(1+is.anomaly* p_predicted),probs=c(0:n.quant)/n.quant)[qi])/10,by=junction]
+my_quantiles = my_reads[,round(10*quantile(p_predicted/(1+is.anomaly* p_predicted),probs=c(0:n.quant)/n.quant,na.rm=TRUE)[qi])/10,by=junction]
 
 # merge into junctionPredictions
 print (head(my_quantiles))
@@ -246,10 +246,7 @@ setnames(junctionPredictions, "V1", paste("q_",qi,sep=""))
 }
 
 ##################################
-
 ##  tempDT, to collapse across junctions 
-
-
 # p_predicteds are the exponentiation
 junctionPredictions [ ,p_predicted_2:=exp(logsum_2),by=junction]
 junctionPredictions [ ,p_predicted:=exp(logsum),by=junction]
@@ -288,10 +285,11 @@ junctionPredictions[ (numReads>n.thresh.exact) , p_value_2 :=  pnorm((logsum_2 -
 
 print ("exact calculation through sampling 10K p predicted")
 my.dist=list(n.thresh.exact)
-for ( tempN in 1:n.thresh.exact){
+for ( tempN in 1:n.thresh.exact){ #### get distributions to convolve in next loop
 n.sampled=1000 # used to compute the null distribution of posteriors
 my.dist[[tempN]]=sample(lognull, n.sampled, replace=T)
 }
+
 for ( tempN in 1:n.thresh.exact){ ## use this loop to assign jncts w/ tempN
 sim.readps=my.dist[[1]]
 if (tempN>1){
@@ -299,15 +297,19 @@ for (tj in 2: tempN){ # loop, taking products
 sim.readps=my.dist[[tj]] +  sim.readps
 }
 }
-
 # convert to posterior
 ## fraction of time p_predicted is smaller than -- so if p_predicted is very large, the fraction of time it is smaller is big
-
 ## use the null to compute p_vals
 print (head(junctionPredictions))
-print (paste(tempN, "is value of readcount for exact calculation"))
-junctionPredictions [ (numReads == tempN ), p_value:= sum( exp(sim.readps)<p_predicted)/length(exp(sim.readps))]
-junctionPredictions [ (numReads == tempN ), p_value_2:= sum( exp(sim.readps)<p_predicted_2)/length(exp(sim.readps))]
+print (paste(tempN, "is value of readcount for exact calculation and length of sim reads is ",length(sim.readps)))
+
+junctionPredictions [ (numReads == tempN ), p_value:= sum( exp(sim.readps)<p_predicted)/length(sim.readps),by=junction]
+
+print ("if below table is not empty, ERROR")
+print (junctionPredictions[p_value>1])
+
+
+junctionPredictions [ (numReads == tempN ), p_value_2:= sum( exp(sim.readps)<p_predicted_2)/length(sim.readps), by=junction]
 
 }
 return(junctionPredictions)
@@ -319,84 +321,20 @@ return(junctionPredictions)
 ######## END FUNCTIONS, BEGIN WORK #########
 
 ## command line inputs
-user.input=1
-################# USER INPUT SHOULD BE 1 if it is used in an automated script
+user.input=0
+no.indel.classfile=1
 
+################# USER INPUT SHOULD BE 1 if it is used in an automated script
+use.tcga.ov=0
 use.uconn=0
-use.normal.breast=1
+use.normal.breast=0
 use.cml=0
 use.ews=0
 use.simulated=0
 use.ewsh5=0
-
+use.seqc=0
 ## GILLIAN
 
-use.spork.cml=0
-if (use.spork.cml==1){
-parentdir="/scratch/PI/horence/gillian/CML_UConn/circpipe_K562/circReads/ids/"
-srr="SRR3192409"
-reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
-class_input = paste(parentdir,srr,"_1__output.txt",sep="")
-
-parentdir="/scratch/PI/horence/julia/CML_UConnSPORK/"
-
-FJ_indel_class_input = paste(parentdir,"GLM_classInput/",srr,"_output_FJIndels.txt",sep="")
-fusion_class_input = paste(parentdir,"GLM_classInput/",srr,"_1__output_FJ.txt",sep="")
-
-output_dir=""
-sampletest="cml-spork"
-}
-
-if(use.ewsh5==1){
-parentdir="/scratch/PI/horence/alignments/EWS_FLI_bigmem/circReads/ids/"
-srr="H5-AD018"
-fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
-class_input = paste(parentdir,srr,"_S9_L2L3_R1__output.txt",sep="")
-
-FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
-reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
-output_dir=""
-sampletest="ews-spork"
-}
-if(use.simulated==1){
-parentdir="/scratch/PI/horence/gillian/Engstrom/circpipe_engstrom/circReads/ids/"
-srr="Human_simulated_reads2"
-fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
-class_input = paste(parentdir,srr,"_1__output.txt",sep="")
-
-FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
-reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
-output_dir=""
-sampletest="engstrom1"
-}
-if (use.cml==1){
-parentdir=""
-cmli=1
-srr=paste("ENCFF000HOC",cmli,sep="")
-parentdir="/scratch/PI/horence/gillian/CML_test/aligned/CML/circReads/ids/"
-fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
-class_input = paste(parentdir,srr,"_1__output.txt",sep="")
-
-FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
-reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
-output_dir=""
-sampletest=paste("CML",cmli,sep="")
-}
-if (use.ews==1){
-srr="SRR1594025" #
-srr="SRR1594022"
-parentdir="/scratch/PI/horence/gillian/Ewing/circpipe/circReads/ids/"
-fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
-class_input = paste(parentdir,srr,"_1__output.txt",sep="")
-
-FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
-reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
-output_dir=""
-
-output_dir=""
-sampletest=paste("ews_",srr,sep="")
-
-}
 
 ########## Gillian, note the 'indels vs indel' in the normal breast names and the 'no 1' ######################
 if (use.normal.breast==1){
@@ -412,24 +350,23 @@ output_dir=""
 sampletest=paste("normal_breast_windel_",srr,sep="")
 }
 
-if (use.uconn==1){
-parentdir="/scratch/PI/horence/gillian/CML_UConn/circpipe_K562/circReads/ids/"
-srr="SRR3192422"
-srr="SRR3192410" # was 3
-fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
+if (use.tcga.ov==1){
+parentdir="/srv/gsfs0/scratch/linda/TCGA_OV_Apr7/circpipe/circReads/ids/"
+srr="C09BFACXX_1_AAATGC"
 class_input = paste(parentdir,srr,"_1__output.txt",sep="")
 reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
 
-parentdir="/scratch/PI/horence/gillian/CML_UConn/FarJunc/GLM_classInput/"
-FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
+parentdir=" /srv/gsfs0/scratch/linda/TCGA_OV_Apr7/Machete/GLM_classInput/"
 
+FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
+fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
 output_dir=""
-sampletest="uconn"
-print ("reading class input")
-print(class_input)
+sampletest=paste("tcga_ov_",srr,sep="")
 }
 
-if (user.input==1){
+
+
+if (user.input==0){
 args = commandArgs(trailingOnly = TRUE)
 fusion_class_input=args[1]
 class_input=args[2]
@@ -437,6 +374,7 @@ srr= args[3]
 output_dir=args[4]
 reg_indel_class_input = args[5]
 FJ_indel_class_input = args[6]
+print (paste("outputdir", output_dir))
 ## should be:
 #FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
 #reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
@@ -444,19 +382,13 @@ FJ_indel_class_input = args[6]
 
 max.iter=2 ## iterations for glm
 
-if (user.input==0){
+if (user.input==1){
   output_dir=""}
 
 use.indels=1
 use.fusion=1
 
-if (user.input==0){ ## THIS IF LOOP ONLY if we want to bypass command line inputs!
-
-use.normal.breast=0
-use.cml=0
-use.ews=1
-use.simulated=0
-use.ewsh5=0
+if (user.input==1){ ## THIS IF LOOP ONLY if we want to bypass command line inputs!
 
 ## GILLIAN
 if(use.ewsh5==1){
@@ -519,7 +451,7 @@ parentdir="/scratch/PI/horence/gillian/normal_breast/circpipe/circReads/ids/"
 srr="SRR1027190"
 class_input = paste(parentdir,srr,"_1__output.txt",sep="")
 fusion_class_input = paste(parentdir,srr,"_1__output_FJ.txt",sep="")
-FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
+#FJ_indel_class_input = paste(parentdir,srr,"_output_FJIndels.txt",sep="")
 reg_indel_class_input = paste(parentdir,srr,"_output_RegIndel.txt",sep="")
 output_dir=""
 sampletest=paste("normal_breast_windel_",srr,sep="")
@@ -539,6 +471,7 @@ fusionwanomaly_and_indel_juncp_out= paste(output_dir,srr,"_FUSION_W_ANOM_AND_IND
 ####### CURRENT GOAL IS TO UPDATE LINEAR pvalues w/ anomaly reads
 linear_juncp_update_out = paste(output_dir,srr,"_LINEARJUNCP_UPDATED_OUT",sep="")
 ##### SINK THE SUMMARY OF THIS SCRIPT
+print (paste("OUtput dir", fusionwanomaly_and_indel_juncp_out))
 #sink(paste(output_dir,srr,"_glmInformation_",sep=""))
 
 ### DONE W/ LOOP
@@ -631,7 +564,7 @@ linearDecoyGLMoutput = my.glm.model ( linear_reads[ sample(n.row,n.sample,replac
 
 saves = linearDecoyGLMoutput[[1]]
 linearJunctionPredictions =  linearDecoyGLMoutput[[2]]
-save(saves, file=glm_out)  # save models
+#save(saves, file=glm_out)  # save models
 linearDecoyGLM = saves[[max.iter]] ##### this is the glm model
 
 ## after fitting the GLM to linear vs. decoy, we want to store linear junction predictions in order to subset anomalies
@@ -652,13 +585,13 @@ linear_reads[, p_predicted_2:= linearDecoyGLM$family$linkinv(lwr_2)] # add lower
 print ("Assigning null distribution for all linear reads")
 null=linear_reads$p_predicted
 
-
 ### ASSIGN p value: 
 linearJunctionPredictionsForModels = predictNewClassP(linear_reads, null)
 
-pGoodThresh=quantile(linearJunctionPredictionsForModels$p_value,prob=.8)    
-good.linear=linearJunctionPredictionsForModels[p_value> pGoodThresh,]    
-pBadThresh=quantile(linearJunctionPredictionsForModels$p_value,prob=.2)    
+pGoodThresh=quantile(linearJunctionPredictionsForModels$p_value,prob=.8,na.rm=TRUE)    
+good.linear=linearJunctionPredictionsForModels[p_value> pGoodThresh,]
+    
+pBadThresh=quantile(linearJunctionPredictionsForModels$p_value,prob=.2,na.rm=TRUE)    
 bad.linear=linearJunctionPredictionsForModels[p_value< pBadThresh,]    
 #####################################
 
@@ -676,12 +609,13 @@ good_indel_reads= reg_indel_reads[!is.na(match(junction, good.linear$junction)),
 bad_indel_reads= reg_indel_reads[!is.na(match(junction, bad.linear$junction)),]
 
 ## if either class is empty, change use.indels to zero
+
 if (min(dim(good_indel_reads)[1],dim(bad_indel_reads)[1])<20){ 
 print ("CHANGING TO INDELS=0 becuase too few reads")
 use.indels=0 
-#use.reg.for.indels=1
-
 }
+
+
 }
 
 ##### now, re-run script training on anomalies from good vs. bad
@@ -719,13 +653,11 @@ IndelGLM = linearDecoyGLM
 }
 
 ## save GLMS
-save(AnomalyGLM, file=anomaly_glm_out)  # save models
+#save(AnomalyGLM, file=anomaly_glm_out)  # save models
 if (use.indels==1){
 save(IndelGLM, file=indel_glm_out)  # save models
 }
-save(linearDecoyGLM, file=glm_out)  # save models
-
-
+#save(linearDecoyGLM, file=glm_out)  # save models
 
 preds = predict(linearDecoyGLM, newdata=decoy_reads, type = "link", se.fit = TRUE) 
 lwr = preds$fit - (1.96 * preds$se.fit)  # ~ lower 95% CI to be conservative 
@@ -796,10 +728,9 @@ linearWithAnomalyFusionPredictions = predictNewClassP(linear_and_anomaly_fusions
 
 # start prediction on INDELS mapping
 print ("done with fusion anomalies starting indels")
-#if (use.indels==1){
 
+if (use.indels==1){
 FJ_indel_reads$overlap=as.numeric(as.vector(FJ_indel_reads$overlap))
-
 preds = predict(IndelGLM, newdata=FJ_indel_reads, type = "link", se.fit = TRUE) 
 lwr = preds$fit - (1.96 * preds$se.fit)  # ~ lower 95% CI to be conservative 
 lwr_2 = preds$fit - 2*(1.96 * preds$se.fit)  # ~ lower 99% CI to be conservative 
@@ -807,17 +738,30 @@ lwr_2 = preds$fit - 2*(1.96 * preds$se.fit)  # ~ lower 99% CI to be conservative
 FJ_indel_reads[, p_predicted:= IndelGLM$family$linkinv(lwr)] # add lower 95% CI prediction
 FJ_indel_reads[, p_predicted_2:= IndelGLM$family$linkinv(lwr_2)] # add lower 95% CI prediction
 }
-if (use.indels==0){
+}
 
+
+if (use.indels==0 & no.indel.classfile==0){
 ## if not using indels, we assign indel reads according to the linear decoy model
 preds = predict(linearDecoyGLM, newdata=FJ_indel_reads, type = "link", se.fit = TRUE) 
 lwr = preds$fit - (1.96 * preds$se.fit)  # ~ lower 95% CI to be conservative 
 lwr_2 = preds$fit - 2*(1.96 * preds$se.fit)  # ~ lower 99% CI to be conservative 
-
 FJ_indel_reads[, p_predicted:= linearDecoyGLM$family$linkinv(lwr)] # add lower 95% CI prediction
 FJ_indel_reads[, p_predicted_2:= linearDecoyGLM$family$linkinv(lwr_2)] # add lower 95% CI prediction
 
+linear_and_anomaly_and_indel_fusions=rbind(FJ_indel_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)],anomaly_fusion_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)], fusion_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)])
 }
+if (no.indel.classfile==1){
+#don't bind FJ_indel_reads bc they don't exist
+linear_and_anomaly_and_indel_fusions=rbind(anomaly_fusion_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)], fusion_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)])
+}
+
+linear_and_anomaly_and_indel_fusions$overlap=as.numeric(as.vector(linear_and_anomaly_and_indel_fusions$overlap))
+linearWithAnomalyAndIndelFusionPredictions = predictNewClassP(linear_and_anomaly_and_indel_fusions, null)
+
+consolidated_fusion=merge(fusionJunctionPredictions,linearWithAnomalyFusionPredictions , all=TRUE,by="junction")
+consolidated_fusion[,p_diff:=(p_predicted.x-p_predicted.y)] ## p_predicted.x should be less than p_predicted.y always so p_diff should be neegative
+consolidated_fusion=data.table(unique(consolidated_fusion))
 
 ####### now add indels
 #verbose adds extra output and extra info to indel table
@@ -827,10 +771,17 @@ print ("now adding indels and changing names to reflect accurate terminology")
 consolidated_fusion_windel=merge(linearWithAnomalyFusionPredictions ,linearWithAnomalyAndIndelFusionPredictions, all=TRUE,by="junction")
 consolidated_fusion_windel[,p_diff_indel:=(p_predicted.y-p_predicted.x)] ## p_predicted.x should be less than p_predicted.y always so p_diff should be neegative
 consolidated_fusion_windel=data.table(unique(consolidated_fusion_windel))
+
 setnames(consolidated_fusion_windel,"p_predicted.x", "productPhat.x")
 setnames(consolidated_fusion_windel,"p_predicted.y", "productPhat.y")
 setnames(consolidated_fusion_windel,"p_value.x", "junction_cdf.x")
 setnames(consolidated_fusion_windel,"p_value.y", "junction_cdf.y")
+
+
+setnames(consolidated_fusion_windel,"p_predicted_2.x", "productPhat_lower.x")
+setnames(consolidated_fusion_windel,"p_predicted_2.y", "productPhat_lower.y")
+setnames(consolidated_fusion_windel,"p_value_2.x", "junction_cdf_lower.x")
+setnames(consolidated_fusion_windel,"p_value_2.y", "junction_cdf_lower.y")
 
 setnames(consolidated_fusion_windel,"p_diff_indel", "junction_cdf_windel_diff")
 if (verbose==0){
@@ -841,13 +792,19 @@ consolidated_fusion_windel[,q_2.x:=NULL]
 consolidated_fusion_windel[,logsum.x:=NULL]
 consolidated_fusion_windel[,logsum.y:=NULL]
 }
+
 write.table(unique(consolidated_fusion_windel)[order(-junction_cdf.y),], fusionwanomaly_and_indel_juncp_out, row.names=FALSE, quote=FALSE, sep="\t")
-
-
+cir.verbose=1
 ####################################################################################
 ####################################################################################
-if (verbose==1){
+if (cir.verbose==1){
 ## write circle prediction
+
+setnames(circularJunctionPredictions,"p_predicted", "productPhat.x")
+setnames(circularJunctionPredictions,"p_predicted_2", "productPhat_lower.x")
+setnames(circularJunctionPredictions,"p_value_2", "junction_cdf_lower.x")
+setnames(circularJunctionPredictions,"p_value", "junction_cdf")
+
 write.table(unique(linearJunctionPredictions), linear_juncp_out, row.names=FALSE, quote=FALSE, sep="\t")
 write.table(unique(circularJunctionPredictions), circ_juncp_out, row.names=FALSE, quote=FALSE, sep="\t")
 
@@ -858,17 +815,8 @@ consolidated_linear=data.table(unique(consolidated_linear))
 write.table(unique(consolidated_linear), linearwanomaly_juncp_out, row.names=FALSE, quote=FALSE, sep="\t")
 
 ## 
-my.null.quantiles=quantile(linear_reads$p_predicted,probs=c(0:10)/10)
+my.null.quantiles=quantile(linear_reads$p_predicted,probs=c(0:10)/10,na.rm=TRUE)
 ## refer fusions to these quantiles; 'falsely called' vs. true will be fraction of linears (conservative estimate) ; error at this quantile can be evaluated. 
-
-linear_and_anomaly_and_indel_fusions=rbind(FJ_indel_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)],anomaly_fusion_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)], fusion_reads[,list(qual,lenAdjScore,qualR2,lenAdjScoreR2,junction,is.pos,overlap,is.anomaly,p_predicted,p_predicted_2)])
-
-linear_and_anomaly_and_indel_fusions$overlap=as.numeric(as.vector(linear_and_anomaly_and_indel_fusions$overlap))
-linearWithAnomalyAndIndelFusionPredictions = predictNewClassP(linear_and_anomaly_and_indel_fusions, null)
-
-consolidated_fusion=merge(fusionJunctionPredictions,linearWithAnomalyFusionPredictions , all=TRUE,by="junction")
-consolidated_fusion[,p_diff:=(p_predicted.x-p_predicted.y)] ## p_predicted.x should be less than p_predicted.y always so p_diff should be neegative
-consolidated_fusion=data.table(unique(consolidated_fusion))
 
 write.table(unique(fusionJunctionPredictions[order(-p_predicted),]),fusion_juncp_out, row.names=FALSE, quote=FALSE, sep="\t")
 write.table(unique(consolidated_fusion)[order(-p_predicted.y),], fusionwanomaly_juncp_out, row.names=FALSE, quote=FALSE, sep="\t")
