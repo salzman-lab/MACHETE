@@ -53,8 +53,8 @@ if(nrow(dt) > 0){
 # the input file is just the file output by the circularRNApipeline under /ids
 processClassInput <- function(classFile,my.names){
 
-cats = fread(classFile,  sep="\t", nrows=1000000)
-#cats = fread(classFile,  sep="\t")
+#cats = fread(classFile,  sep="\t", nrows=1000000)
+cats = fread(classFile,  sep="\t")
 ############################################################
 if ( my.names!="none"){
 names(cats)=my.names
