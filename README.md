@@ -54,7 +54,7 @@ NOTE -- ALL directory inputs must end in "/"
 6. <optional for sherlock use> -- "owners" if you want to run in owners queue, otherwise leave #6 blank
 
 
-Example command:
+Example command for spanning reads:
 sh createFarJunctions_SLURM.sh /scratch/PI/horence/alignments/EWS_FLI_bigmem/ /scratch/PI/horence/alignments/EWS_FLI_bigmem/FarJunc/ 100000 HG19 13 owners 
 
 
