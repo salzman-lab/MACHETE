@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #  alignAndMakeReports.sh
-#  THIS IS THE BIG WRAPPER
+#  This is a wrapper script
 #
 #  Created by Gillian Hsieh on 9/16/15.
 #
@@ -9,7 +9,7 @@
 
 ORIGDIR=${1}
 OUTPUTDIR=${2}
-NUMBASESAROUNDJUNC=${3} #default for linda's is 8 for read lengths < 70 and 13 for read lengths > 70
+NUMBASESAROUNDJUNC=${3} #default for KNIFE program is 8 for read lengths < 70 and 13 for read lengths > 70
 
 
 

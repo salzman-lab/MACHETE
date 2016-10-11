@@ -7,7 +7,6 @@
 #
 
 FJ_File=${1}
-#STEM=ENCFF000HOC2
 
 STEMFILE=${1}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`

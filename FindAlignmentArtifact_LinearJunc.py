@@ -93,19 +93,7 @@ for stem in StemDict:
         if "denovo" not in name:
             naivereportfile = name
     indelfile = NonOverlapDir + "*" + stem + "*.sam"
-    
-        
-    #TEST CASE 
-    #HiPPCutoff = 0.95
-    #LoPPCutoff = 0.1
-    #BinSize = 0.01
-    #
-    #glmrptfile = "/Users/Gillian/Desktop/sherlock/regJuncIndels/C088AACX2CACGAT_1__linearJuncProbs.txt"
-    #naivereportfile= "/Users/Gillian/Desktop/sherlock/regJuncIndels/C088AACX2CACGAT_1_report.txt"
-        ## these are the indel files with the nonoverlapping reads removed.
-    #indelfile = "/Users/Gillian/Desktop/sherlock/regJuncIndels/unaligned_C088AACX2CACGAT*indel*.sam"
-    
-        
+
         # KEY - junction name - FROM GLM FILE
         # value column 0 - posterior probability - FROM GLM FILE
         # column 1 - number of occurrences of junction - NAIVE RPT
@@ -226,8 +214,6 @@ for stem in StemDict:
     
     ## print results
     fout = open(args.outDir + stem+ "_LinearAlignmentArtifact.txt", mode = "w")
-    #fout = open("/Users/Gillian/Desktop/sherlock/regJuncIndels/LinearAlignmentArtifact.txt", mode ="w")
-    
     
     HiProbAnomalyArray=[] 
     HiProbInsertionArray=[]
@@ -261,15 +247,7 @@ for stem in StemDict:
         LoProbIns_Del_Anom_Array.append(LoProbJunctionDict[junction][6]/LoProbJunctionDict[junction][1])
     
     fout.close()
-    # KEY - junction name - FROM GLM FILE
-    # value column 0 - posterior probability - FROM GLM FILE
-    # column 1 - number of occurrences of junction - NAIVE RPT
-    # column 2 - number of anomaly reads - NAIVE RPT
-    # column 3 - number of insertions - FROM INDELS HISTOGRAM
-    # column 4 - number of deletions - FROM INDELS HISTOGRAM
-    # column 5 - number of insertions + deletions - CALCULATE
-    # column 6 - number of insertion/deletion/anomalies - CALCULATE
-    
+
     
     def MakeTextHisto(HiOutfile, LoOutfile, HiProbArray, LoProbArray):
         HiProbHistogram = [0]*100

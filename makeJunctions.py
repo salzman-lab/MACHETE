@@ -327,11 +327,6 @@ else:
     outDir = args.outDir
     
 
-##TEST ENVIRONMENT
-#path = "/Users/Gillian/Desktop/pickles/"
-#fastaDir = "/Users/Gillian/Desktop/ERP000710output/"    
-    
-
 infilepath, infilename = os.path.split(args.infile)
 chromosome=infilename.split("_")[1]
 

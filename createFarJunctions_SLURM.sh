@@ -34,7 +34,7 @@ fi
 
 
 ## REPLACE THESE THREE REFERENCE FIELDS AFTER INSTALLATION
-## these were hard coded but when Sweet-Cordero lab was trying to install our scripts, I thought they might want to install on a different server.  If my paths were still sherlock paths, then none of the shells would work.
+
 
 ## location of MACHETE installation.  This is important for sub-shell scripts so they know where to find python scripts that are called.
 INSTALLDIR="/scratch/PI/horence/gillian/MACHETE/"
@@ -123,11 +123,11 @@ echo ${NUM_FILES}
 ## the shell AlphabetizeKNIFEreads.sh takes directories reg and genome, where we plan to search for mismatched paired ends, and sorts them alphabetically using the linux sort function
 
 ## sorting reg files
-j1_id=`sbatch -J sortingReg ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortReg.txt -e ${2}err_and_out/err_1sortReg.txt ${INSTALLDIR}AlphabetizeKNIFEreads.sh ${ORIG_DIR}reg/ ${2} | awk '{print $4}'`
+j1_id=`sbatch -J sortingReg ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_1sortReg.txt -e ${2}err_and_out/err_1sortReg.txt ${INSTALLDIR}AlphabetizeKNIFEreads.sh ${ORIG_DIR}reg/ ${2} | awk '{print $4}'`
 echo "sorting reg files: job# ${j1_id}"
 
 # sorting genome files
-j2_id=`sbatch -J sortingGenome ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_1sortGenome.txt -e ${2}err_and_out/err_1sortGenome.txt ${INSTALLDIR}AlphabetizeKNIFEreads.sh ${ORIG_DIR}genome/ ${2} | awk '{print $4}'`
+j2_id=`sbatch -J sortingGenome ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_1sortGenome.txt -e ${2}err_and_out/err_1sortGenome.txt ${INSTALLDIR}AlphabetizeKNIFEreads.sh ${ORIG_DIR}genome/ ${2} | awk '{print $4}'`
 echo "sorting genome files: job# ${j2_id}"
 
 
@@ -137,7 +137,7 @@ echo "sorting genome files: job# ${j2_id}"
 ## If, for example, a read pair was found to be discordant, and R1= chrA:X, R2=chrB:Y, then the distant_pairs.txt file would contain the readID and chrA:M-N, chrB:P-Q where M-N is a window of 10,000 bases on each side of X and P-Q is a window of 10,000 bases on each side of Y.
 ## The window of 10,000 bases can be set by the user in the shell PEfinder.sh
 
-j3_id=`sbatch -J PEMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_2PEfinder.txt -e ${2}err_and_out/err_2PEfinder.txt --depend=afterok:${j1_id}:${j2_id} ${INSTALLDIR}PEfinder.sh ${ORIG_DIR} ${2} ${3} ${INSTALLDIR} | awk '{print $4}'`
+j3_id=`sbatch -J PEMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_2PEfinder.txt -e ${2}err_and_out/err_2PEfinder.txt --depend=afterok:${j1_id}:${j2_id} ${INSTALLDIR}PEfinder.sh ${ORIG_DIR} ${2} ${3} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "Outputting Mismatched paired ends: job ${j3_id} - check for FJDir/DistantPEFiles/*_distant_pairs.txt"
 
@@ -148,7 +148,7 @@ echo "Outputting Mismatched paired ends: job ${j3_id} - check for FJDir/DistantP
 #  The chrA_Distant_PE_frequency.txt files contain three columns: chrA:M-N, chrB:P-Q, and R, where R is the number of times that these two exact windows were matched together.  R could be used to cull the fasta file if it gets too large, but at this point we are still looking for junctions between exons if only one read pair aligned discordantly.
 
 
-j4_id=`sbatch -J CountMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_3PEcounter.txt -e ${2}err_and_out/err_3PEcounter.txt --depend=afterok:${j3_id} ${INSTALLDIR}DistantPE_Counter.sh ${2} ${INSTALLDIR} | awk '{print $4}'`
+j4_id=`sbatch -J CountMismatch ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_3PEcounter.txt -e ${2}err_and_out/err_3PEcounter.txt --depend=afterok:${j3_id} ${INSTALLDIR}DistantPE_Counter.sh ${2} ${INSTALLDIR} | awk '{print $4}'`
 echo "counting mismatch rates: ${j4_id} - check for FJdir/DistantPEFiles/<STEM>/chr1,2,3,..,X,Y_Distant_PE_frequency.txt"
 
 
@@ -158,7 +158,7 @@ echo "counting mismatch rates: ${j4_id} - check for FJdir/DistantPEFiles/<STEM>/
 ## This is a simple shell script SortPairedEnds.sh to sort the chrA_Distant_PE_frequency.txt files into alphabetical order.  It takes FJDir/DistantPEFiles/chrA_Distant_PE_frequency.txt and outputs to same directory, sorted_chrA_Distant_PE_frequency.txt using the linux "sort" command.
 ## The reason for sorting is to increase the speed of the next step.
 
-j5_id=`sbatch -J SortPE ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_4PEsort.txt -e ${2}err_and_out/err_4PEsort.txt --depend=afterok:${j4_id} ${INSTALLDIR}SortPairedEnds.sh ${2} | awk '{print $4}'`
+j5_id=`sbatch -J SortPE ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_4PEsort.txt -e ${2}err_and_out/err_4PEsort.txt --depend=afterok:${j4_id} ${INSTALLDIR}SortPairedEnds.sh ${2} | awk '{print $4}'`
 
 echo "sorting mismatched PE files: ${j5_id} - check for FJDir/DistantPEFiles/sorted_*.txt"
 
@@ -175,7 +175,7 @@ A=${c}
     if [ ${c} -eq 23 ]; then A=X; fi
     if [ ${c} -eq 24 ]; then A=Y; fi
 
-    j6_id=`sbatch -J MakeFJFasta ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5makefasta.txt -e ${2}err_and_out/err_5makefasta.txt --depend=afterok:${j5_id} ${INSTALLDIR}makeJunctions.sh ${PICKLEDIR} ${2} ${A} ${INSTALLDIR} | awk '{print $4}'`
+    j6_id=`sbatch -J MakeFJFasta ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_5makefasta.txt -e ${2}err_and_out/err_5makefasta.txt --depend=afterok:${j5_id} ${INSTALLDIR}makeJunctions.sh ${PICKLEDIR} ${2} ${A} ${INSTALLDIR} | awk '{print $4}'`
     depend_str6=${depend_str6}:${j6_id}
 done
 
@@ -190,8 +190,30 @@ echo "make fusion fasta files: ${depend_str6} - check for FJDir/fasta/<STEM>/<ST
 ## The script linkfastafiles.sh uses linux to concatenate the <FJDir>/fasta/<STEM>/<STEM>_chr1,2,3,...,X,Y_FarJunctions.fa into a single large fasta <FJDir>/fasta/<STEM>_FarJunctions.fa.
 ## The second step of the linkfastafiles.sh calls Bowtie to build the Far Junctions bowtie index named <FJDir>/BowtieIndex/<STEM>/<STEM>_FJ_Index
 #
-j6a_id=`sbatch -J FJ_Index ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_5FJIndexing.txt -e ${2}err_and_out/err_5FJIndexing.txt ${depend_str6} ${INSTALLDIR}linkfastafiles.sh ${2} | awk '{print $4}'`
+j6a_id=`sbatch -J FJ_Index ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_5FJIndexing.txt -e ${2}err_and_out/err_5FJIndexing.txt ${depend_str6} ${INSTALLDIR}linkfastafiles.sh ${2} | awk '{print $4}'`
 echo "make FJ bowtie indices for each experiment: ${j6a_id} - check for FJDir/BowtieIndex/<STEM>_FJ_Index"
+
+
+
+# align unaligned files to the FJ bowtie index
+# This calls the shell AlignUnalignedtoFJ.  It takes the inputs of the MACHETEoutput directory and the KNIFE unaligned reads (KNIFEdir/orig/unaligned/).  It calls on Bowtie2 to align the unaligned reads for each <STEM> to the Far Junctions bowtie indices located at FJDir/BowtieIndex/<STEM>/<STEM>_FJ_Index.   Bowtie2 parameters include alignment score with mismatch rate of ~4/100 bases, prohibiting read gaps in the reference or given sequence, and N ceiling = read length (e.g. a read consisting of 100% N's would be discarded).  The aligned reads are output to /FJDir/FarJunctionAlignments/<STEM>/unaligned_<STEM>_R1/2.sam.  Reads that continue to fail to align are output to /FJDir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_R1/2.fq.
+#
+j8_id=`sbatch -J AlignFJ ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_7AlignFJ.txt -e ${2}err_and_out/err_7AlignFJ.txt --depend=afterok:${j6a_id} ${INSTALLDIR}AlignUnalignedtoFJ.sh ${2} ${ORIG_DIR} | awk '{print $4}'`
+
+echo "align unaligned reads to FJ index: ${j8_id} - check for /FJDir/FarJunctionAlignments/<STEM>/unaligned_<STEM>_R1/2.sam and /FJDir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_R1/2.fq"
+##
+#
+#
+###make FJ naive report
+## FarJuncNaiveReport.sh is a shell script that calls the python script FarJuncNaiveReport.py to generate the "Naive Reports".  Inputs include the MACHETE output directory, paths to the KNIFE alignment files, the amount a read should overlap the junction in order to be considered a "true" junctional alignment, and the MACHETE installation directory.
+## see the FarJuncNaiveReport.sh for more info on FarJuncNaiveReport.py and details about how alignments are selected as "true" or "false", and how the a p value is calculated.
+## The rate of true or anomaly alignments and p values are output to FJDir/reports/<STEM>_naive_report.txt.  Specific read ID's are also tracked and information on them can be found in FJDir/reports/IDs_<STEM>.txt.
+#
+j9_id=`sbatch -J FJNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_8NaiveRpt.txt -e ${2}err_and_out/err_8NaiveRpt.txt --depend=afterok:${j8_id} ${INSTALLDIR}FarJuncNaiveReport.sh ${2} ${ORIG_DIR} ${5} ${INSTALLDIR} | awk '{print $4}'`
+
+echo "make naive rpt - ${j9_id}"
+###
+
 
 ##
 ##
@@ -212,7 +234,7 @@ for (( c=$START; c<=${NUM_FILES}; c++ ))
 do
 STEM=`awk 'FNR == '${c}' {print $1}' ${StemFile}`
 
-FarJuncFasta=${2}fasta/${STEM}*FarJunctions.fa
+FilteredFarJuncFasta=${2}fasta/${STEM}*_filtered_FarJunctions.fa
 BadFJDir=${2}BadFJ/${STEM}/
 BadFJver2Dir=${2}BadFJ_ver2/${STEM}/
 mkdir -p ${BadFJDir}
@@ -220,15 +242,18 @@ mkdir -p ${BadFJver2Dir}
 r1file=${BadFJver2Dir}${STEM}_FarJunctions_R1.fa
 r2file=${BadFJver2Dir}${STEM}_FarJunctions_R2.fa
 
+#We are only interested in sequences in the fasta which were found to be junctions. This script parses the fasta for junctions to which a read aligned.
+j7a_id=`sbatch -J ParseLargeFasta ${RESOURCE_FLAG} --mem=10000 --nodes=2 --time=2:0:0 -o ${2}err_and_out/out_6ParseFasta.txt -e ${2}err_and_out/err_6ParseFasta.txt --depend=afterok:${j9_id} ${INSTALLDIR}filter_large_fasta.py ${2} ${STEM} | awk '{print $4}'`
+echo "Parse FarJunctions.fa, ${STEM} -- ${j7a_id}"
 
 #Prior to alignment with the reference indices a python script SplitFastaforBadFJ.py called by the shell LenientBadFJ_SLURM is used to 1) remove all N's from the fasta sequences and 2) split the fasta sequence into a "read1" and "read2" file -- <FJdir>/BadFJ_ver2/<Stem>/<Stem>_FarJunctions_R1/2.fa.  The read 1s are the first 40 non-N bases and the read 2's are the last 40 non-N reads from the sequence.
 
-j7_id=`sbatch -J BadFJ_Split ${RESOURCE_FLAG} --mem=55000 --nodes=4 --time=10:0:0 -o ${2}err_and_out/out_6BadJunc_split.txt -e ${2}err_and_out/err_6BadJunc_split.txt --depend=afterok:${j6a_id} ${INSTALLDIR}LenientBadFJ_SLURM.sh ${FarJuncFasta} ${BadFJver2Dir} ${2} ${INSTALLDIR} | awk '{print $4}'`
-echo "BadfJ ver 2 Split -- ${j7_id}"
+j7b_id=`sbatch -J BadFJ_Split ${RESOURCE_FLAG} --mem=55000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_6BadJunc_split.txt -e ${2}err_and_out/err_6BadJunc_split.txt --depend=afterok:${j7a_id} ${INSTALLDIR}LenientBadFJ_SLURM.sh ${FilteredFarJuncFasta} ${BadFJver2Dir} ${2} ${INSTALLDIR} | awk '{print $4}'`
+echo "BadfJ ver 2 Split -- ${j7b_id}"
 
 # for BadFJ we Align FarJunc fasta file to the above indices with the following bowtie parameters:
 # A minimum alignment score corresponding to 4 mismatches per 100 base pairs, no N ceiling, and a prohibitive read gap penalty that disallows any read gaps in the fasta sequence or the reference index.  Alignments are found in <FJDir>/BadFJ/<STEM>/<STEM>_BadFJto<ReferenceIndex>.sam.
-BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 -np=0 -p 4 --rdg 50,50 --rfg 50,50"
+BOWTIEPARAM="-f --no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,100 --np 0 -p 4 --rdg 50,50 --rfg 50,50"
 
 
 ## submit SLURM jobs to do bowtie alignments for each of BadFJ indices above
@@ -236,7 +261,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtoGenome.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=24:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
+BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 echo "BadFJ to genome: ${BadFJj1_id}"
 depend_str7=${depend_str7}:${BadFJj1_id}
 fi
@@ -245,7 +270,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtotranscriptome.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=24:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
+BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
 echo "BadFJ to transcriptome: ${BadFJj2_id}"
 depend_str7=${depend_str7}:${BadFJj2_id}
 fi
@@ -254,7 +279,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtoReg.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=24:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
+BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
 echo "BadFJ to reg: ${BadFJj3_id}"
 depend_str7=${depend_str7}:${BadFJj3_id}
 
@@ -264,7 +289,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtoJunc.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=24:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
+BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
 echo "BadFJ to junc: ${BadFJj4_id}"
 depend_str7=${depend_str7}:${BadFJj4_id}
 fi
@@ -272,10 +297,10 @@ fi
 ## Read gaps are disallowed in the first version of BadJuncs.  A second version of BadJuncs was created to also find genome/reg/junc/transcriptome alignments with gapped alignments.
 ## For BadFJ ver2 we use bowtie to align the reads1 and 2 as if they were paired end reads from the same strand.  We impose a minimum gap of 0 between the two and a maximum gap of 50,000 bases to allow up to a 50,000 base gapped alignment.
 
-genomeBOWTIEPARAM="--no-unal --no-mixed --no-sq -p 8 -I 0 -X 50000 -f --ff -x ${genomeIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtoGenome.sam"
-transcriptomeBOWTIEPARAM="--no-unal --no-mixed  --no-sq -p 8 -I 0 -X 50000 -f --ff -x ${transcriptomeIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam"
-regBOWTIEPARAM="--no-unal --no-mixed --no-sq -p 8 -I 0 -X 50000 -f --ff -x ${regIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtoReg.sam"
-juncBOWTIEPARAM="--no-unal --no-mixed --no-sq -p 8 -I 0 -X 50000 -f --ff -x ${juncIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtoJunc.sam"
+genomeBOWTIEPARAM="--no-unal --no-mixed --no-sq --np 0 -p 8 -I 0 -X 50000 -f --ff -x ${genomeIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtoGenome.sam"
+transcriptomeBOWTIEPARAM="--no-unal --no-mixed  --no-sq --np 0 -p 8 -I 0 -X 50000 -f --ff -x ${transcriptomeIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam"
+regBOWTIEPARAM="--no-unal --no-mixed --no-sq --np 0 -p 8 -I 0 -X 50000 -f --ff -x ${regIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtoReg.sam"
+juncBOWTIEPARAM="--no-unal --no-mixed --no-sq --np 0 -p 8 -I 0 -X 50000 -f --ff -x ${juncIndex} -1 ${r1file} -2 ${r2file} -S ${BadFJver2Dir}${STEM}_BadFJtoJunc.sam"
 
 
 ## submit SLURM jobs to do the bowtie alignment for each of the BadFJ Ver 2 indices above
@@ -283,7 +308,7 @@ if [ -e ${BadFJver2Dir}${STEM}_BadFJtoGenome.sam ]
 then
 echo "${BadFJver2Dir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
 else
-BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
+BadFJv2j1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${genomeBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to genome: ${BadFJv2j1_id}"
 depend_str7=${depend_str7}:${BadFJv2j1_id}
 fi
@@ -292,7 +317,7 @@ if [ -e ${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam ]
 then
 echo "${BadFJver2Dir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
 else
-BadFJv2j2_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4 --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${transcriptomeBOWTIEPARAM}" | awk '{print $4}'`
+BadFJv2j2_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4 --time=18:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${transcriptomeBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to transcriptome: ${BadFJv2j2_id}"
 depend_str7=${depend_str7}:${BadFJv2j2_id}
 fi
@@ -301,7 +326,7 @@ if [ -e ${BadFJver2Dir}${STEM}_BadFJtoReg.sam ]
 then
 echo "${BadFJver2Dir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
 else
-BadFJv2j3_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4 --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${regBOWTIEPARAM}" | awk '{print $4}'`
+BadFJv2j3_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4 --time=18:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${regBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to reg: ${BadFJv2j3_id}"
 depend_str7=${depend_str7}:${BadFJv2j3_id}
 fi
@@ -310,7 +335,7 @@ if [ -e ${BadFJver2Dir}${STEM}_BadFJtoJunc.sam ]
 then
 echo "${BadFJver2Dir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
 else
-BadFJv2j4_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4 --time=12:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${juncBOWTIEPARAM}" | awk '{print $4}'`
+BadFJv2j4_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 ${RESOURCE_FLAG} --nodes=4 --time=18:0:0 -o ${BadFJver2Dir}out.txt -e ${BadFJver2Dir}err.txt --depend=afterok:${j7_id} ${INSTALLDIR}BowtieAligner_BadFJv2.sh "${juncBOWTIEPARAM}" | awk '{print $4}'`
 echo "BadFJ_ver2 to junc: ${BadFJv2j4_id}"
 depend_str7=${depend_str7}:${BadFJv2j4_id}
 fi
@@ -319,24 +344,6 @@ done
 
 
 
-# align unaligned files to the FJ bowtie index
-# This calls the shell AlignUnalignedtoFJ.  It takes the inputs of the MACHETEoutput directory and the KNIFE unaligned reads (KNIFEdir/orig/unaligned/).  It calls on Bowtie2 to align the unaligned reads for each <STEM> to the Far Junctions bowtie indices located at FJDir/BowtieIndex/<STEM>/<STEM>_FJ_Index.   Bowtie2 parameters include alignment score with mismatch rate of ~4/100 bases, prohibiting read gaps in the reference or given sequence, and N ceiling = read length (e.g. a read consisting of 100% N's would be discarded).  The aligned reads are output to /FJDir/FarJunctionAlignments/<STEM>/unaligned_<STEM>_R1/2.sam.  Reads that continue to fail to align are output to /FJDir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_R1/2.fq.
-#
-j8_id=`sbatch -J AlignFJ ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_7AlignFJ.txt -e ${2}err_and_out/err_7AlignFJ.txt --depend=afterok:${j6a_id} ${INSTALLDIR}AlignUnalignedtoFJ.sh ${2} ${ORIG_DIR} | awk '{print $4}'`
-
-echo "align unaligned reads to FJ index: ${j8_id} - check for /FJDir/FarJunctionAlignments/<STEM>/unaligned_<STEM>_R1/2.sam and /FJDir/FarJuncSecondary/<STEM>/still_unaligned_<STEM>_R1/2.fq"
-##
-#
-#
-###make FJ naive report
-## FarJuncNaiveReport.sh is a shell script that calls the python script FarJuncNaiveReport.py to generate the "Naive Reports".  Inputs include the MACHETE output directory, paths to the KNIFE alignment files, the amount a read should overlap the junction in order to be considered a "true" junctional alignment, and the MACHETE installation directory.
-## see the FarJuncNaiveReport.sh for more info on FarJuncNaiveReport.py and details about how alignments are selected as "true" or "false", and how the a p value is calculated.
-## The rate of true or anomaly alignments and p values are output to FJDir/reports/<STEM>_naive_report.txt.  Specific read ID's are also tracked and information on them can be found in FJDir/reports/IDs_<STEM>.txt.
-#
-j9_id=`sbatch -J FJNaiveRpt ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_8NaiveRpt.txt -e ${2}err_and_out/err_8NaiveRpt.txt --depend=afterok:${j8_id} ${INSTALLDIR}FarJuncNaiveReport.sh ${2} ${ORIG_DIR} ${5} ${INSTALLDIR} | awk '{print $4}'`
-
-echo "make naive rpt - ${j9_id}"
-###
 ##
 ##Make fJ Class input files for GLM
 ##parse_FJ_ID_for_GLM.sh is a simple shell script that takes the ID files generated above in FJDir/reports/IDs_<STEM>.txt as inputs and removes any unmapped or unaligned read IDs using the "grep -v" command.  The outputs are fed into the  FJDir/GLM_classInput/<STEM>__output_FJ.txt with the other class input files for the GLM.
@@ -354,7 +361,7 @@ echo "make FJ class input files: ${j15a_id}"
 ###
 ### MakeIndelFiles.sh is a shell script that calls the python script AddIndelsToFasta.py.  It takes the FarJunctions fasta files as inputs (FJDir/fasta/<STEM>_FarJunctions.fa) and outputs five files called FJDir/FarJuncIndels/<STEM>/<STEM>_FJ_Indels_1,2,3,4,5.fa where the numbers 1-5 indicate the N's inserted on each side of the breakpoint or deletions on each side of the breakpoint.  For example, the FJ_indels_3 file is the same as the FarJunctions.fa file except every sequence has 3 N's on each side of the breakpoint (total of 6 N's inserted at the breakpoint), or 3 bases are deleted from each exon on each side of the breakpoint (total of 6 deletions at the breakpoint).
 ####
-j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_10FJIndels.txt --depend=afterok:${j6a_id} ${INSTALLDIR}MakeIndelFiles.sh ${2} ${NumIndels} ${INSTALLDIR} | awk '{print $4}'`
+j10_id=`sbatch -J MakeFJIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_10FJIndels.txt -e ${2}err_and_out/err_10FJIndels.txt --depend=afterok:${j6a_id} ${INSTALLDIR}MakeIndelFiles.sh ${2} ${NumIndels} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "make indel files: ${j10_id}"
 #
@@ -372,7 +379,7 @@ depend_str11="--depend=afterok"
 START=1
 for (( c=$START; c<=${NumIndels}; c++ ))
 do
-j11_id=`sbatch -J IndexFJIndel ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_11indexindels.txt -e ${2}err_and_out/err_11indexindels.txt --depend=afterok:${j10_id} ${INSTALLDIR}BowtieIndexFJIndels.sh ${2}FarJuncIndels/ ${c} ${2}BowtieIndels/ ${2} | awk '{print $4}'`
+j11_id=`sbatch -J IndexFJIndel ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_11indexindels.txt -e ${2}err_and_out/err_11indexindels.txt --depend=afterok:${j10_id} ${INSTALLDIR}BowtieIndexFJIndels.sh ${2}FarJuncIndels/ ${c} ${2}BowtieIndels/ ${2} | awk '{print $4}'`
 depend_str11=${depend_str11}:${j11_id}
 
 done
@@ -389,8 +396,8 @@ depend_str13="--depend=afterok"
 START=1
 for (( c=$START; c<=${NumIndels}; c++ ))
 do
-BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,1 -p 4 --rdg 50,50 --rfg 50,50"
-j13_id=`sbatch -J AlignIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_12alignindels.txt -e ${2}err_and_out/err_12alignindels.txt ${depend_str11} ${INSTALLDIR}BowtieAlignFJIndels.sh ${2} "${BOWTIEPARAMETERS}" ${c} | awk '{print $4}'`
+BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,1 --np 1 -p 4 --rdg 50,50 --rfg 50,50"
+j13_id=`sbatch -J AlignIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_12alignindels.txt -e ${2}err_and_out/err_12alignindels.txt ${depend_str11}:${j8_id} ${INSTALLDIR}BowtieAlignFJIndels.sh ${2} "${BOWTIEPARAMETERS}" ${c} | awk '{print $4}'`
     depend_str13=${depend_str13}:${j13_id}
 
 done
@@ -422,7 +429,7 @@ START=1
 for (( c=$START; c<=${NumIndels}; c++ ))
 do
 BOWTIEPARAMETERS="--no-sq --no-unal --score-min L,0,-0.24 --n-ceil L,0,1 -p 4 --rdg 50,50 --rfg 50,50"
-j16_id=`sbatch -J AlignRegIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_15AlignRegIndels.txt -e ${2}err_and_out/err_15AlignRegIndels.txt ${INSTALLDIR}AlignUnalignedtoRegIndel.sh ${1} ${c} ${2} "${BOWTIEPARAMETERS}" ${REG_INDEL_INDICES} | awk '{print $4}'`
+j16_id=`sbatch -J AlignRegIndels ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_15AlignRegIndels.txt -e ${2}err_and_out/err_15AlignRegIndels.txt ${INSTALLDIR}AlignUnalignedtoRegIndel.sh ${1} ${c} ${2} "${BOWTIEPARAMETERS}" ${REG_INDEL_INDICES} | awk '{print $4}'`
     depend_str16=${depend_str16}:${j16_id}
 done
 echo "Aligning unaligned files to linear junc indels: ${depend_str16}"
@@ -437,7 +444,7 @@ echo "Aligning unaligned files to linear junc indels: ${depend_str16}"
 # Inputs are the regular indel alignments located at KNIFEdir/orig/RegIndelAlignments/<STEM>/unaligned_<STEM>_1/2_indel1,2,3,4,5.sam.  These are concatenated into a single file in the same directory called All_<STEM>_1/2_Regindels.sam.  In the concatenation step, like for the far junctions indels, any reads are omitted if they fail to overlie the junction by the user specified overlap, and also if a read aligns to multiple indel indices, the one with the best alignment score is put into the concatenated file.
 ## Then, the partner reads of all reads from All_<STEM>_1/2_Regindels.sam are identified and labeled as "good" or "bad".  If a read partner is found in genome, it has priority over transcriptome, which has priority over reg, and finally junc.  A far junction R2 cannot be found in another dictionary, as FJ reads are generated from previously unaligned reads.  If the read partner is in genome, it must be located on the same chromosome, on the opposite reference strand from R1.  If a read partner is in reg, then the downstream exon must be upstream of the uptstream reg indel exon, or the upstream read partner exon must be downstream of the downstream reg indel exon, on the same chromosome. Reference strands must be opposite.    If the partner is in junc, then the reg indel alignment must be located inside the circle created by the scrambled junction, and on the opposite reference strand.  In this manner, class input files are generated for the reg indels, which are located at KNIFE dir/circReads/ids/<STEM>_output_RegIndel.txt
 #
-j18_id=`sbatch -J RegIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=4 --time=24:0:0 -o ${2}err_and_out/out_18RegIndelsClassInput.txt -e ${2}err_and_out/err_18RegIndelsClassInput.txt ${depend_str16} ${INSTALLDIR}RegIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
+j18_id=`sbatch -J RegIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_18RegIndelsClassInput.txt -e ${2}err_and_out/err_18RegIndelsClassInput.txt ${depend_str16} ${INSTALLDIR}RegIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
 echo " Reg Indels Class Output: ${j18_id}"
 
 # FJ indels class output file
@@ -446,7 +453,7 @@ echo " Reg Indels Class Output: ${j18_id}"
 ## Output files are placed into FJDir/GLM_classInput/<STEM>_output_FJIndels.txt
 
 #
-j19_id=`sbatch -J FJIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=8 --time=24:0:0 -o ${2}err_and_out/out_19FJIndelsClassInput.txt -e ${2}err_and_out/err_19FJIndelsClassInput.txt --depend=afterok:${j14_id} ${INSTALLDIR}FJIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
+j19_id=`sbatch -J FJIndelClass ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=80000 --nodes=4 --time=12:0:0 -o ${2}err_and_out/out_19FJIndelsClassInput.txt -e ${2}err_and_out/err_19FJIndelsClassInput.txt --depend=afterok:${j14_id} ${INSTALLDIR}FJIndelsClassID.sh ${2} ${1} ${5} ${INSTALLDIR} | awk '{print $4}'`
 echo "FJ Indels Class Input: ${j19_id}"
 
 
@@ -455,7 +462,7 @@ echo "FJ Indels Class Input: ${j19_id}"
 ## Run GLM
 ##  This calls the GLM script.  Class input files from KNIFE dir/circReads/ids/ are fed into the GLM and GLM reports are generated in FJDir/reports/glmReports.  Please see GLM documentation for additional information.
 
-j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=5:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j15a_id}:${j18_id}:${j19_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
+j15b_id=`sbatch -J GLM.r ${RESOURCE_FLAG} --array=1-${NUM_FILES} --mem=55000 --nodes=4 --time=10:0:0 -o ${2}err_and_out/out_15GLM_r.txt -e ${2}err_and_out/err_15GLM_r.txt --depend=afterok:${j15a_id}:${j18_id}:${j19_id} ${INSTALLDIR}run_GLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 
 echo "Run GLM: ${j15b_id}"
 
@@ -465,7 +472,7 @@ echo "Run GLM: ${j15b_id}"
 #AddIndelstolinearGLM.sh calls the python script KNIFEglmReportsForMachete.py.  This script parses circular and linear glmReports.  For the linear glmReports from KNIFE, the script collects any junctions where 1) the two exons from the linear report are from different genes or 2) the posterior probability is >0.9.  It adds on the rate of anomaly reads and indels to the reports and feeds them into FJDir/reports/AppendedReports.  For ciruclar reports, the script collects any junctions where the posterior probability is <0.9, appends the "Decoy" rate, and feeds the reports into FJDir/reports/Appended reports.
 ## The purpose of this script is to place all reports in a single directory for the user.
 #
-j17_id=`sbatch -J AppendRegGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=2 --time=24:0:0 -o ${2}err_and_out/out_17AppendRegGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16} ${INSTALLDIR}AddIndelstolinearGLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
+j17_id=`sbatch -J AppendRegGLM ${RESOURCE_FLAG} --array=1-${NUM_FILES}  --mem=55000 --nodes=2 --time=12:0:0 -o ${2}err_and_out/out_17AppendRegGLM.txt -e ${2}err_and_out/err_17AppendGLM.txt ${depend_str16} ${INSTALLDIR}AddIndelstolinearGLM.sh ${1} ${2} ${INSTALLDIR} | awk '{print $4}'`
 echo " Appending linearJuncs GLM report: ${j17_id}"
 ##
 ####

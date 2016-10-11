@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #  alignMkRprtsBowtie.sh
-#  Don't call this one - this is a script that is called by AlignAndMakeReports.sh
+#  This is a script that is called by AlignAndMakeReports.sh
 #
 #  Created by Gillian Hsieh on 10/6/15.
 #
@@ -30,24 +30,13 @@ do
 FILENAME=$(basename "$file" .fq)
 echo "creating ${FILENAME}"
 
-# if i wanted to feed unaligned files into a SecondFarJuncDir --un ${SECONDFARJUNCDIR}still_${FILENAME}.fq tag would be applied
+# to feed unaligned files into a SecondFarJuncDir --un ${SECONDFARJUNCDIR}still_${FILENAME}.fq tag would be applied
 
 bowtie2 --no-sq --no-unal --score-min L,0,-0.24 --rdg 50,50 --rfg 50,50 --un ${SECONDFARJUNCDIR}still_${FILENAME}.fq -x ${2}BowtieIndex/Index -U ${file} -S ${FARJUNCDIR}${FILENAME}.sam
 done;
 
 
-#
-#for file in ${SECONDFARJUNCDIR}*.fq
-#do
-#FILENAME=$(basename "$file" .fq)
-#echo "creating ${FILENAME}"
-#
-#bowtie2 --no-sq --no-unal --score-min L,0,-0.24 --rdg 5,1 --rfg 5,1 -x ${2}/BowtieIndex/Index -U ${file} -S ${SECONDFARJUNCDIR}${FILENAME}.sam
-#done;
-
-
-# PYTHON SCRIPT TO COMPARE NEW ALIGNMENTS (r1) TO ALIGNMENTS FROM GENOME (r2)
-
+# This is a python script to compare FJ alignments to genome alignments
 
 mkdir -p ${2}reports/
 python /srv/gsfs0/projects/salzman/gillian/createFarJunctionsIndex/FarJuncNaiveReport.py -o ${2} -i ${1} -w ${3}

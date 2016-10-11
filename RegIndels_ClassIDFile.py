@@ -197,9 +197,6 @@ parser.add_argument("-w", "--window", required=True, help = "# of bases needed o
 args = parser.parse_args()
 window= int(args.window)
 
-# f1 = open("/Users/Gillian/Desktop/sherlock/unaligned_ENCFF000HOC1_1.sam", mode ="rU")
-# f2 = open("/Users/Gillian/Desktop/sherlock/20000_ENCFF000HOC2_1_genome_output.sam", mode ="rU")
-
 
 
 if args.origDir[-1]!="/":

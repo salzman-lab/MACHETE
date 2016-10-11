@@ -220,7 +220,7 @@ class ReadInfoJunc:
 
         
 #=========================================
-#start here
+#program starts here
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--stem", required=True, help = "stem name of file to generate report")
@@ -230,9 +230,6 @@ parser.add_argument("-i", "--origDir", required=True, help = "path to orig dir c
 parser.add_argument("-w", "--window", required=True, help = "# of bases needed on each side of the junction")
 args = parser.parse_args()
 window= int(args.window)
-
-# f1 = open("/Users/Gillian/Desktop/sherlock/unaligned_ENCFF000HOC1_1.sam", mode ="rU")
-# f2 = open("/Users/Gillian/Desktop/sherlock/20000_ENCFF000HOC2_1_genome_output.sam", mode ="rU")
 
 if args.FJDir[-1]!= "/":
     args.FJDir+="/"

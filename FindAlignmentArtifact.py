@@ -28,13 +28,6 @@ RemoveNonOverlap = args.parentDir+"FarJuncSecondary/AlignedIndels/RemoveNonOverl
 IndelsHistogram = args.parentDir + "IndelsHistogram/"
 
 
-## TEMPORARY, FOR USE ALIGNING A RANDOM SET OF FILES, CHANGE AS NECESSARY
-#FarJunctionAlignments= args.parentDir
-#AlignedIndels=args.parentDir+"AlignToIndels/"
-#RemoveNonOverlap=AlignedIndels+"RemoveNonOverlap/"
-#IndelsHistogram=args.parentDir+"IndelsHistogram"
-
-
 for filename in glob.glob(AlignedIndels+"*.sam"):
     (inpath,infile)=os.path.split(filename)
 

@@ -15,7 +15,6 @@ cd ${4}
 
 STEMFILE=${2}StemList.txt
 STEM=`awk 'FNR == '${SLURM_ARRAY_TASK_ID}' {print $1}' ${STEMFILE}`
-#STEM=Fetal_Adrenal_360_CTTGTA_L006
 
 MODE="complete"
 DENOVOCIRC="1"

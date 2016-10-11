@@ -41,8 +41,8 @@ for filename in glob.glob(glmDir+"*"):
 ## do not overlie the junction.
 
 ## open the RegIndels directory and find number of Reg Indels for each junction
-## OF NOTE, Linda only uses the R1 file to calculate her # linear reads so 
-## at this point I am omitting indels from R2 files so that I can report an accurate
+## OF NOTE, KNIFE only uses the R1 file to calculate the # linear reads so
+## this script omits indels from R2 files to report an accurate
 ## noIndel:Indel ratio.
 RegIndels_1={}  #key = junction name, value = # indels in R1 file
 #RegIndels_2={}  # key = junction name, value = # indels in R2 file
@@ -88,7 +88,7 @@ NaiveRptFile.close()
 ## criteria for reads from circular GLM report to be added:
 ##   1. posterior probability > 0.9 only
 ## CAVEAT -- circ reads entries could be either a circular RNA or an internal tandem duplication
-## CAVEAT#2 -- inversions at <100KB are missed because Linda's index doesn't 
+## CAVEAT#2 -- inversions at <100KB are missed because the KNIFE index doesn't
 ##              include inversions 
 circ_output= open(args.FJDir+"reports/AppendedReports/"+args.stem+"_circJunc_reports.txt", mode="w")
 circInputFile= open( glob.glob(glmDir+"*"+args.stem+"*circJuncProbs.txt")[0], mode="rU")
