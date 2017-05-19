@@ -243,13 +243,13 @@ r1file=${BadFJver2Dir}${STEM}_FarJunctions_R1.fa
 r2file=${BadFJver2Dir}${STEM}_FarJunctions_R2.fa
 
 #We are only interested in sequences in the fasta which were found to be junctions. This script parses the fasta for junctions to which a read aligned.
-j7a_id=`sbatch -J ParseLargeFasta ${RESOURCE_FLAG} --mem=10000 --nodes=2 --time=2:0:0 -o ${2}err_and_out/out_6ParseFasta.txt -e ${2}err_and_out/err_6ParseFasta.txt --depend=afterok:${j9_id} ${INSTALLDIR}filter_large_fasta.py ${2} ${STEM} | awk '{print $4}'`
+j7a_id=`sbatch -J ParseLargeFasta ${RESOURCE_FLAG} --mem=10000 --nodes=2 --time=2:0:0 -o ${2}err_and_out/out_6ParseFasta.txt -e ${2}err_and_out/err_6ParseFasta.txt --depend=afterok:${j9_id} ${INSTALLDIR}ParseLargeFasta.sh ${2} ${STEM} ${INSTALLDIR} | awk '{print $4}'`
 echo "Parse FarJunctions.fa, ${STEM} -- ${j7a_id}"
 
 #Prior to alignment with the reference indices a python script SplitFastaforBadFJ.py called by the shell LenientBadFJ_SLURM is used to 1) remove all N's from the fasta sequences and 2) split the fasta sequence into a "read1" and "read2" file -- <FJdir>/BadFJ_ver2/<Stem>/<Stem>_FarJunctions_R1/2.fa.  The read 1s are the first 40 non-N bases and the read 2's are the last 40 non-N reads from the sequence.
 
-j7b_id=`sbatch -J BadFJ_Split ${RESOURCE_FLAG} --mem=55000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_6BadJunc_split.txt -e ${2}err_and_out/err_6BadJunc_split.txt --depend=afterok:${j7a_id} ${INSTALLDIR}LenientBadFJ_SLURM.sh ${FilteredFarJuncFasta} ${BadFJver2Dir} ${2} ${INSTALLDIR} | awk '{print $4}'`
-echo "BadfJ ver 2 Split -- ${j7b_id}"
+j7_id=`sbatch -J BadFJ_Split ${RESOURCE_FLAG} --mem=55000 --nodes=4 --time=18:0:0 -o ${2}err_and_out/out_6BadJunc_split.txt -e ${2}err_and_out/err_6BadJunc_split.txt --depend=afterok:${j7a_id} ${INSTALLDIR}LenientBadFJ_SLURM.sh ${FilteredFarJuncFasta} ${BadFJver2Dir} ${2} ${INSTALLDIR} | awk '{print $4}'`
+echo "BadfJ ver 2 Split -- ${j7_id}"
 
 # for BadFJ we Align FarJunc fasta file to the above indices with the following bowtie parameters:
 # A minimum alignment score corresponding to 4 mismatches per 100 base pairs, no N ceiling, and a prohibitive read gap penalty that disallows any read gaps in the fasta sequence or the reference index.  Alignments are found in <FJDir>/BadFJ/<STEM>/<STEM>_BadFJto<ReferenceIndex>.sam.
@@ -261,7 +261,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtoGenome.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtoGenome.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
+BadFJj1_id=`sbatch -J ${STEM}FJ_to_genome --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j7a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${genomeIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoGenome.sam | awk '{print $4}'`
 echo "BadFJ to genome: ${BadFJj1_id}"
 depend_str7=${depend_str7}:${BadFJj1_id}
 fi
@@ -270,7 +270,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtotranscriptome.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtotranscriptome.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
+BadFJj2_id=`sbatch -J ${STEM}FJ_to_transcriptome --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j7a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${transcriptomeIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtotranscriptome.sam | awk '{print $4}'`
 echo "BadFJ to transcriptome: ${BadFJj2_id}"
 depend_str7=${depend_str7}:${BadFJj2_id}
 fi
@@ -279,7 +279,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtoReg.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtoReg.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
+BadFJj3_id=`sbatch -J ${STEM}FJ_to_reg --mem=55000 --nodes=4  ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j7a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${regIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoReg.sam | awk '{print $4}'`
 echo "BadFJ to reg: ${BadFJj3_id}"
 depend_str7=${depend_str7}:${BadFJj3_id}
 
@@ -289,7 +289,7 @@ if [ -e ${BadFJDir}${STEM}_BadFJtoJunc.sam ]
 then
 echo "${BadFJDir}${STEM}_BadFJtoJunc.sam exists.  To realign, please manually delete this file first"
 else
-BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j6a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
+BadFJj4_id=`sbatch -J ${STEM}FJ_to_junc --mem=55000 --nodes=4 ${RESOURCE_FLAG} --time=18:0:0 -o ${BadFJDir}out.txt -e ${BadFJDir}err.txt --depend=afterok:${j7a_id} ${INSTALLDIR}BowtieAligner.batch.sh "${BOWTIEPARAM}" ${juncIndex} ${FilteredFarJuncFasta} ${BadFJDir}${STEM}_BadFJtoJunc.sam | awk '{print $4}'`
 echo "BadFJ to junc: ${BadFJj4_id}"
 depend_str7=${depend_str7}:${BadFJj4_id}
 fi

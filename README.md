@@ -35,9 +35,13 @@ Requires paired end reads but aligns in a single end fashion.
 
 Please open and change the script createFarJunctions_SLURM.sh
 
-line31 - change your INSTALLDIR to the full path to the MACHETE script.  Last char must be "/"
-line32 - change CIRCREF to the path to the reference libraries generated for KNIFE e.g. directory that contains hg19_genome, hg19_transcriptome, hg19_junctions_reg and hg19_junctions_scrambled bowtie indices.
-line41 - PICKLEDIR - please change this path to the path that you used to store the HG19exons directory above
+line40 - change your INSTALLDIR to the full path to the MACHETE script.  Last char must be "/"
+line42 - change CIRCREF to the path to the reference libraries generated for KNIFE e.g. directory that contains hg19_genome, hg19_transcriptome, hg19_junctions_reg and hg19_junctions_scrambled bowtie indices.
+line44 - change this to location of the path of the downloaded reg indels
+line59 - please change this path to the path that you used to store the HG19exons directory (PICKLES) above
+
+
+
 
 Running MACHETE:
 First run KNIFE script completely to generate linear and scrambled junction reports and alignments.
@@ -54,7 +58,7 @@ NOTE -- ALL directory inputs must end in "/"
 6. <optional for sherlock use> -- "owners" if you want to run in owners queue, otherwise leave #6 blank
 
 
-Example command for spanning reads:
+Example command:
 sh createFarJunctions_SLURM.sh /scratch/PI/horence/alignments/EWS_FLI_bigmem/ /scratch/PI/horence/alignments/EWS_FLI_bigmem/FarJunc/ 100000 HG19 13 owners 
 
 

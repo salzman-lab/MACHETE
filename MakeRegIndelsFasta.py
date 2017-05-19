@@ -9,9 +9,9 @@ Created on Wed Oct 21 15:17:27 2015
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--infile", required=True, help = "input file")
+parser.add_argument("-i", "--infile", required=True, help = "reg junctions fasta file")
 parser.add_argument("-o", "--outDir", required=True, help = "output directory")
-parser.add_argument("-s", "--stem", required = True, help = "stem name" )
+parser.add_argument("-g", "--genome", required=True, help="name of genome, eg. HG19, HG38, mm10, etc")
 parser.add_argument("-n", "--MaxInDel", required=True, help = "# of indels on each side to test")
 
 args=parser.parse_args()
@@ -33,7 +33,7 @@ f1 = open(args.infile, mode = "rU")
 for i in range(1,int(args.MaxInDel)+1):  
     f1.seek(0)
 
-    fout = open(args.outDir + args.stem + "_FJ_Indels_" +str(i)+".fa", mode ="w")
+    fout = open(args.outDir + args.genome + "_reg_indels_" +str(i)+".fa", mode ="w")
     print "writing indels"+str(i)+".fa"
     
     for line_raw in f1:
