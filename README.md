@@ -8,6 +8,7 @@ PREREQUISITE SOFTWARE:
 2. R version 3.0.2 - or a later version but with the package "data.table" installed
 3. Bowtie2 
 4. python version 2.7.5
+5. SLURM job scheduler
 
 INSTRUCTIONS BEFORE YOU RUN
 1. Paired fastq files must named identically and end in _1.fq and _2.fq
