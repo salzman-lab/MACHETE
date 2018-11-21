@@ -80,4 +80,8 @@ Example command:
 sh createFarJunctions_SLURM.sh /scratch/PI/horence/alignments/EWS_FLI_bigmem/ /scratch/PI/horence/alignments/EWS_FLI_bigmem/FarJunc/ 100000 HG19 13 owners 
 
 
-For the an explanation of outputs of MACHETE, please reference our paper, currently in submission.
+For the an explanation of outputs of MACHETE, please reference our paper:
+
+Statistical algorithms improve accuracy of gene fusion detection
+Gillian Hsieh, Rob Bierman, Linda Szabo, Alex Gia Lee, Donald E. Freeman, Nathaniel Watson, E. Alejandro Sweet-Cordero, Julia Salzman
+Nucleic Acids Res. 2017 Jul 27; 45(13): e126. Published online 2017 May 24. doi: 10.1093/nar/gkx453 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5737606/.
